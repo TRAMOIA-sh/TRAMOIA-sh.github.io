@@ -1,0 +1,36 @@
+body {
+	color:#fefefe;
+	background-color: black;
+	max-width: max-content;
+	margin: auto;
+}
+
+
+@font-face {
+	font-family: ibm;
+	src: url("./Web437_IBM_VGA_8x14.woff") format("woff");
+}
+
+pre {
+	font-family: ibm;
+	font-size: 15px;
+	line-height: 1;
+	padding-left: 20px;
+}
+
+.txtdiv {
+	display: block;
+	text-align: left;
+}
+
+g1{
+	color: #c0c0c0;
+}
+
+g2{
+	color: #808080;
+}
+
+ww{
+	color: white;
+}
