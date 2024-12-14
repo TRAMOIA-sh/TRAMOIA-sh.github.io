@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>As complexidades da aleatoriedade na computacao | TRAMOIA 0x1</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+</head>
+<body>
+<div class="background"></div>
+<div class="txtdiv"><pre id="artpre">
+                                                                                                                               
+  <g1>
+
+                                                                   01<g1>
+ <g2>░<g1>██<ww>▀<ww>█████<g1>    <g2>░<g1>██<ww>▀<ww>████<g1>     <g2>░<ww>▀<ww>███████<g1>     <g2>░<ww>██<g1>▌  <g2>░<ww>██<g1>     <g2>░<g1>█<ww>▀<ww>████<g1>     ██<g1>      <g2>░<ww>▀▀<ww>██████<g1>
+  <g2>░░░<g1>██<g1>       <g2>░<g1>██<g2>░░░░<ww>█<g1>▌    <g2>░<g1>██<g2>░░░░<ww>██<g1>     <g2>░<g1>███<g1> <g2>░<g1>███<g1>    <g2>░<g1>██<g2>░░░░<ww>██<g1>   <g2>░<ww>██<g1>      <g2>░<g1>██<g2>░░░░<ww>██<g1>
+    <g2>░<g1>██       <g2>░<g1>██   <g2>░<ww>█<g1>▌    <g2>░<g1>██   <g2>░<ww>██<g1>     <g2>░<g1>██<g1> ██<g2>░<g1>██<g1>    <g2>░<g1>██   <g2>░<g1>██<g1>   <g2>░<g1>▓█<g1>      <g2>░<g1>██   <g2>░<ww>██<g1>
+    <g2>░<g1>██       <g2>░<g1>██████<ww>▀<g1>     <g2>░<g1>███████<g1>█     <g2>░<g1>██ 01<g2>░<g1>█<ww>▀<g1>    <g2>░<g1>██   <g2>░<g1>██   <g2>░<g1>█<ww>▀<g1>      <g2>░<g1>██████<ww>▀<ww>█<g1>
+    <g2>░<g1>█·       <g2>░<g1>██   ▀█     <g2>░<g1>▓█   <g2>░<g1>██      <g2>░<g1>▓█   <g2>░<g1>██    <g2>░<g1>▓█   <g2>░<g1>██   <g2>░<g1>█▓     <g2>░<g1>▓█   <g2>░<g1>██
+    <g2>░<g1>██       <g2>░<g1>██   <g2>░<g1>█     <g2>░<g1>█▓   <g2>░<g1>█▓     <g2>░<g1>▒    <g2>░<g1>█▓    <g2>░░<g1>▓   <g2>░<g1>▒▓   <g2>░<g1>█▓     <g2>░<g1>█▓    <g2>░<g1>█▓
+    <g2>░<g1>▓▓       <g2>░<g1>▓▓   <g2>░<g1>▓▌    <g2>░<g1>▓▓   <g2>░<g1>▓▒     <g2>░<g1>▓▒   <g2>░<g1>▓▒    <g2>░<g1>▒░   <g2>░<g1>▓░   <g2>░<g1>▒▒     <g2>░<g1>▓▓    <g2>░<g1>▓▒
+    <g2>░<g1>▒▓       <g2>░<g1>▓    <g2>░<g1>▓▌    <g2>░<g1>▓▒   <g2>░<g1>▓▓     <g2>░<g1>░▒   <g2>░░<g1>▓     <g2>░<g1>▒████░    <g2>░<g1>▓░     <g2>░<g1>▓▒    <g2>░░<g1>▓
+    <g2>░<g1>▓<g2>░<g1>       <g2>░<g1>▒░   <g2>░<g1>░▌    <g2>░<g1>▒░                 <g2>░<g1>▓▒                <g2>░<g1>░▒     <g2>░<g1>▒░    <g2>░<g1>▓█
+    <g2>░<g1>▒▓       <g2>░░<g1>▒          <g2>░<g1>▒                  <g2>░<g1>▒▓                <g2>░<g1>▒░     <g2>░<g1>▒·    <g2>░<g1>▓▒
+    <g2>░<g1>▒·       <g2>░<g1>▒           <g2>░<g1>▒                  <g2>░<g1>▓                <g2>░<g1>▒░     <g2>░<g1>▒▓     <g2>░<g1>░▓
+    <g2>░▒<g1>▒                                        <g2>░<g1>▒░                  ░            <g2>░<g1>▒·
+    <g2>░░<ww>░<g1>                                          ░                               <g2>░░<g1>▒
+    ·░░                                                                          ░<g2>░░<g1>
+    <g2>░░<ww>░<g1><ww>  As complexidades da aleatoriedade na computação                         ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  (Ou como falhei em tentar aumentar a aleatoriedade)                     <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  &lt;! -- [índice]                                                          ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  0 - Introdução- Questões a aleatoriedade                                ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  1 - Entendendo um pequeno gerador de números pseudoaleatórios           <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  2 - Ideia inicial                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  3 - A pseudo-aleatoriedade pode ser exploitada?                         ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  4 - A próxima ideia: tentando gerar números mais aleatórios             <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>      4.1 - Ideia de melhoria                                             ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>      4.2 - Tentativa fracassada :(                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  5 - Finalização                                                         ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>      5.1 - Conclusão                                                     ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>      5.2 - Como você pode terminar ou melhorar esse projeto              <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  --&gt;                                                                     ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  &lt;! -- 0 [Introdução- Questões sobre a aleatoriedade]                    ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Algo que quase todos sabem é que os computadores não geram números      ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  verdadeiramente aleatórios. A aleatoriedade é algo complexo, pois os    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  computadores são lógicos demais para gerar números aleatórios, e os     <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  humanos são emocionais demais para tentar gerar números verdadeiramente ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  aleatórios. Uma pesquisa mostrou que os humanos tendem padrões para     <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  escolher números aleatórios[1][2][3],                                   </a><g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  <a href="https://forms.gle/wsXnfNH4TCT7FRZ38">https://forms.gle/wsXnfNH4TCT7FRZ38                                     </a><g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  nessa pesquisa, foi pedido que                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  escolhessem um número aleatório entre 1 e 10, e de longe o número mais  ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  escolhido foi 7. Outro exemplo simples, porém interessante, é quando    ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  pedimos &#x27;Pense em 8 números aleatórios entre 1 e 10&#x27;. É bem provável    <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  que a pessoa tente ser o mais aleatória possível, evitando repetições   <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  de números ou sequências. No entanto, algo realmente aleatório poderia  <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  resultar em todos os números sendo iguais ou em uma ordem específica,   ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  como de 1 a 8 ou de 8 a 1, pois os eventos são totalmente independentes.<g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Quando falamos sobre máquinas gerando números aleatórios, surge outra   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  questão: como um computador (pense em um script) seria capaz de gerar   <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  um número verdadeiramente aleatório?                                    <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  A resposta é simples: Ele não vai ser capaz =D. Um computador é uma     ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  máquina exata que utiliza cálculos para tudo, tornando-o previsível.    <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  Eu &quot;fiz&quot; um programa para &quot;gerar um número aleatório&quot;                   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  root@tramoia:~/tramoia# cat gen.py                                      <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>    import random                                                         <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    print(f&quot;Número aleatório: {random.randint(1, 100)}&quot;)                  ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    root@tramoia:~/tramoia# python3 gen.py                                <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    Numéro aleatório: 86                                                  ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>    root@tramoia:~/tramoia# python3 gen.py                                <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    Numéro aleatório: 65                                                  <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>    root@tramoia:~/tramoia# python3 gen.py                                <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    Numéro aleatório: 75                                                  <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    root@tramoia:~/tramoia# python3 gen.py                                <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    Numéro aleatório: 24                                                  ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Esses resultados não são aleatórios. Antes de qualquer explicação,      <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  precisamos entender o que são números pseudoaleatórios.                 ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  --&gt;                                                                     ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  &lt;! -- 1 [Entendendo um pequeno gerador de números pseudoaleatórios]     <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  Os números pseudoaleatórios são números que parecem ser aleatórios,     ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  mas que na verdade não são. Como não sou muito bom em matemática, vou   <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  dar um exemplo sobre um gerador de fácil entendimento chamado           <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  &#x27;Geradores Congruentes Lineares&#x27;[4] . Eu vou fazer uma versão em        <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  python do gerador de congruentes linerares para usar como exemplo,      <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  em seguida vou mostrar a melhor maneira de piorar ele! Mas que é bem    <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  legal :) .                                                              <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  1 -&gt; Escolhemos uma seed (Semente) inicial, esse valor pode ser obtido  <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  de vários maneiras, mas vamos definir ela manualmente. A semente será   ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  o X_0.                                                                  <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  2 -&gt; Aplicamos essa equação para calcular o x1: X_{1}=(AX_0+B) mod M    <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  3 -&gt; Agora vamos calcular o X2: X_{2}=(AX_1+B) mod M                    <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  4 -&gt; Bom... Vamos calcular o X3: X_{3}=(AX_2+B) mod M                   <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  5 -&gt; Acho que deu para entender o que vai acontecer aqui                ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  De maneira tosca, definimos uma seed X_0 ​ e aplicamos uma operação de   <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  multiplicação de A (um multiplicador) com X_0 ​ (a seed), somamos B      <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  (um incremento), e, em seguida, aplicamos a operação mod M (Encontrar   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  o resto da divisão) para obter o próximo número aleatório X1, em        <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  seguida, esse número X1 será utilizado para gerar o próximo número,     ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  podemos dizer que ele é a nova seed. Isso pode parecer confuso, certo?  <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Valores reais podem ajudar a entender melhor                            <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    A = 5                                                                 <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    B = 3                                                                 <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    M = 16                                                                <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>    X0 = 7 (seed)                                                         <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>    X1​ = (5×7+3) módulo 16  = 38 mod 16 = *6*                             <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    //38 ÷ 16 = 2 e o resto é 6, 2 × 16 + 6 = 38                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    X1 = 6                                                                <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    X2 = (5×6+3) módulo 16 = 33 mod 16 = *1*                              <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>    X2 = 1                                                                <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    X3 = (5×1+3) módulo 16 = 8 mod 16 = *8*                               ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  X3 = 8                                                                  <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  --&gt;                                                                     ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  &lt;! -- 2 [Ideia inicial]                                                 ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Minha ideia inicial era quebrar a lib random do python. Não havia       ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  nenhum motivo específico para isso, apenas queria executar o mesmo      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  programa várias vezes e sempre ser retornado os mesmos valores, claro   <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  que sem setar a seed no próprio script, e sim manipulando os fatores    <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  externos utilizado pela lib para gerar uma seed aleatória.              <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  A biblioteca random utiliza o algoritmo Mersenne-Twister[5], que é      <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  muito mais complexo que um gerador congruente linear e possui um        ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  período bem maior (2^19937-1) o que significa que somente após          ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  (2^19937-1) números gerados, a sequencia vai se repetir, muito          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  provavelmente você não vai conseguir gerar todos eles mesmo se deixar   <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  um while true com multi threads executando. Um detalhe óbvio, mas que   <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  vale ser dito: Não importa se serão gerados números entre 1 e 5 ou 1 e  ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  12389429823, a questão é a quantidade de números gerados até esgotar o  ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  período e os número começarem a ser os mesmos (na mesma ordem, como se  ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  fosse a primeira vez executando). De maneira superficial, será definida <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  uma seed e em seguida aplicada as operações matemáticas.                ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  Você deve estar se perguntando &quot;Bom, se eu não setei a seed, por que    <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  quando eu rodo o script outra vez ele não retorna os mesmo valores? Se  <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  eu não setei uma seed, qual seed ele usa?&quot; Essa é uma ótima pergunta.   <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  Essa questão foi a minha motivação e ideia inicial para estudar isso.   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  A biblioteca random do python[6] possui um mecanismo simples, ela pode  <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  utilizar das fontes de entropia do sistema operacional para gerar       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  números aleatórios (/dev/urandom no Linux e CryptGenRandom no Windows)  ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  para gerar a seed. CASO esses mecanismos estejam indisponíveis, o       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  script utiliza outras fontes para gerar a seed (Como horário atual, e   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  outras informações, não consegui concluir isso). Eu queria deletar o    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  /dev/urandom da minha máquina e forçar a lib utilizar outras fontes     <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  para gerar a seed, em paralelo deixar algum tipo de loop para manipular <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  essas &quot;outras fontes&quot; (como forçar o horário do meu PC a ficar          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  exatamente o mesmo), mas falhei nisso. Ainda sim é um projeto que eu    <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  gostaria de retomar. Mas gostaria de encerrar mostrando que de fato,    <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  a aleatoriedade pode ser exploitada:                                    <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  --&gt;                                                                     ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  &lt;! -- 3 [A pseudo-aleatoriedade pode ser exploitada?]                   ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  No livro &quot;A arte de invadir&quot; de Kevin Mitnick, na história &quot;Invadindo   <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  os cassinos por um milhão de pratas&quot;, é mostrado um ataque divertido    <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  que envolve a fraqueza dos geradores de números pseudo-aleatórios.      ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Nessa história, Kevin conta que alguns programadores compraram um caça  <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  níquel e decidiram fazer a engenharia reversa para entender seu         ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  funcionamento e encontraram uma &quot;vulnerabilidade&quot;, o vetor de ataque    ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  foi o GNA (Gerador de números aleatórios). Nessa história, a falha      <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  estava de fato no gerador de números, pois o mesmo não podia ser        ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  verdadeiramente pseudo-aleatório, pois o lucro da casa não pode         <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  depender de sorte. Mas vou dar um exemplo tosco, imagine que de alguma  <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  forma, você consegue descobrir a seed, é possível encontrar quais serão ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  os próximos números a serem gerados, pois é possível determinar a       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  posição que o gerador está na lista de números. Parte do ataque         <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  mostrado nesse capitulo do livro envole algo semelhante a isso.         <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  Eu fiz 3 programas bem simples                                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  1- Gerador.py: Esse programa vai definir a seed &#x27;Tr4moia2024&#x27;, gerar    <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  5000 números pseudo-aleatórios entre 1 e 100 e salvá-los em uma lista.  <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>    root@tramoia:~/tramoia# cat gerador.py                                ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    import random                                                         ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    random.seed(&quot;Tr4moia2024&quot;)                                            ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    numeros_aleatorios = [random.randint(1, 100) for _ in range(5000)]    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    with open(&quot;numeros.txt&quot;, &quot;w&quot;) as f:                                   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>        for num in numeros_aleatorios:                                    <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>            f.write(f&quot;{num}\n&quot;)                                           <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  2- Encontrar.py: Esse script tem como função ler a lista de números     <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  aleatórios, solicitar os últimos 10 números gerados, para que eles      ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  sejam encontrados na lista e sejam retornados os próximos 10.           <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    root@tramoia:~/tramoia# cat encontrar.py                              <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>    with open(&quot;numeros.txt&quot;, &quot;r&quot;) as f:                                   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      numeros_aleatorios = [int(line.strip()) for line in f.readlines()]  ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    def encontrar_sequencia(lista, sequencia):                            <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>      &quot;&quot;&quot;Encontra a sequência de números na lista e retorna os            ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      próximos 10 números.&quot;&quot;&quot;                                             <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>      for i in range(len(lista) - len(sequencia)):                        ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>        if lista[i:i + len(sequencia)] == sequencia:                      <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>          return lista[i + len(sequencia):i + len(sequencia) + 10]        ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      return None                                                         <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    entrada = input(&quot;Digite 10 números separados por espaço: &quot;)           ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    sequencia_usuario = list(map(int, entrada.split()))                   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    proximos_numeros = encontrar_sequencia(numeros_aleatorios,            <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                          └►sequencia_usuario)            <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    if proximos_numeros:                                                  <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>        print(f&quot;Os próximos 10 números são: {proximos_numeros}&quot;)          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    else:                                                                 <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>        print(&quot;Sequência não encontrada.&quot;)                                ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  3- apenasgere.py: A única coisa que esse script vai fazer é gerar uma   <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  quantidade aleatória de números em um intervalo de 1 a 100 (Ou seja,    <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  serão gerados X números entre 1 e 5000).                                ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    root@tramoia:~/tramoia# cat apenasgere.py                             <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    import time                                                           ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    import random                                                         <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>    soma = 0                                                              <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    numero_aleatorio = random.randint(1, 5000)                            ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    print(f&quot;Número aleatório gerado: {numero_aleatorio}&quot;)                 ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    random.seed(&quot;Tr4moia2024&quot;)                                            ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    while soma &lt; numero_aleatorio:                                        <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>        print(f&quot;{random.randint(1, 100)} &quot;)                               ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>        soma = soma + 1                                                   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Exemplo de execução:                                                    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    root@tramoia:~/tramoia#  python3 gerador.py                           <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    # Foram gerados os 5000 números aleatórios                            <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    # entre 1 e 100 com a seed Tr4moia2024.                               <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    root@tramoia:~/tramoia# python3 eunaosei.py                           <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>    Número aleatório gerado: 2207 #Será gerado 2207 números aleatórios    <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    36                                                                    <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>    56                                                                    <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>    18                                                                    ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    85                                                                    <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    96                                                                    ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    82                                                                    ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    21                                                                    <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    [...]                                                                 <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>    46  # Esse é o número 1                                               <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>    85                                                                    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    27                                                                    <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>    49                                                                    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    9                                                                     ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    5                                                                     <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    23                                                                    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    36                                                                    <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>    67                                                                    ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    85  # Esse é o número 10                                              <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    54                                                                    <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>    69                                                                    ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    64                                                                    <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    38                                                                    ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    16                                                                    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    35                                                                    <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>    52                                                                    <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>    99                                                                    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    67                                                                    <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    35                                                                    <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Teoricamente, se o nosso script de previsão de números estiver certo,   <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  deverá ser retornado 54 69 64 38 16 35 52 99 67 35.                     <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  root@tramoia:~/tramoia# python3 encontrar.py                            ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  Digite 10 números separados por espaço: 46 85 27 49 9 5 23 36 67 85     ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Os próximos 10 números são: [54, 69, 64, 38, 16, 35, 52, 99, 67, 35]    <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  O que acabou de acontecer? O encontrar.py achou os números na lista e   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  conseguiu retornar os próximos 10 números, e foram exatamente iguais    <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  aos retornado pelo script 2. Isso significa que, se o script 2 fosse um ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  caça-níquel, estaríamos milionários! =D                                 <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  --&gt;                                                                     ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  &lt;! -- 4 [A próxima ideia: tentando gerar números mais aleatórios]       ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>    &lt;! -- 4.1 [Ideia de melhoria]                                         ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  Eu fiquei um pouco decepcionado e resolvi tentar gerar números          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  verdadeiramente aleatórios para aumentar a aleatoriedade. Mas como um   <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  computador vai gerar números verdadeiramente aleatórios? Sozinho, é     <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  impossível, mas existem várias maneiras de conseguir isso, podemos,     <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  por exemplo, utilizar fatores externos como ruídos elétricos. Existem   <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  técnicas como Avalanche Noise[7][8].                                    <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Eu optei por utilizar ruídos elétricos (Também adicionei ruído sonoro   <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  e luminoso, porém a oscilação era praticamente nula, não sei até que    <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  ponto eles estavam ajudando ou atrapalhando) e o Process ID do programa ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  que executa o Mersenne-Twister. Integrei os valores em uma versão em    <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Python do Mersenne-Twister.                                             ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Para captar os ruídos elétricos, utilizei uma bobina (que, neste caso,  <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  é uma forma minimamente formal de se referir a uma bola de papel        <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  alumínio amassado) e um Arduino; os ruídos eram enviados via serial.    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    Repositório do projeto :                                              <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    <a href="https://github.com/Gutierre0x80/HPRNG">https://github.com/Gutierre0x80/HPRNG                                 </a><g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  A montagem física ficou assim:                                          <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                        +-----+           <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                           +----[PWR]-------------------| USB |--+        <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                           |                            +-----+  |        ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                           |         GND/RST2  [ ][ ]            |        <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                           |       MOSI2/SCK2  [ ][ ]  A5/SCL[ ] |   C5   <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    *****                  |          5V/MISO2 [ ][ ]  A4/SDA[ ] |   C4   <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  ***   ***                |                             AREF[ ] |        ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  **     **                |                              GND[ ] |        <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ***   ***                | [ ]N/C                    SCK/13[ ] |   B5   ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    *****                  | [ ]IOREF                 MISO/12[ ] |   .    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>     | |                   | [ ]RST                   MOSI/11[ ]~|   .    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>     | |                   | [ ]3V3    +---+               10[ ]~|   .    ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>     | |                   | [ ]5v     | A |                9[ ]~|   .    <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>     | |                   | [ ]GND   -| R |-               8[ ] |   B0   <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>     | |                   | [ ]GND   -| D |-                    |        <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>     | |                   | [ ]Vin   -| U |-               7[ ] |   D7   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>   __| |__                 |          -| I |-               6[ ]~|   .    <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  |_______|----------------|-[X]A0    -| N |-               5[ ]~|   .    <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  ______________           | [ ]A1    -| O |-               4[ ] |   .    <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  |SensorSonoro|-----------|-[X]A2     +---+           INT1/3[ ]~|   .    ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  |____________|          -|-[X]A3                     INT0/2[ ] |   .    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  ________________       | | [ ]A4/SDA  RST SCK MISO     TX&gt;1[ ] |   .    ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  |SensorLuminoso|-------- | [ ]A5/SCL  [ ] [ ] [ ]      RX&lt;0[ ] |   D0   ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  |______________|         |            [ ] [ ] [ ]              |        ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                           |  UNO_R3    GND MOSI 5V  ____________/        <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                            \_______________________/                     <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                    https://github.com/busyDuckman/ascii-art-arduinos/    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  O código do Arduino ficou extremamente simples, basicamente lê os       <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  valores dos 3 &quot;sensores&quot; cada 0.5 segundos e envia por serial:          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>    const int noisePin = A0;                                              <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    const int micPin = A2;                                                <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    const int ldrPin = A3;                                                ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    void setup() {                                                        ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      Serial.begin(9600);                                                 ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>      delay(2000);                                                        <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    }                                                                     ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    void loop() {                                                         <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>      int ldrValue = analogRead(ldrPin);                                  <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>      Serial.println(ldrValue);                                           ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      delay(500);                                                         <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>      int micValue = analogRead(micPin);                                  <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>      Serial.println(micValue);                                           ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      delay(500);                                                         <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>      int noiseValue = analogRead(noisePin);                              <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>      Serial.println(noiseValue);                                         <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      delay(500);                                                         <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    }                                                                     <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  O Mersenne-Twister modificado ficou assim:                              <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    import time                                                           ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    import os                                                             ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>    import serial                                                         <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>    (w, n, m, r) = (32, 624, 397, 31)                                     <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    a = 0x9908B0DF                                                        <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    (u, d) = (11, 0xFFFFFFFF)                                             <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>    (s, b) = (7, 0x9D2C5680)                                              <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>    (t, c) = (15, 0xEFC60000)                                             ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    l = 18                                                                ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    f = 1812433253                                                        <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    MT = [0 for _ in range(n)]                                            <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    index = n + 1                                                         <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    lower_mask = 0x7FFFFFFF                                               <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    upper_mask = 0x80000000                                               ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    def mt_seed(seed):                                                    <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>        global index                                                      <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>        index = n                                                         <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>        MT[0] = seed                                                      <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>        for i in range(1, n):                                             <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>            temp = f * (MT[i-1] ^ (MT[i-1] &gt;&gt; (w-2))) + i                 <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>            MT[i] = temp &amp; 0xFFFFFFFF                                     <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    def extract_number(serial_port):                                      ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>        global index                                                      ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>        if index &gt;= n:                                                    ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>            twist()                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>            index = 0                                                     <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>        noise_value = int(read_serial_data(serial_port))                  ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>        ldr_value = int(read_serial_data(serial_port))                    <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>        mic_value = int(read_serial_data(serial_port))                    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>        current_millis = current_time_millis()                            ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>        pid = get_pid()                                                   <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>        y = MT[index] ^ ldr_value ^ mic_value ^ noise_value ^             <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>            └►current_millis ^ pid                                        <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>            #Eu confesso que isso foi extremamente mal feito =D           <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>        y = y ^ ((y &gt;&gt; u) &amp; d)                                            ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>        y = y ^ ((y &lt;&lt; s) &amp; b)                                            <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>        y = y ^ ((y &lt;&lt; t) &amp; c)                                            <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>        y = y ^ (y &gt;&gt; l)                                                  <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>        index += 1                                                        <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>        return y &amp; 0xFFFFFFFF, ldr_value, mic_value, noise_value,         ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>         └►pid, current_millis                                            <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    def twist():                                                          ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>        for i in range(n):                                                ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>            x = (MT[i] &amp; upper_mask) + (MT[(i + 1) % n] &amp; lower_mask)     ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>            xA = x &gt;&gt; 1                                                   <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>            if x % 2 != 0:                                                ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                xA = xA ^ a                                               <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>            MT[i] = MT[(i + m) % n] ^ xA                                  <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    def current_time_millis():                                            ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>        return round(time.time() * 1000)                                  ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    def get_pid():                                                        <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>        return os.getpid()                                                <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    def read_serial_data(serial_port):                                    <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>        try:                                                              <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>            data = serial_port.readline().decode(&#x27;latin-1&#x27;).strip()       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>            return int(data)                                              <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>        except ValueError:                                                ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>            print(&quot;Error converting data to integer. Default value used.&quot;)·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>            return 0                                                      <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>    def main():                                                           <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>        serial_port = serial.Serial(&#x27;COM5&#x27;, 9600, timeout=1)              ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>        time.sleep(2)                                                     <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>        while True:                                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>            random_number, ldr_value, mic_value, noise_value, pid,        <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>              └►current_millis = extract_number(serial_port)              ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>            print(f&quot;Random: {random_number} | LDR: {ldr_value} |          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>            └►Mic: {mic_value} | Noise: {noise_value} | PID: {pid}        ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>            └►| Time: {current_millis}&quot;)                                  <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>            time.sleep(1)                                                 ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    if __name__ == &#x27;__main__&#x27;:                                            <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>        main()                                                            <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    # Creditos: yinengy[13]                                               <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  --&gt;                                                                     <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    &lt;! -- 4.2 [Tentativa fracassada :( ]                                  ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  Existem várias falhas nessa ideia, e nem vou entrar em detalhes sobre   <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  a maneira como os ruídos foram integrados ao Mersenne-Twister, ainda    <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  que fosse adicionado corretamente, é preciso considerar que o Arduino   <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  possui poucos bits de entrada analógica (10 bits, um intervalo de       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  0-1023, o que é extremamente baixo quando falamos de aleatoriedade).    <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  Para ser mais prático, imagine que você deseja gerar valores entre      ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  12123 e 239823433426 para sua                                           <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  &quot;super_criptografia_que_não_pode_ser_quebrada4.0&quot;, mas seu gerador      ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  utiliza uma entrada de apenas 10 bits para gerar a seed, muito          <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  inseguro, correto?                                                      <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  Fique totalmente a vontade para melhorar o script ou me xingar por ter  ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  criado essa integração ruim                                             ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  --&gt;                                                                     <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  --&gt;                                                                     ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  &lt;! -- 5 [Finalização]                                                   <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    &lt;! -- 5.1 [Conclusão]                                                 ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Podemos concluir que a aleatoriedade é sim uma área complexa e que não  ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  é tão simples melhorar ou criar uma implementação funcional e segura.   <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Espero que essa tentativa falha tenha mostrado a você um ramo a qual    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  eu não domino, mas que acho fascinante... &quot;Anyone who considers         ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  arithmetical methods of producing random digits is, of course, in a     <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  state of sin&quot; - John Von Neumann[9][10]. Recomendo altamente a leitura  <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  do artigo &quot;Entropia para a criação de criptografia&quot; escrito por         <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Giulia Riceto Mendes, o mesmo faz parte do Tramoia.                     ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  --&gt;                                                                     <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    &lt;! -- 5.2 - [Como você pode terminar ou melhorar esse projeto]        <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Não posso oferecer uma solução para algo que  não consegui resolver,    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  contudo, o próximo passo nesse projeto seria a implementação do ruído   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  de avalanche, No entanto, existem duas dificuldades: a primeira, que é  <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  superável, é montar e validar o hardware responsável por gerar o ruído  <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  de avalanche, acredito que um osciloscópio será necessário nesta etapa. ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  A segunda e maior dificuldade seria processar esses dados, uma vez que  <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  temos poucos bits de entrada disponíveis. Claro, você não precisa se    <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  limitar a um Arduino ou esp32 (No caso do esp, são 12 bits de resolução,░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  o que dá um intervalo de 0-4095, porém continua sendo um valor baixo),  <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  acredito que existem outros microcontroladores, como o Teensy           ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  3.6[11][12], que talvez oferecem uma resolução maior.                   ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  --&gt;                                                                     ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  --&gt;                                                                     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  &lt;! --- [Referências]                                                    <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  [1] - <a href="https://torvaney.github.io/projects/human-rng">https://torvaney.github.io/projects/human-rng                     </a>░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  [2] - <a href="https://flothesof.github.io/testing-human-random-number-generator.html">https://flothesof.github.io/...-number-generator.html             </a>░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  [3] - <a href="https://www.reddit.com/r/dataisbeautiful/comments/acow6y/asking_over_8500_students_to_pick_a_random_number/">https://www.reddit.com/r...6y/ask..pick_a_random_number/          </a>·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  [4] - <a href="https://en.wikipedia.org/wiki/Linear_congruential_generator">https://en.wikipedia.org/wiki/Linear_congruential_generator       </a><g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  [5] - <a href="https://pt.wikipedia.org/wiki/Mersenne_Twister">https://pt.wikipedia.org/wiki/Mersenne_Twister                    </a><g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  [6] - <a href="https://github.com/python/cpython/blob/main/Lib/random.py">https://github.com/python/cpython/blob/main/Lib/random.py         </a><g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  [7] - <a href="https://betrusted.io/avalanche-noise.html">https://betrusted.io/avalanche-noise.html                         </a><g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  [8] - <a href="https://www.vishay.com/docs/85966/thenoiseofavalanchebreakdown.pdf">https://www.vishay.com/...avalanchebreakdown.pdf                 </a>░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  [9] - <a href="https://en.wikiquote.org/wiki/John_von_Neumann">https://en.wikiquote.org/wiki/John_von_Neumann                    </a>░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  [10] - <a href="https://ieeexplore.ieee.org/abstract/document/10461442/">https://ieeexplore.ieee.org/abstract/document/10461442/          </a>·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  [11] - <a href="https://www.pjrc.com/store/teensy36.html">https://www.pjrc.com/store/teensy36.html                         </a><g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  [12] - <a href="https://forum.pjrc.com/index.php?threads/teensy-4-0-and-16-bit-resolution-pwm-duty-cycle-issue.62420/">https://forum.pjrc.com/i...elution-pwm-duty-cycle-issue.62420/   </a><g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  [13] - <a href="https://github.com/yinengy/Mersenne-Twister-in-Python">https://github.com/yinengy/Mersenne-Twister-in-Python           </a>░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  --&gt;                                                                     <g2>░<g1>░░<g1><ww>    
+    ··░                                                                          ░··
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                
+
+</div></pre>
+</body>
+</html>

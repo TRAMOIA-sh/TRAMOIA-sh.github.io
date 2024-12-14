@@ -1,0 +1,270 @@
+Entropia para a criação de criptografia
+
+A pandemia de números determinísticos em transações críticas
+
+Giulia Mendes (Gihu)
+
+syntologist.github.io
+
+3 de outubro de 2024
+
+
+“Any one who considers arithmetical methods of producing
+random digits is, of course, in a state of sin. For, as has been
+pointed out several times, there is no such thing as a random
+number—there are only methods to produce random numbers,
+and a strict arithmetic procedure of course is not such a method.”
+- John von Neumann
+
+(Qualquer pessoa que considere métodos aritméticos para pro-
+duzir dígitos aleatórios está, evidentemente, em estado de pe-
+cado. Porque, como já foi apontado várias vezes, não existe
+um número aleatório – existem apenas métodos para produzir
+números aleatórios, e um procedimento aritmético rigoroso ob-
+viamente não é um desses métodos)
+
+
+Sumário
+
+1 Princípos da aleatoriedade
+    1.1 PRNGs
+    1.2 TRNGs
+2 Entropia
+3 Enviesamento dos números
+    3.1 Hashing
+    3.2 Exclusive or
+    3.3 CSPRNGs
+4 Conclusões
+
+
+1 Princípios da aleatoriedade
+
+Entropia é uma medida de aleatoriedade, significando que
+seu valor oscila em razão à quantidade de matéria presente em
+um sistema, nos levando ao conceito principal de criptografia.
+A segurança de computadores depende fortemente de criptogra-
+fia, entretanto, máquinas são deterministas – incapazes de gerar
+números aleatórios verdadeiros.
+
+A existência de uma aleatoriedade verdadeira é debatível;
+ela é definida pela ausência de previsibilidade. Um sistema com
+a mais pura forma de entropia não mantém nenhum padrão, ne-
+nhuma saída determinística e nenhum valor semente. Em con-
+traste, a pseudo-aleatoriedade depende de um número ou vetor
+(valor semente) para inicializar um gerador de resultados.
+
+1.1 PRNGs
+
+Geradores de números Pseudo-Aleatórios (PRNGs)
+utilizam algoritmos determinísticos baseados em operações em
+um valor base / semente, tendo seu resultado completamente
+determinado pelo seu estado inicial. Amplamente utilizados em
+diversas aplicações, temos em destaque os PRNGs:
+
+• LCG (Linear Congruential Generator): um dos gera-
+dores mais antigos e simples, utiliza de uma fórmula linear
+para gerar uma sequência de números. Baseia-se na fórmula
+Xn+1 = (a · Xn + c) ÷ m, onde Xn é o n-ésimo número da
+sequência; a, c, e m são constantes; X0 é a semente.
+
+• Mersenne Twister: um dos mais utilizados devido ao
+
+1
+
+
+seu longo período (quantidade de números gerados antes
+da sequência se repetir), é baseado na recorrência linear
+Xk+N = Xk+M ⊕ XkD, para todo k ≥ 0, onde M < N ∈ N
+são dados e fixos que determinam quão longe no passado o
+estado atual do vetor deve olhar para calcular o próximo
+estado.
+
+• Von Neumann: o algorítimo baseia-se em pegar um número,
+elevá-lo ao quadrado, e usar os dígitos do meio deste resul-
+tado como “número aleatório”, que servirá de semente para
+a próxima iteração.
+
+• Xorshift: e suas variações, é um vetor de bits, a cada
+passo, o próximo estado é obtido aplicando-se um certo
+número de operações XOR a blocos de w bits no estado
+atual, onde w = 32 ou 64.
+
+1.2 TRNGs
+
+Geradores de números Aleatórios Verdadeiros (TRNGs),
+
+são dispositivos ou sistemas que produzem números aleatórios a
+partir de fenmenos físicos intrinsecamente imprevisíveis, baseiam-
+se em processos que não podem ser previstos nem replicados por
+um modelo computacional determinístico. Seu valor semente
+origina-se de fontes com alta entropia.
+
+2
+
+
+2 Entropia
+
+Entropia refere-se a uma medida de incerteza e aleatorie-
+dade em um sistema. Se assumirmos que todos os dados dis-
+poníveis pertencem a uma classe, será fácil prever a classe de
+um novo dado. Nesse caso, a entropia é zero. A entropia varia
+entre 0 e 1 e alcança seu valor máximo quando todas as proba-
+bilidades são iguais.
+
+Em seu estado verdadeiro, a entropia é obtida dinamica-
+mente por meio de oscilações aleatórias e microscópicas em pro-
+cessos físicos, como a ocorrência do decaimento radioativo de
+um isótopo instável, ruído atmosférico ou térmico, eletromagne-
+tismo externo, ou até mesmo ruído produzido por componentes
+de computador, ao invés de acontecimentos determinísticos.
+
+Claude E. Shannon foi pioneiro na definição de entropia
+como uma medida para a teoria da informação. Shannon mede
+a previsibilidade dos valores futuros com base na distribuição de
+probabilidade dos valores de amplitude já observados em algum
+sinal base. Ela quantifica estatisticamente a função de densi-
+dade de probabilidade da distribuição dos valores, sendo capaz
+de detectar aspectos de não-linearidade em séries modeladas,
+contribuindo para uma explicação mais confiável das dinˆamicas
+não-lineares em diversos pontos de análise, o que, por sua vez,
+melhora a compreensão da natureza de sistemas caracterizados
+por complexidade e desequilíbrio.
+
+Quando um evento E ocorre com probabilidade p, a in-
+certeza é denotada por S(p). Se a probabilidade de uma classe
+
+3
+
+
+ocorrer é 1, a representação é S(1) = 0. De acordo com Shannon,
+as probabilidades de uma classe ocorrer são p1, p2, p3, . . . , pn, e a
+incerteza é medida pela entropia H. Uma matriz de 139 × 228
+é utilizada para este estudo.
+
+H(x) = −K (cid:80)n
+
+i=1 pi log2 pi
+
+Tal qual é conhecida como Entropia de Shannon.
+
+4
+
+
+3 Enviesamento dos números
+
+No contexto computacional, para obter uma criptografia
+realmente aleatória, precisamos entrelaçar fenômenos físicos aos
+sistemas de segurança. Instituições como o NIST (National
+Institute of Standards and Technology) fornece padrões de
+diretrizes e requisitos para garantir alta qualidade de entropia
+em sistemas de geração de números aleatórios (RNGs), como o
+conjunto NIST SP 800-90B, que exige que a semente tenha
+pelo menos o número de bits de entropia equivalente à força
+nominal do PRNG. Por exemplo, um gerador usando SHA-256
+requer pelo menos 256 bits de entrada de entropia para atingir
+sua força de segurança máxima.
+
+A obtenção de entropia de uma fonte contínua de ruído em
+uma máquina (na maioria das vezes: interação humana, ruídos
+da ventoinha, ou desvio do relógio interno) pode apresentar en-
+viesamento dos dados, assim exigindo um processo de imparci-
+alização onde o é coletada uma amostra do som que por fim é
+colocada sob uma função pseudo-aleatória para distribuir a en-
+tropia uniformemente entre os bits de saída; nesta ocasião, são
+usadas funções de hashing criptográficas como, novamente, o al-
+goritmo SHA-256.
+
+3.1 Hashing
+
+A técnica de hashing envolve alimentar o SHA-256 com a
+sequência de bytes (256 bits, seguindo o padrão NIST) que re-
+presenta alguma fonte de entropia, e por sua vez executar o
+método de digest que retornará a representação hexadecimal do
+
+5
+
+
+hash em uma cadeia de 64 caracteres representando os bits de
+entrada dispersos uniformemente. O hashing ajuda a uniformi-
+zar a distribuição da entropia existente, mas não pode aumentar
+a entropia total se a entrada original for de baixa entropia.
+
+Todavia, é arriscado procurar segurança criptográfica ab-
+
+soluta em um algoritmo cujas chaves estão nas mãos da NSA.
+
+3.2 Exclusive or
+
+Como alternativa, também é possível tratar o enviesamento
+entrópico utilizando o operador XOR em bits de entrada de duas
+ou mais fontes de entropia diferentes, XOR-ando amostra com
+amostra de forma iteraria.
+
+3.3 CSPRNGs
+
+Conquanto, é imperativa a busca de alta entropia para va-
+lores de entrada, sendo importante medir a qualidade de cada
+amostra, usando, por exemplo, a Entropia Amostral Multiesca-
+lar (MSE), usada para analisar a entropia em diversas escalas,
+avaliando a probabilidade logarítmica de que seções dos dados
+correspondem a outras seções à medida em que aumentam em
+1 ao longo do tempo, medindo, assim, o quanto os números
+são enviesados ou a entropia de uma série temporal de dados.
+Como qualquer medida de entropia, o objetivo é avaliar a com-
+plexidade de uma série temporal. Uma das principais razões
+para usar uma abordagem multiescala é quando a escala de
+tempo de relevˆancia na série temporal é desconhecida. Por
+exemplo, ao analisar ruído atmosférico, seria relevante conside-
+
+6
+
+
+rar as escalas de tempo dos ruídos em vez dos sons individuais.
+Para isso, além dos geradores de números aleatórios verdadei-
+ros (TRNGs) – não determinísticos -, também ocorre a presença
+dos Geradores de números Pseudo-Aleatórios Cripto-
+graficamente Seguros (CSPRNGs), projetados para resis-
+tir a análises estatísticas, coletando certa quantidade de entro-
+pia de fontes físicas e a transformando em uma sequência longa
+de números pseudo-aleatórios suficientemente imprevisíveis para
+serem seguros em aplicações criptográficas, tais geradores em
+destaque incluem:
+
+• Fortuna: utiliza múltiplas pools de entropia, é baseado
+em AES (Advanced Encryption Standard), e pratica a re-
+semeadura quando o primeiro pool atinge um certo limite
+de bytes de entropia coletados.
+
+• Yarrow:
+
+também utiliza múltiplas pools de entropia e
+funções de hash para condicionar os bits antes de agregá-los
+aos pools, baseado em Triple-DES e AES.
+
+7
+
+
+4 Conclusões
+
+à medida em que o número de máquinas progressivamente
+ultrapassa o número de seres humanos no planeta, extrair en-
+tropia de alta qualidade com fácil acesso vem se tornando um
+desafio fundamental para a segurança cibernética, Não apenas
+chaves criptográficas exigem níveis puros de aleatoriedade, mas
+também o DNS depende dela para IDs de transações, e estrutu-
+ras de aplicações web que dependem de máquinas virtuais estão
+tendo difícil acesso à entropia.
+
+Esse cenário moderno está elevando a trama da Internet e
+da comunicação ao nível dos computadores quˆanticos que ofere-
+cem Entropia como Serviço (EaaS), criando a base de um futuro
+ecossistema de servidores que fornecem entropia de qualidade
+comprovadamente boa mediante demanda e liberando todo o
+potencial da criptografia.
+
+Segue a esperança de que o futuro abrace a revalidação do
+caos fundamental do universo em prol do direito de privacidade
+humana, longe de monopólios de curvas elípticas na linguagem
+do mundo.
+
+8

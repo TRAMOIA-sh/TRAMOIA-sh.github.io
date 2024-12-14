@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Detectando sanitizadores HTML geneticamente | TRAMOIA 0x1</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+</head>
+<body>
+<div class="background"></div>
+<div class="txtdiv"><pre id="artpre">
+                                                                                                                               
+  <g1>
+
+                                                       01<g1>
+ <g2>░<g1>██<ww>▀<ww>█████<g1>    <g2>░<g1>██<ww>▀<ww>████<g1>     <g2>░<ww>▀<ww>███████<g1>     <g2>░<ww>██<g1>▌  <g2>░<ww>██<g1>     <g2>░<g1>█<ww>▀<ww>████<g1>     ██<g1>   <g2>░<ww>▀▀<ww>██████<g1>
+  <g2>░░░<g1>██<g1>       <g2>░<g1>██<g2>░░░░<ww>█<g1>▌    <g2>░<g1>██<g2>░░░░<ww>██<g1>     <g2>░<g1>███<g1> <g2>░<g1>███<g1>    <g2>░<g1>██<g2>░░░░<ww>██<g1>   <g2>░<ww>██<g1>   <g2>░<g1>██<g2>░░░░<ww>██<g1>
+    <g2>░<g1>██       <g2>░<g1>██   <g2>░<ww>█<g1>▌    <g2>░<g1>██   <g2>░<ww>██<g1>     <g2>░<g1>██<g1> ██<g2>░<g1>██<g1>    <g2>░<g1>██   <g2>░<g1>██<g1>   <g2>░<g1>▓█<g1>   <g2>░<g1>██   <g2>░<ww>██<g1>
+    <g2>░<g1>██       <g2>░<g1>██████<ww>▀<g1>     <g2>░<g1>███████<g1>█     <g2>░<g1>██ 01<g2>░<g1>█<ww>▀<g1>    <g2>░<g1>██   <g2>░<g1>██   <g2>░<g1>█<ww>▀<g1>   <g2>░<g1>██████<ww>▀<ww>█<g1>
+    <g2>░<g1>█·       <g2>░<g1>██   ▀█     <g2>░<g1>▓█   <g2>░<g1>██     <g2>░<g1>▓█   <g2>░<g1>██    <g2>░<g1>▓█   <g2>░<g1>██   <g2>░<g1>█▓   <g2>░<g1>▓█   <g2>░<g1>██
+    <g2>░<g1>██       <g2>░<g1>██   <g2>░<g1>█     <g2>░<g1>█▓   <g2>░<g1>█▓     <g2>░<g1>▒    <g2>░<g1>█▓    <g2>░░<g1>▓   <g2>░<g1>▒▓   <g2>░<g1>█▓   <g2>░<g1>█▓   <g2>░<g1>█▓
+    <g2>░<g1>▓▓       <g2>░<g1>▓▓   <g2>░<g1>▓▌    <g2>░<g1>▓▓   <g2>░<g1>▓▒     <g2>░<g1>▓▒   <g2>░<g1>▓▒    <g2>░<g1>▒░   <g2>░<g1>▓░   <g2>░<g1>▒▒   <g2>░<g1>▓▓   <g2>░<g1>▓▒
+    <g2>░<g1>▒▓       <g2>░<g1>▓    <g2>░<g1>▓▌    <g2>░<g1>▓▒   <g2>░<g1>▓▓     <g2>░<g1>░▒   <g2>░░<g1>▓     <g2>░<g1>▒████░    <g2>░<g1>▓░   <g2>░<g1>▓▒   <g2>░░<g1>▓
+    <g2>░<g1>▓<g2>░<g1>       <g2>░<g1>▒░   <g2>░<g1>░▌    <g2>░<g1>▒░                 <g2>░<g1>▓▒                <g2>░<g1>░▒   <g2>░<g1>▒░   <g2>░<g1>▓█
+    <g2>░<g1>▒▓       <g2>░░<g1>▒          <g2>░<g1>▒                  <g2>░<g1>▒▓                <g2>░<g1>▒░   <g2>░<g1>▒·   <g2>░<g1>▓▒
+    <g2>░<g1>▒·       <g2>░<g1>▒           <g2>░<g1>▒                  <g2>░<g1>▓                 <g2>░<g1>▒░   <g2>░<g1>▒▓   <g2>░<g1>░▓
+    <g2>░▒<g1>▒                                        <g2>░<g1>▒░                  ░         <g2>░<g1>▒·
+    <g2>░░<ww>░<g1>                                          ░                            <g2>░░<g1>▒
+    ·░░                                                                       ░<g2>░░<g1>
+    ░<g1>░<g2>░<g1><ww>  Evolução Genética de Payloads para Detecção de Sanitizadores HTML    <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  caioluders                                                           <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>           &lt;st                                  av&gt;                    ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>          &lt;   &lt;strike&gt;&lt;tr&gt;ptgrou&lt;figure&gt;&lt;h2&lt;sele  &gt;                    <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>           &lt;   &gt;                              &lt;   &gt;                    <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>            &lt;   &gt;                            &lt;   &gt;                     <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>              &lt;  &lt;select&gt;&lt;&lt;i&gt;ar&lt;sub&lt;discard&gt;a   &gt;                      <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>               &lt;   &gt;                       &lt;   &gt;                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                 &lt;   &gt;                   &lt;   &gt;                         ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   &lt;   &gt;               &lt;   &gt;                           <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                     &lt;   &gt;           &lt;   &gt;                             <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                       &lt;   &gt;       &lt;   &gt;                               ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                         &gt;&lt;&lt;tr&gt;ptgrou&gt;                                 <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                          &lt;figure&lt;h2&gt;                                  ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                       &lt;   &gt;       &lt;   &gt;                               ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                     &lt;   &gt;           &lt;   &gt;                             <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   &lt;   &gt;               &lt;   &gt;                           ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                 &lt;   &gt;                   &lt;   &gt;                         ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>               &lt;  &lt;&lt;i&gt;ar&lt;sub&lt;discard&gt;av&gt;&lt;str   &gt;                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>             &lt;   &gt;                           &lt;   &gt;                     <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>            &lt;   &gt;                             &lt;   &gt;                    ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>            &lt;   &lt;strike&gt;&lt;tr&gt;ptgrou&lt;figure&gt;&lt;h2&lt;se  &gt;                    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>            &lt;   t&gt;&lt;&lt;i&gt;ar&lt;sub&lt;discard&gt;av&gt;&lt;strike   &gt;                    <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>             &lt;   &gt;                           &lt;   &gt;                     <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>              &lt;    &lt;&lt;i&gt;ar&lt;sub&lt;discard&gt;av&gt;&lt;st    &gt;                      <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                &lt;   &gt;                     &lt;   &gt;                        <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                   &lt;   &gt;               &lt;   &gt;                           <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                     &lt;   &gt;           &lt;   &gt;                             <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                       &lt;   &gt;       &lt;   &gt;                               ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                          &lt;figure&lt;h2&gt;                                  ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                         &gt;&lt;&lt;tr&gt;ptgrou&gt;                                 ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                       &lt;   &gt;       &lt;   &gt;                               <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                     &lt;   &gt;           &lt;   &gt;                             ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   &lt;   &gt;               &lt;   &gt;                           <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                 &lt;   &gt;                   &lt;   &gt;                         <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>               &lt;   &gt;                       &lt;   &gt;                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>              &lt;  &lt;select&gt;&lt;&lt;i&gt;ar&lt;sub&lt;discard&gt;a   &gt;                      <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>             &lt;   &gt;                            &lt;   &gt;                    <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>            &lt;   &gt;                              &lt;   &gt;                   <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>           &lt;   &lt;strike&gt;&lt;tr&gt;ptgrou&lt;figure&gt;&lt;h2&lt;sele  &gt;                   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>            &lt;st                                  av&gt;                   <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>        ------&gt; <a href="http://lude.rs/detecta_sanitizer">http://lude.rs/detecta_sanitizer &lt;-----------          </a>░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ---[  Index                                                          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  0 - Introdução                                                       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  1 - Laboratório                                                      ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  2 - Algoritmo genético                                               <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  3 - Melhorias // EOF                                                 <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  ---[ 0 - Introdução                                                  ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Já tentou bypassar um HTML sanitizer server-side e perdeu 30 horas   <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  fazendo força bruta em tags html aleatórias? SEUS PROBLEMAS ACAB...  <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  nossa eu tô velho. Bem, como todo server-side sanitizer é destinado  ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ao FRACASSO por não ser um browser, e cada um implementa de acordo   <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  com a sua criatividade ( 1001 regexes, virtual DOM, .replace() , etc ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  ), não seria possível identificar qual sanitizador está sendo        ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  utilizado dependendo de como ele ... humm ... sanitiza? Seria        <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  possível criar um payload que se comporte diferente para TODOS os    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  sanitizers?                                                          ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Sim, aqui está :                                                     <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  &lt;strike&gt;&lt;tr&gt;ptgrou&lt;figure&gt;&lt;h2&lt;select&gt;&lt;&lt;i&gt;ar&lt;sub&lt;discard&gt;av&gt;          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Mas nem fudendo que eu ia fazer isso na mão. Primeiro tive que       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  adaptar e atualizar um laboratório com (quase) todos os sanitizers   <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  mais usados, fiz (leia-se: mandei a IA fazer) uma API usável e       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  dockerizei tudo. Depois, criei (IA criou) um script que usa          <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  algoritmo genético para encontrar um payload que é tratado diferente <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  por todos os sanitizers, e que executa estranhamente rápido. Dai é   <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  só jogar o payload na aplicação alvo e comparar com os resultados    ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  para identificar.                                                    <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  ---[ 1 - Laboratório                                                 ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  Pesquisando se alguém já tinha feito algum laboratário parecido pra  <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  não ter que fazer do zero, encontrei esse repositório                <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  <a href="https://github.com/SoheilKhodayari/html-sanitizer-testing-pipeline">https://github.com/SoheilKhodayari/html-sanitizer-testing-pipeline   </a>░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  que foi feito como base para o paper &quot;It’s (DOM) Clobbering Time:    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Attack Techniques, Prevalence, and Defenses&quot;                         <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  <a href="https://publications.cispa.saarland/3756/1/sp23_domclob.pdf">https://publications.cispa.saarland/3756/1/sp23_domclob.pdf          </a><g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Recomendo bastantea leitura, é bem interessante e aborda testes      <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  dinâmicos para identicação de DOM Clobbering[1]. Esse repositório    ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  foi uma ótima base, mas faltava algumas features importantes para    <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  facilitar minha vida. Fiz um fork                                    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  <a href="https://github.com/caioluders/html-sanitizer-testing-pipeline">https://github.com/caioluders/html-sanitizer-testing-pipeline        </a>░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  que adiciona alguns sanitizers, criei um site local para facilitar   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  os testes manuais, além de transformar tudo em container para ser    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  mais fácil de rodar. Também criei uma API HTTP, se alguém quiser     <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  rodar um programa externo para brutar algo, ou sei la. Infelizmente  <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  não consegui fazer o docker funcionar para C# e Java a tempo :(      ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  (aceito pull requests!)                                              <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Para subir o laboratório só rodar um                                 <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    $ docker compose up                                                ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Na pasta do repositório.                                             <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Basta acessar a interface gráfica (site) em http://127.0.0.1:3003/   <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Ela é necessária para testar os sanitizadores client-side !!! (Dá    <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  pra fazer com puppeteer depois, mas deu preguiça, usa teu browser ai ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  ou faz um pull)                                                      <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  ASCII do site:                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>   ___________________________________________________________________ ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  |(x)( )( ) /_HTML_Sa../_____________________________________________|<g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  | &lt; &gt; @  (http://127.0.0.1:3003/)                                   |·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  |-------------------------------------------------------------------|<g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  |   HTML Sanitizers Playground                                      |░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  |    _______________________                                        |·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  |   [______&lt;h1&gt;tst&lt;/h1&gt;_____]                                       |<g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  |   [_______________________]                                       |<g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  |   (Go)                                                            |·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  |                                                                   |░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  | +--------------+  +--------------+  +--------------+              |<g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  | | dompurify    |  | sanitizehtml |  | jsxss        |              |<g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  | | &lt;h1&gt;tst&lt;/h1&gt; |  | tst          |  | &lt;h1&gt;tst&lt;/h1&gt; |              |·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  | +--------------+  +--------------+  +--------------+              |·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  |                                                                   |<g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  | +-------------------------------------+                           |░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  | | nodejs bleach-default               |                           |<g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  | | &lt;h1&gt;tst&lt;/h1&gt;                        |                           |<g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  | +-------------------------------------+   [ETC...]                |·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  |___________________________________________________________________|·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  A API é super-simples e só precisa enviar um POST com os inputs      <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  $ curl -H &quot;Content-Type: application/json&quot; --data                    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  &#x27;{&quot;markups&quot;:[&quot;&lt;a&gt;aaa&lt;/h1&gt;&quot;]}&#x27; &quot;http://127.0.0.1:3000/sanitize&quot;       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  {                                                                    <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    &quot;nodejs&quot;: {                                                        <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      &quot;angular&quot;: [                                                     ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>        {                                                              ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>          &quot;input&quot;: &quot;aaaaa&quot;,                                            <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>          &quot;output&quot;: &quot; &quot;                                                ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>        }                                                              <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>      ],                                                               ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>      &quot;arcgis&quot;: [                                                      <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>        {                                                              <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>          &quot;input&quot;: &quot;aaaaa&quot;,                                            <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>          &quot;output&quot;: &quot;aaaaa&quot;                                            <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>        }                                                              <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>      ],                                                               <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      &quot;bleach-default&quot;: [                                              <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>        {                                                              ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>          &quot;input&quot;: &quot;aaaaa&quot;,                                            ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>          &quot;output&quot;: &quot;aaaaa&quot;                                            <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>        }                                                              <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>      ],                                                               <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>      &quot;bleach-strict&quot;: [                                               ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>        {                                                              <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>          &quot;input&quot;: &quot;aaaaa&quot;,                                            <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>          &quot;output&quot;: &quot;aaaaa&quot;                                            ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>        }                                                              <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>      ],                                                               <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>      &quot;dompurify&quot;: [                                                   ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>        {                                                              ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>          &quot;input&quot;: &quot;aaaaa&quot;,                                            ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>          &quot;output&quot;: &quot;aaaaa&quot;                                            <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>        }                                                              <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>      ],                                                               ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>      [ETC...]                                                         ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Lembrando que a API é apenas para sanitizadores server-side !!!      ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Para client-side, acesse o site.                                     <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Atualmente, os seguintes sanitizadores estão implementados:          <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Client-side:                                                         <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    dompurify                                                          <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    caja                                                               ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>    jsxss                                                              <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>    sanitizehtml                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>    angular                                                            <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  Server-side:                                                         ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>    nodejs arcgis                                                      <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    nodejs bleach-default                                              <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    nodejs bleach-strict                                               ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    nodejs dompurify                                                   <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>    nodejs insane-default                                              ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    nodejs insane-strict                                               <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    nodejs yahoopurify                                                 ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    php htmlawed                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>    php htmlpurifier                                                   <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    php htmlsanitizor                                                  <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>    php symphony                                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    php typo3                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>    php wordpress wp_kses                                              <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>    python bleach                                                      <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  ---[ 2 - Algoritmo genético                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Com o laboratório pronto, pensei em ir montando o payload na mão até <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  construir um que se transformasse diferente pra cada sanitizador.    <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Depois de meia hora tentando e quebrando a cabeça, deu pra perceber  <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  que ia demorar muito e não seria otimizado. Dai lembrei que talvez   <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  um algoritmo genético [2] conseguisse resolver e criar um payload    ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  pequeno e satisfatório.                                              ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Como funciona um algoritmo genético para esse caso específico?       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  ┌────────────┐                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  │Lê lista de │                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  │tags HTML   │                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  └─────┬──────┘                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>        │                                                              ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>        │                                                              <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>   ┌────▼──────────┐    ┌─────────────┐   ┌───────────────┐            <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>   │Cria população │    │Acessa o site│   │Calcula fitness├►Resultados ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>   │inicial com N  ├────►do lab com   ├───►dos payloads   │ diferentes ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>   │tags randomicas│    │puppeteer    │   │gerados        │ dividido   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>   └───────────────┘    └──────▲──────┘   └───────┬───────┘ pelo total <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                               │                  │         de         <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                               │                  │         sanitizers <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                               │        ┌─────────▼┐                   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                               │        │Resultado └──────────┐        <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                               │        │Diferente para       │        ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                   ┌───────────┴───┐    │todos sanitizadores? │        <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                   │Aplica mutação │    └───────┬─┐           │        <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                   │nos filhos com │            │ └────┬──────┘        <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   │novas tags HTML│            │      │ ☆ﾟ.*･｡ﾟ☆ﾟ.*･｡ﾟ☆ﾟ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                   │aleatorias     │        Nao │      │ ┌───────────┐ <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   └─────────▲─────┘            │      └────►Printa e│ ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                             │                  │      Sim        sai│ <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                             │                  │       └────────────┘ ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>              ┌──────────────┴───────┐          │        .*･｡ﾟ☆ﾟ.*･｡ﾟ☆ﾟ.·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>              │Cria nova populacao   │     ┌────▼────────┐             <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>              │com M filhos          │     │Seleciona os │             <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>              │combinando os payloads◄─────┤payloads mais│             ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>              │pais em pontos        │     │adequados    │             ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>              │aleatorios            │     └─────────────┘             <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>              └──────────────────────┘                                 ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  O Cursor [3] implementou quase tudo, mas precisei fazer ajustes aos  ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  parâmetros totais do cálculo, a fitness function também tava cagada e <g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  perdi muito tempo debuggando (problemas com usar o puppeteer pra     ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  automatizar coisa e ter que botar delay em tudo, chrome mto lento).  ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  Fiquei bem surpreso ao rodar pela primeira vez e achar um resultado em<g2>░<g1>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  quase 5 segundos, era meio gigante, tipo 200 caracters, mas          ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  funcionava. Rodei mais algumas vezes até encontrar um payload        ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  pequeno.                                                             <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  <a href="https://github.com/caioluders/genetic_payload_generator_html_sanitizer">https://github.com/caioluders/genetic_payload_generator_html_sanitizer</a><g2>░<g1>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Alguns dos payloads encontrados:                                     ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  &lt;abbr&gt;&lt;m&gt;&lt;&lt;hr&gt;oupg&gt;&lt;frame&gt;io&lt;e&lt;blockquote&gt;&gt;&lt;textare&lt;image&gt;&lt;td&gt;&lt;pi&lt;   ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  input4&gt;ture&gt;rt                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  &lt;noframe&lt;data&gt;&gt;det&lt;&lt;sub&gt;omman&lt;q&gt;&gt;g&lt;keygen&gt;s&lt;&lt;nobr&gt;ource&gt;&lt;&lt;&lt;s&gt;rticl&lt;  ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  rtc&gt;&gt;&gt;&lt;articl                                                        <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  e&gt;&lt;no&lt;&lt;param&gt;i&lt;picture&gt;ure&lt;span&gt;r&lt;details&gt;mes&lt;h3&gt;&lt;&lt;p&lt;summary&gt;&lt;r&lt;     ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  summary&gt;&gt;&gt;t&lt;blin                                                     <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  k&gt;ike&gt;v&lt;com&lt;code&gt;&lt;opti&lt;progress&gt;n&gt;nd&lt;a&gt;&lt;&lt;&lt;em&gt;mbed&gt;&lt;b&lt;data&gt;se&gt;ns&lt;     ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  e&lt;&lt;marquee&gt;tr&lt;h1                                                     <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  &gt;&lt;track&gt;e&gt;eme&lt;td&gt;t&gt;i&lt;q&gt;&lt;&lt;&lt;meta&gt;body&gt;&lt;app&lt;noframes&gt;et&gt;&lt;input4&gt;ress&lt;   ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  command&gt;ea&lt;co&lt;                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  strike&gt;&gt;er&gt;ti&lt;applet&gt;abbr&gt;&lt;samp&lt;select&gt;&lt;&lt;acronym&lt;s&lt;                  <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  param&gt;&lt;strike&gt;&lt;spacer&gt;&gt;i&lt;sub&gt;                                        <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  &lt;meta&gt;ds&lt;con&lt;keygen&gt;ent&gt;t&gt;&lt;select&gt;xtarea&lt;image2&lt;i&gt;m&lt;dl&gt;&lt;noframes&gt;d   <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  &lt;fiel&lt;summary&gt;                                                       ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  &gt;m&lt;form&gt;&gt;l&gt;&lt;c&lt;spa&lt;title&gt;er&gt;del&gt;&lt;audio&gt;shadow&gt;va&lt;b&gt;&gt;&lt;option&gt;&lt;tt&gt;&lt;b&gt;   <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  ex&lt;a&lt;nobr&gt;plet                                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  &gt;area&lt;th&lt;select&gt;ad&gt;p&lt;w&lt;s&lt;basefont&gt;r&gt;&lt;bdo&gt;&gt;&lt;acrony&lt;iframe&gt;&gt;&lt;dt&gt;d&lt;     <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  nav&gt;&lt;&lt;optgroup&gt;n                                                     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  &lt;d&lt;listing&gt;&lt;datalist&gt;car&lt;input&gt;&gt;u&lt;command&gt;dt&gt;4&lt;noframes&gt;on&lt;cit&lt;hea&lt;  <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  animatemotion                                                        <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  &gt;er&gt;&gt;&lt;p&lt;font&gt;&lt;area&gt;&lt;bgsound&gt;span&gt;3&gt;&lt;img2&lt;h6&gt;&lt;dir&gt;                    <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  em&gt;&lt;tf&lt;&lt;form&gt;&lt;animatetransform&gt;                                      ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  &lt;a&lt;h3&gt;&lt;source&gt;a&gt;&gt;ot&lt;search&gt;&lt;co&lt;article&gt;&lt;object&gt;&gt;l&lt;form&gt;ckq&lt;tfoo      ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  &lt;summary&gt;h1&lt;artic                                                    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  le&gt;&gt;&lt;anim&lt;optgroup&gt;te&gt;&lt;&lt;select&gt;mage3&gt;&gt;&lt;thead&gt;s&gt;x&lt;&lt;&lt;s&gt;e&lt;&lt;da           <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  &lt;input&gt;alist&gt;el&gt;ter&gt;&lt;s                                               ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  ection&gt;&gt;&lt;code&gt;str&lt;caption&gt;&lt;svg&gt;&lt;&lt;dd&gt;ortal&gt;&lt;custom tags&gt;br&gt;           ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  &lt;&lt;&lt;da&lt;font&gt;alis&lt;fields                                               <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  et&gt;&gt;od&lt;rb&gt;&lt;menu&gt;&lt;address&gt;&lt;dat&lt;p&lt;abbr&gt;ram&gt;&gt;&lt;iframe&gt;object&gt;            ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  &lt;title&gt;ist&lt;tra&lt;address&gt;                                              <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  k&gt;n&lt;&lt;col&gt;am&lt;dl&gt;&gt;&lt;param&gt;an&lt;in&lt;summary&gt;&lt;f&lt;portal&gt;                      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  rm&gt;&lt;animate&gt;&lt;bdi&gt;&gt;ma&lt;&lt;ul&gt;&gt;&lt;va&lt;ima&lt;nav&gt;e3&lt;br&gt;&gt;                        <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  &lt;&lt;section&gt;&lt;html&gt;&lt;i&lt;anim&lt;tfoot&gt;te&lt;keygen&gt;otio&lt;section&gt;&gt;               <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  age&gt;&lt;&lt;&lt;ruby&gt;ink&gt;tc&gt;am&lt;im                                             <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  &lt;caption&gt;s&lt;nobr&gt;yle&gt;&lt;st&lt;in&lt;q&gt;&lt;isindex&gt;&lt;ins&gt;4&gt;ong&gt;area                ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  &gt;d&gt;&lt;label&gt;ba&lt;discard&lt;em&gt;efo                                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  &lt;strike&gt;&lt;tr&gt;ptgrou&lt;figure&gt;&lt;h2&lt;select&gt;&lt;&lt;i&gt;ar&lt;sub&lt;discard&gt;av&gt;          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  E um JSON detalhando como fica em cada sanitizer:                    <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  &quot;&lt;strike&gt;&lt;tr&gt;ptgrou&lt;figure&gt;&lt;h2&lt;select&gt;&lt;&lt;i&gt;ar&lt;sub&lt;discard&gt;av&gt;&quot; : {    <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    &quot;dompurify&quot;: &quot;&lt;strike&gt;ptgrou&lt;figure&gt;&amp;lt;&lt;i&gt;                        ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    arav&amp;gt;&lt;/i&gt;&lt;/figure&gt;&lt;/strike&gt;&quot;,                                   ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    &quot;caja&quot;: &quot;&lt;strike&gt;&lt;tr&gt;ptgrou&lt;figure&gt;&lt;h2&gt;&amp;lt;&lt;i&gt;ar&lt;sub&gt;              ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    av&amp;gt;&lt;/sub&gt;&lt;/i&gt;&lt;/h2&gt;&lt;/fig                                         ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>    ure&gt;&lt;/tr&gt;&lt;/strike&gt;&quot;,                                               ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    &quot;jsxss&quot;: &quot;&lt;strike&gt;&lt;tr&gt;ptgrou&lt;figure&gt;&amp;lt;h2&amp;lt;select&amp;gt;&amp;lt;&lt;i&gt;    <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>    ar&amp;lt;sub&amp;lt;dis                                                   ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    card&amp;gt;av&amp;gt;&quot;,                                                   <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    &quot;sanitizehtml&quot;: &quot;&lt;strike&gt;&lt;tr&gt;ptgrou&amp;lt;&lt;i&gt;arav&amp;gt;&lt;/i&gt;&lt;/tr&gt;&lt;/strike&gt;&quot;,<g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    &quot;angular&quot;: &quot;&lt;strike&gt;ptgrou&lt;figure&gt;&amp;lt;&lt;i&gt;                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>    arav&amp;gt;&lt;/i&gt;&lt;/figure&gt;&lt;/strike&gt;&quot;,                                   ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    &quot;nodejs arcgis (Server-side)&quot;: &quot;&amp;lt;strike&amp;gt;&lt;tr&gt;ptgrou&lt;          <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    figure&gt;&amp;lt;h2&amp;lt;selec                                             ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>    t&amp;gt;&amp;lt;&lt;i&gt;ar&amp;lt;sub&amp;lt;discard&amp;gt;av&amp;gt;&quot;,                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    &quot;nodejs bleach-default (Server-side)&quot;: &quot;&lt;strike&gt;&lt;tr&gt;ptgrou&lt;        <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    figure&gt;&lt;h2&lt;select&gt;&lt;&lt;                                               ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    i&gt;ar&lt;sub&lt;discard&gt;av&gt;&quot;,                                             <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>    &quot;nodejs bleach-strict (Server-side)&quot;: &quot;ptgrouarav&gt;&quot;,               <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>    &quot;nodejs dompurify (Server-side)&quot;: &quot;&lt;strike&gt;ptgrou&lt;figure&gt;&amp;lt;&lt;i&gt;   <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>    arav&amp;gt;&lt;/i&gt;&lt;/f                                                    ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    igure&gt;&lt;/strike&gt;&quot;,                                                  <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>    &quot;nodejs insane-default (Server-side)&quot;: &quot;&lt;strike&gt;&lt;tr&gt;               <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    ptgrou&lt;/tr&gt;&lt;/strike&gt;&quot;,                                             ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    &quot;nodejs yahoopurify (Server-side)&quot;: &quot;&lt;tr&gt;ptgrou&lt;figure&gt;&amp;lt;&lt;i&gt;     ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    arav&gt;&lt;/i&gt;&lt;/figure                                                  <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    &gt;&lt;/tr&gt;&quot;,                                                           ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    &quot;php htmlawed (Server-side)&quot;: &quot;&lt;span style=\&quot;text-decoration:      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>    line-through;\&quot;&gt;p                                                  <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>    tgrou&amp;lt;&amp;lt;i&amp;gt;ar&lt;sub&gt;av&amp;gt;&lt;/sub&gt;&lt;/span&gt;&quot;,                     <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    &quot;php htmlpurifier (Server-side)&quot;: &quot;&lt;figure&gt;&lt;h2&gt;&amp;lt;&lt;i&gt;ar&lt;sub&gt;      <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>    av&amp;gt;&lt;/sub&gt;&lt;/i&gt;&lt;/                                                 <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>    h2&gt;&lt;/figure&gt;&quot;,                                                     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>    &quot;php htmlsanitizor (Server-side)&quot;: &quot;ptgrou&lt;figure&gt;&lt;h2&gt;&lt;i&gt;ar&lt;sub&gt;   <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    av&amp;gt;&lt;/sub&gt;&lt;/i                                                    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    &gt;&lt;/h2&gt;&lt;/figure&gt;&quot;,                                                  <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    &quot;php symphony (Server-side)&quot;: &quot;&lt;strike&gt;&lt;tr&gt;ptgrou&lt;figure&gt;&lt;h2&gt;      ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    &lt;select&gt;&lt;i&gt;ar&lt;sub&gt;                                                 <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    &lt;/sub&gt;&lt;/i&gt;&lt;/select&gt;&lt;/h2&gt;&lt;/figure&gt;&lt;/tr&gt;&lt;/strike&gt;&quot;,                  ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>    &quot;php typo3 (Server-side)&quot;:                                         <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>    &quot;&amp;lt;strike&amp;gt;&amp;lt;tr&amp;gt;ptgrou&amp;lt;figure&amp;gt;&amp;lt;h2&amp;               ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    gt;&amp;lt;select&amp;gt;&amp;lt;i&amp;gt;ar&amp;lt;sub&amp;gt;&amp;lt;discard&amp;gt;av&amp;amp;gt;   ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    &amp;lt;/discard&amp;gt                                                    ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    ;&amp;lt;/sub&amp;gt;&amp;lt;/i&amp;gt;&amp;lt;/select&amp;gt;&amp;lt;/h2&amp;gt;&amp;lt;/figure       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    &amp;gt;&amp;lt;/tr&amp;gt;&amp;lt;                                                <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    /strike&amp;gt;&quot;,                                                      ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>    &quot;python bleach (Server-side)&quot;:                                     <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>    &quot;&amp;lt;strike&amp;gt;&amp;lt;tr&amp;gt;ptgrou&amp;lt;figure&amp;gt;&amp;lt                   <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    ;h2&amp;lt;select&amp;gt;&amp;lt;&lt;i&gt;ar&amp;lt;sub&amp;lt;discard&amp;gt;av&amp;gt;&lt;/i&gt;&quot;,       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>    &quot;Provavelmente alguma templating engine, strip_tags(), ou similar&quot;:<g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>    &quot;ptgrou&quot;                                                           ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  }                                                                    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Pedi pro cursor fazer um site esdrúxulo e ele fez essa maravilha aqui<g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  <a href="http://lude.rs/detecta_sanitizer">http://lude.rs/detecta_sanitizer                                     </a><g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Assim fica mais fácil de usar o payload e detectar os sanitizadores. <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  ---[ 3 - Melhorias // EOF                                            <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Com certeza daria pra melhorar a fitness function levando em conta o <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  tamanho, número de tags, etc. Outra melhoria seria criar a população ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  com atributos aleatórios e conteúdo de acordo com as tags, algo como <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  o que o shazzer.co.uk faz. O laboratório além de precisar ser        <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  ampliado para outras tecnologias, também é necessário um sistema de  <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  controle das versões, já que cada versão pode alterar como os        <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  sanitizadores funcionam. Acredito que seja possível criar um payload <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  que além de detectar o sanitizador também detecte a versão, ou um    <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  conjunto de payloads que faça isso.                                  <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Espero que ajude nas traquinagens de vocês (:                        <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  ---[ 4 - Referências                                                 ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  [1] <a href="https://portswigger.net/web-security/dom-based/dom-clobbering">https://portswigger.net/web-security/dom-based/dom-clobbering    </a>·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  [2] <a href="https://pt.wikipedia.org/wiki/Algoritmo_genético">https://pt.wikipedia.org/wiki/Algoritmo_genético                 </a>·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  [3] <a href="https://cursor.com">https://cursor.com                                               </a><g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ··░                                                                       ░··
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                
+
+</div></pre>
+</body>
+</html>

@@ -1,0 +1,488 @@
+Anya Lain apresenta
+
+|\___/|
+| 0.0 |
+| ()()|
+|      \
+|       \
+---------=======
+
+Um hacking inacabado de verão
+
+Ou - como tentei rootear um Chromecast
+
+Versão Brasileira, Anya Lain
+
+------------------------------------------------------------
+Aparelhos espiões de big techs são coisas muito divertidas. O 
+trade-off para o roubo de dados e rombo na segurança de rede é 
+conseguir automatizar sua casa. 
+
+OK Google, Alexa, me faz um sanduíche. Esse é o futuro e ele já 
+começou. 
+
+Quando o frenezi dos dispositivos espiões a.k.a. home assistants 
+começou, eu logo comprei um Google Home Mini do MercadoLivre. O 
+aparelho tinha sido importado (talvez ilegalmente? but who cares), o 
+firmware dele não suportava português, mas ainda assim era algo bem 
+divertido de se ter em casa, especialmente quando eu pedia para ele 
+expulsar as pessoas da minha casa tocando Nickelback. 
+
+Eu estava me divertindo com meu aparelho espião da Google quando, 
+num belo dia, o aparelho ficou o dia todo com quatro luzes acessas e 
+estáticas e não me respondia mais. Depois de tentar toda forma de 
+reset, o aparelho continuou não dando sinal de vida. Ele estava 
+morto, graças à uma atualização OTA (Over the Air) da Google [1]. 
+
+O aparelho não tinha sido lançado oficialmente no Brasil, a Google 
+se comprometeu a substituir os aparelhos com brick desde que estejam 
+nos países em que o aparelho foi oficialmente lançado e, semanas 
+depois, eles lançaram o Nest Mini no Brasil (um aparelho 
+extremamente similar ao Google Home Mini). 
+
+O que fazer com esse peso de papel? Por que não entender o porquê 
+dele ter brickado? A partir desse momento, entrei numa rabbit hole 
+de hardware hacking e raw bytes. Muitos raw bytes. 
+
+------------------------------------------------------------
+
+Eu assumi que o Google Home rodasse algum tipo de Android ou Chrome 
+OS pois, afinal, é um dispositivo da Google. Tentei buscar alguns 
+sources e até encontrei alguns no Google Code [2], mas eles já 
+tinham sumido há muito tempo. Durante um bom tempo não sabia muito o 
+que fazer, até que de repente me deparei com um artigo de abzman2k 
+chamado "Google Home Autopsy". [3] Uau! 
+
+No artigo, abzman2k também tem o seu Google Home (primeira geração) 
+brickado, então ele descobre dois test points de UART! Conectando 
+num FTDI da vida e usando um screen ou picocom, ele obteve os logs 
+do Google Home brickado dele e publicou eles no blog [3]. Buscando 
+algumas coisas dos logs no Google eu também encontrei o código do 
+bootloader num Pastebin [4].
+
+> O que são test points afinal? 
+>> Test points, ou test pads, são pequenos círculos que existem nas 
+>> placas de circuito que permitem que 
+>> sinais sejam injetados para teste desses aparelhos, geralmente na 
+>> fábrica. 
+>> Normalmente esses test points não devem existir em dispositivos 
+>> de produção, ou talvez existam somente para
+>> QA. 
+
+Vendo teardowns do Google Home Mini e do Chromecast, descobrimos que 
+os dois tem o mesmo processador ARMADA 1500 Mini Plus da Marvell. 
+Isso significa que podemos pwnar qualquer device da família Google 
+Home/Chromecast. Temos um teardown do Google Home Mini em [5] e um 
+do Chromecast 2 e Chromecast Audio em [6]. Eu não achei test pads no 
+Google Home Mini, então meu próximo device tinha que ser o Chromecast
+
+2. 
+
+Eu arrebentei o Chromecast 2 inteiro para descobrir que não, ele não 
+tem também os test pads. Porém, olhando no iFixit, o Chromecast 
+Audio tinha algo muito interessante: dois test pads, bem próximos ao 
+processador! Fui no MercadoLivre de novo e achei o último Chromecast 
+Audio já vendido (provavelmente). Comprei, arrebentei ele todinho, 
+achei os pads e soldei dois fios da forma mais porca possível. 
+Comprei um CP2102 e
+
+ep3tsa01rp>sys_init start. boot_strap=0x000005c7 (source=NAND), 
+boot_state=0x0
+
+------------------------------------------------------------
+
+Okay, o source do Pastebin [4] parece shady, mas ele na verdade foi 
+disponibilizado em diversos lugares de forma completamente legal. 
+Vamos para nossa estratégia clean room aqui [7]. 
+
+Na página de open source do Chromecast [8], há um link que leva para 
+um Google Drive. Nesse drive, temos até a versão 1.56 do source do 
+kernel, da SDK e do bootloader. Para obter esses arquivos, é só ir 
+em:
+
+Chromecast Opensource Code > 1.56 > Kernel Bootloader SDK 
+partner%2F1.56_sdk%2Fcombined-sdk-kernel-bootloader%2F253616%2Foss%2F
+chromecast_sdk_oss.tgz
+
+(bootloader e kernel estão aqui)
+
+Chromecast Opensource Code > 1.56 > Google Home Mini
+internal%2F1.56%2Fmushroom-user%2F259165%2Fchromecast_oss.tgz
+
+(Chromium e arm toolchain estão aqui)
+
+Depois de um tempo, eu descobri também que o source do Nest/
+Chromecast/Google Home é disponibilizado em [9] e que alguém 
+esqueceu que arquivos do Git são para sempre [10]. 
+
+Uma coisa legal desse source é que eu descobri que é possível bootar 
+uma imagem do USB nos aparelhos. Antes de descobrir o lance do test 
+pad, eu tentei cegamente descobrir em quais USB reads do código ele 
+parava usando o LED de um pendrive como side channel. [11]
+
+------------------------------------------------------------
+
+Vamos dar uma breve olhadela no source code do bootloader do Google 
+Home aqui. [11]
+
+O nosso entrypoint é a função Image_Load_And_Start. Ela primeiro 
+verifica se o modo de boot foi USB ou recovery. Se não for nenhum 
+desses (o usuário não apertou e segurou o botão de reset do 
+aparelho), é feito o boot pela NAND. 
+
+Eu não ligo pra boot pela NAND aqui, vamos de USB. A função 
+load_android_image então é chamada. Nessa função, seguindo as macros 
+de USB, temos o scan e o load do dispositivo USB, que pode ser um 
+pendrive conectado via OTG (um OTG que tenha uma ponta para 
+micro-usb e outra para USB-A, permitindo assim ligar o dispositivo e 
+conectar o pendrive). Depois de ler algumas coisas e jogar tudo pra 
+memória, é feita uma verificação de header na função 
+bootimg_hdr_verify. Temos isso aqui: 
+
+    if (boot_src == BOOT_SRC_USB){
+        /* TODO(kolla): Enable checks for ver, mkt_id etc.*/
+        if (img_magic != CPU_IMG_CODE_MAGIC)
+            return -1;
+        if (code_type != BCM_IMG_USBIMG_TYPE)
+            return -1;
+        if (img_udata != CPU_IMG_USB_USRDATA)
+            return -1; 
+
+Os defines são:
+
+    #define CPU_IMG_CODE_MAGIC       0xC0DE
+    #define BCM_IMG_KERNEL_TYPE  4
+    #define BCM_IMG_USBIMG_TYPE  5
+    #define CPU_IMG_USB_USRDATA      0xA33A
+
+No [Apêndice B] eu incluí um script que faz os patches para que a 
+boot.img tenha essas configurações no header. 
+
+Voltando à função load_android_image, quando passamos da verificação 
+dos headers, entramos na verificação do BCM (Base Crypto Module).
+
+    /* Verify image header */
+    ret = bootimg_hdr_verify(k_buff_img, boot_src);
+    if (ret) {
+      lgpl_printf("ERROR: Boot image verify header failed!ret=0x%x\n", ret);
+      return -1;
+    }
+    ret = bcm_image_verify(bcm_img_type, (unsigned) k_buff, (unsigned) k_buff);
+    if (ret) {
+        lgpl_printf("ERROR: Verify k_buff image failed!ret=0x%x\n", ret);
+        return -1;
+    }
+
+A função bcm_image_verify é a mais... chata! 
+
+int bcm_image_verify(unsigned int type, unsigned int src, unsigned 
+int dst)
+
+É recebido aqui o image type (no caso, 5 para USB, 4 para NAND 
+[BCM_IMG_KERNEL_TYPE]), um source e um destination. 
+
+A interface do BCM é definida em [10], e pelo que entendi isso 
+funciona da seguinte maneira: 
+
+   ----------   bus  -----------
+  | Main SoC |------| trustzone |
+   ----------        -----------
+       |                |
+       V                V 
+    ------------------------
+   |        memory          |
+    ------------------------
+
+No início da função bcm_image_verify, temos o seguinte:
+
+#define BCM_MAILBOX          MEMMAP_BCM_REG_BASE //0xF7930000
+
+...
+
+volatile NOT_MAILBOX volatile *mb = (NOT_MAILBOX *) BCM_MAILBOX;
+
+Ou seja, mapeamos um endereço de memória em comum entre o TrustZone (
+onde operações criptográficas executam) e o SoC principal (onde o 
+bootloader está executando). 
+
+Depois, mandamos o tipo de imagem (lembra, 5 para USB, 4 para NAND), 
+os buffers onde vamos armazenar coisas e o comando a ser executado 
+no TrustZone
+
+#define BCM_PI_IMAGE_VERIFY  0x004E
+
+...
+
+    mb->primitive_command_parameter0 = type;
+    mb->primitive_command_parameter1 = src;
+    mb->primitive_command_parameter2 = dst;
+    mb->secure_processor_command = BCM_PI_IMAGE_VERIFY;
+
+
+Depois, existe um loop que espera até um hardware interrupt 
+acontecer: 
+
+    for (waitCount=0; ; waitCount++) // Wait_For_WTM_Complete( 
+    0x10000, pCtrl );
+    {
+        //if ((mb->command_fifo_status & BCM_STATUS_BCM_CMD_FLIP) != 
+        status)
+            //break;
+        // wait for "command complete" or timeout
+        if( mb-> host_interrupt_register & 0x1 )
+            break;
+        berlin_delay(100);
+    }
+
+Por vim, a gente retorna o status
+
+status = mb->command_return_status;
+
+Lá na função load_android_image, é verificado se o retorno disso é 
+zero, e se for, prossegue pro boot.
+
+    if (ret) {
+        lgpl_printf("ERROR: Verify k_buff image failed!ret=0x%x\n",
+         ret);
+        return -1;
+    }
+
+
+Uma coisa interessante do [13] é que, de acordo com os hackers do 
+Exploitee.rs [14] (minuto 25:26), o retorno da verificação de 
+assinatura não era validado, fazendo com que o bypass fosse 
+extremamente simples :) Hoje é bem difícil, e eu não sei exatamente 
+como hackear a partir desse ponto...
+
+------------------------------------------------------------
+
+Bom, nessa talk da DEFCON 27 [12], é exibido como baixar uma OTA do 
+Google Home Mini. Seguindo o passo a passo da apresentação deles, eu 
+obtive o zip: 
+
+ota.375114.tz_stable-channel.joplin-b4.5b07d2aee0cb1d05602930fa2d18f930dbb81463.zip
+
+  inflating: META-INF/MANIFEST.MF    
+  inflating: META-INF/CERT.SF        
+  inflating: META-INF/CERT.RSA       
+  inflating: META-INF/com/android/metadata  
+  inflating: META-INF/com/google/android/update-binary  
+  inflating: META-INF/com/google/android/updater-script  
+  inflating: boot.img                
+  inflating: bootloader.joplin-b4    
+  inflating: post-bootloader.joplin-b4  
+  inflating: system.img              
+  inflating: tz_en.joplin-b4  
+
+O Apêndice A contém um script que verifica, a partir do código do 
+bootloader, quais bytes estão setados na imagem.
+
+./img-info.sh extracted/boot.img
+Magic: c0de (should be c0de) at offset 4
+User data 0000 (should be a33a for USB) at offset 10
+Code Type: 04 (5 is USB, 4 is kernel) at offset 7
+Header Type: 00000001 at offset 0
+Market ID: 00000001 at offset 28
+Market ID Mask: ffffffff at offset 32
+Version ID: 01 at offset 36
+Version ID Mask: ff at offset 35
+Image size: 003e9000 at offset 40
+Android Magic: ANDROID! at offset 332
+
+Algumas dessas coisas foram tiradas da ferramenta ./sign_image do 
+chromecast_sdk_oss
+
+(partner%2F1.56_sdk%2Fcombined-sdk-kernel-bootloader%2F253616%2Foss%2
+Fchromecast_sdk_oss.tgz)
+
+No apêndice B temos um script que gera um formato de imagem pronto 
+para o USB. Porém, essa imagem não vai funcionar por conta das 
+assinaturas necessárias :c 
+
+./generate_bootimg.sh extracted/boot.img extracted/boot.img.mbr
+Patching extracted/boot.img
+Patching BCM_IMG_USBIMG_TYPE (5) at offset 7
+1+0 records in
+1+0 records out
+1 byte copied, 7.1324e-05 s, 14.0 kB/s
+Patching CPU_IMG_USB_USRDATA (0xA33A) at offset 10
+2+0 records in
+2+0 records out
+2 bytes copied, 6.5483e-05 s, 30.5 kB/s
+Creating 4KB zero padding from extracted/boot.img to extracted/
+boot.img.mbr
+1+0 records in
+1+0 records out
+4096 bytes (4.1 kB, 4.0 KiB) copied, 7.2947e-05 s, 56.2 MB/s
+8008+1 records in
+8008+1 records out
+4100428 bytes (4.1 MB, 3.9 MiB) copied, 0.0677137 s, 60.6 MB/s
+
+Com isso, é só fazer um dd do boot.img.mbr para um pendrive e plugar 
+no Google Home/Chromecast usando um OTG powered (um OTG que tem 
+entrada USB A e micro USB, que vai na energia) e segurar o botão de 
+reset do aparelho.
+
+Temos um artigo mega foda em [15] sobre mais hacks do Google Home 
+Mini e em [16] mais análises de HW do Nest.
+
+------------------------------------------------------------
+
+Temos várias possibilidades de futuros trabalhos com o Chromecast e 
+o Google Home. Uma delas seria fazer uma análise de voltage 
+glitching para fazer o bypass da verificação de assinatura de imagem 
+USB. Com isso, poderíamos bootar nossa própria imagem do kernel :) 
+
+Outra coisa que eu queria muito testar é como carregar o firmware do 
+Chromecast no QEMU. Pra isso, preciso tentar entender o layout da 
+NAND e como traduzir isso pro QEMU. É provável que os binários de tz 
+loader e outros disponíveis no chromecast_sdk_oss estejam 
+criptografados também. 
+
+Espero que essa jornada tenha sido interessante para vocês como foi 
+pra mim. Até a próxima!
+
+------------------------------------------------------------
+
+Pesquisas futuras
+
+[17] possui um pouco sobre o modelo de Trusted Firmware da ARM, em 
+que o bootloader depende de alguns stages para executar. 
+
+[18] possui o código do atf-marvell, do trusted firmware que a 
+Marvell usa. 
+
+Entender isso é crucial para próximos desenvolvimentos.
+
+------------------------------------------------------------
+
+Referências
+
+[1] https://www.cnet.com/home/smart-home/your-google-home-is-bricked-heres-how-to-get-a-new-one-for-free/ 
+
+[2] https://code.google.com/archive/p/chromecast-mirrored-source/source
+
+[3] https://abzman2k.wordpress.com/2020/02/20/google-home-autopsy/
+
+[4] https://pastebin.com/3c1BUieq
+
+[5] https://justlv.medium.com/google-home-mini-teardown-comparison-to-echo-dot-and-giving-technology-a-voice-c59a23724a26
+
+[6] https://www.ifixit.com/News/7431/chromecast-2015-audio
+
+[7] https://en.wikipedia.org/wiki/Clean_room_design
+
+[8] https://support.google.com/product-documentation/answer/10525328?hl=en
+
+[9] https://nest-open-source.googlesource.com/manifest_repos/bootloader/
+
+[10] https://nest-open-source.googlesource.com/manifest_repos/bootloader/+/836ad32e08388e0e4ce8d03fe4f14d2c3ea8ba13/berlin_tools/bootloader/bcm_hal.c
+
+[11] https://nest-open-source.googlesource.com/manifest_repos/bootloader/+/836ad32e08388e0e4ce8d03fe4f14d2c3ea8ba13/berlin_tools/bootloader/bootloader.c#889
+
+[12] https://www.youtube.com/watch?v=YBwT7PU6QU4
+
+[13] https://nest-open-source.googlesource.com/manifest_repos/bootloader/+/836ad32e08388e0e4ce8d03fe4f14d2c3ea8ba13/berlin_tools/bootloader/bootloader.c#1977
+
+[14] https://www.youtube.com/watch?v=_FxJJ2eDC_I
+
+[15] https://courk.cc/running-custom-code-google-home-mini-part1
+
+[16] https://www.beer.org/blog/index.php/2019/12/
+
+[17] https://chromium.googlesource.com/external/github.com/ARM-software/arm-trusted-firmware/+/v0.4-rc1/docs/firmware-design.md
+
+[18] https://github.com/MarvellEmbeddedProcessors/atf-marvell
+
+------------------------------------------------------------
+
+Apêndice A
+
+img-info.sh
+
+BOF
+#!/bin/bash
+
+INPUT_FILE=$1
+
+IMG_START=0
+MKBOOTIMG_START=332
+MAGIC_OFFSET=`expr $IMG_START + 4`
+
+MAGIC=`xxd -e -l 2 -s $MAGIC_OFFSET $INPUT_FILE | awk '{print $2}'`
+if [ "$MAGIC" != "c0de" ]; then
+    echo "Will change IMG_START to 4096"
+    IMG_START=4096
+    MAGIC_OFFSET=`expr $IMG_START + 4`
+    MAGIC=`xxd -e -l 2 -s $MAGIC_OFFSET $INPUT_FILE | awk '{print $2}'`
+    [ "$MAGIC" == "c0de" ] || echo "Still couldn't find magic :("
+fi
+
+echo "Magic: $MAGIC (should be c0de) at offset $MAGIC_OFFSET"
+
+USR_DATA_OFFSET=`expr $IMG_START + 10`
+USR_DATA=`xxd -e -l 2 -s $USR_DATA_OFFSET $INPUT_FILE | awk '{print $2}'`
+echo "User data $USR_DATA (should be a33a for USB) at offset $USR_DATA_OFFSET"
+
+CODE_TYPE_OFF=`expr $IMG_START + 7`
+CODE_TYPE=`xxd -e -l 1 -s $CODE_TYPE_OFF $INPUT_FILE | awk '{print $2}'`
+echo "Code Type: $CODE_TYPE (5 is USB, 4 is kernel) at offset $CODE_TYPE_OFF"
+
+HEADER_TYPE_OFF=`expr $IMG_START`
+HEADER_TYPE=`xxd -e -l 4 -s $HEADER_TYPE_OFF $INPUT_FILE | awk '{print $2}'`
+echo "Header Type: $HEADER_TYPE at offset $HEADER_TYPE_OFF"
+
+MARKET_ID_OFF=`expr $IMG_START + 28`
+MARKET_ID=`xxd -e -l 4 -s $MARKET_ID_OFF $INPUT_FILE | awk '{print $2}'`
+echo "Market ID: $MARKET_ID at offset $MARKET_ID_OFF"
+
+MARKET_ID_MASK_OFF=`expr $IMG_START + 32`
+MARKET_ID_MASK=`xxd -e -l 4 -s $MARKET_ID_MASK_OFF $INPUT_FILE | awk '{print $2}'`
+echo "Market ID Mask: $MARKET_ID_MASK at offset $MARKET_ID_MASK_OFF"
+
+VERSION_ID_OFF=`expr $IMG_START + 36`
+VERSION_ID=`xxd -e -l 1 -s $VERSION_ID_OFF $INPUT_FILE | awk '{print $2}'`
+echo "Version ID: $VERSION_ID at offset $VERSION_ID_OFF"
+
+VERSION_ID_MASK_OFF=`expr $IMG_START + 35`
+VERSION_ID_MASK=`xxd -e -l 1 -s $VERSION_ID_MASK_OFF $INPUT_FILE | awk '{print $2}'`
+echo "Version ID Mask: $VERSION_ID_MASK at offset $VERSION_ID_MASK_OFF"
+
+IMAGE_SIZE_OFF=`expr $IMG_START + 40`
+IMAGE_SIZE=`xxd -e -l 4 -s $IMAGE_SIZE_OFF $INPUT_FILE | awk '{print $2}'`
+echo "Image size: $IMAGE_SIZE at offset $IMAGE_SIZE_OFF"
+
+ANDROID_MAGIC_OFF=`expr $IMG_START + 332`
+ANDROID_MAGIC=`xxd -e -l 8 -s $ANDROID_MAGIC_OFF $INPUT_FILE | awk '{print $4}'`
+echo "Android Magic: $ANDROID_MAGIC at offset $ANDROID_MAGIC_OFF"
+
+if [ "$IMG_START" -ne 0 ]; then
+    echo "Will also check crypto headers"
+    ./check_encrypted_header.sh $INPUT_FILE
+fi
+EOF
+
+------------------------------------------------------------
+
+Apêndice B
+
+generate_bootimg.sh
+
+BOF
+#!/bin/bash
+
+INPUT_FILE=$1
+OUTPUT_FILE=$2
+
+echo "Patching $INPUT_FILE"
+
+echo "Patching BCM_IMG_USBIMG_TYPE (5) at offset 7"
+printf '\x05' | dd of=$INPUT_FILE bs=1 seek=7 conv=notrunc
+
+echo "Patching CPU_IMG_USB_USRDATA (0xA33A) at offset 10"
+printf '\x3a\xa3' | dd of=$INPUT_FILE bs=1 seek=10 conv=notrunc
+
+echo "Creating 4KB zero padding from $INPUT_FILE to $INPUT_FILE.mbr"
+dd if=/dev/zero of=$OUTPUT_FILE bs=4096 count=1
+dd if=$INPUT_FILE >> $OUTPUT_FILE
+EOF

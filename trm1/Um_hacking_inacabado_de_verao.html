@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Um hacking inacabado de verão | TRAMOIA 0x1</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+</head>
+<body>
+<div class="background"></div>
+<div class="txtdiv"><pre id="artpre">
+                                                                                                                               
+  <g1>
+
+                                                       01<g1>
+ <g2>░<g1>██<ww>▀<ww>█████<g1>    <g2>░<g1>██<ww>▀<ww>████<g1>     <g2>░<ww>▀<ww>███████<g1>     <g2>░<ww>██<g1>▌  <g2>░<ww>██<g1>     <g2>░<g1>█<ww>▀<ww>████<g1>     ██<g1>   <g2>░<ww>▀▀<ww>██████<g1>
+  <g2>░░░<g1>██<g1>       <g2>░<g1>██<g2>░░░░<ww>█<g1>▌    <g2>░<g1>██<g2>░░░░<ww>██<g1>     <g2>░<g1>███<g1> <g2>░<g1>███<g1>    <g2>░<g1>██<g2>░░░░<ww>██<g1>   <g2>░<ww>██<g1>   <g2>░<g1>██<g2>░░░░<ww>██<g1>
+    <g2>░<g1>██       <g2>░<g1>██   <g2>░<ww>█<g1>▌    <g2>░<g1>██   <g2>░<ww>██<g1>     <g2>░<g1>██<g1> ██<g2>░<g1>██<g1>    <g2>░<g1>██   <g2>░<g1>██<g1>   <g2>░<g1>▓█<g1>   <g2>░<g1>██   <g2>░<ww>██<g1>
+    <g2>░<g1>██       <g2>░<g1>██████<ww>▀<g1>     <g2>░<g1>███████<g1>█     <g2>░<g1>██ 01<g2>░<g1>█<ww>▀<g1>    <g2>░<g1>██   <g2>░<g1>██   <g2>░<g1>█<ww>▀<g1>   <g2>░<g1>██████<ww>▀<ww>█<g1>
+    <g2>░<g1>█·       <g2>░<g1>██   ▀█     <g2>░<g1>▓█   <g2>░<g1>██     <g2>░<g1>▓█   <g2>░<g1>██    <g2>░<g1>▓█   <g2>░<g1>██   <g2>░<g1>█▓   <g2>░<g1>▓█   <g2>░<g1>██
+    <g2>░<g1>██       <g2>░<g1>██   <g2>░<g1>█     <g2>░<g1>█▓   <g2>░<g1>█▓     <g2>░<g1>▒    <g2>░<g1>█▓    <g2>░░<g1>▓   <g2>░<g1>▒▓   <g2>░<g1>█▓   <g2>░<g1>█▓   <g2>░<g1>█▓
+    <g2>░<g1>▓▓       <g2>░<g1>▓▓   <g2>░<g1>▓▌    <g2>░<g1>▓▓   <g2>░<g1>▓▒     <g2>░<g1>▓▒   <g2>░<g1>▓▒    <g2>░<g1>▒░   <g2>░<g1>▓░   <g2>░<g1>▒▒   <g2>░<g1>▓▓   <g2>░<g1>▓▒
+    <g2>░<g1>▒▓       <g2>░<g1>▓    <g2>░<g1>▓▌    <g2>░<g1>▓▒   <g2>░<g1>▓▓     <g2>░<g1>░▒   <g2>░░<g1>▓     <g2>░<g1>▒████░    <g2>░<g1>▓░   <g2>░<g1>▓▒   <g2>░░<g1>▓
+    <g2>░<g1>▓<g2>░<g1>       <g2>░<g1>▒░   <g2>░<g1>░▌    <g2>░<g1>▒░                 <g2>░<g1>▓▒                <g2>░<g1>░▒   <g2>░<g1>▒░   <g2>░<g1>▓█
+    <g2>░<g1>▒▓       <g2>░░<g1>▒          <g2>░<g1>▒                  <g2>░<g1>▒▓                <g2>░<g1>▒░   <g2>░<g1>▒·   <g2>░<g1>▓▒
+    <g2>░<g1>▒·       <g2>░<g1>▒           <g2>░<g1>▒                  <g2>░<g1>▓                 <g2>░<g1>▒░   <g2>░<g1>▒▓   <g2>░<g1>░▓
+    <g2>░▒<g1>▒                                        <g2>░<g1>▒░                  ░         <g2>░<g1>▒·
+    <g2>░░<ww>░<g1>                                          ░                            <g2>░░<g1>▒
+    ·░░                                                                       ░<g2>░░<g1>
+    ░<g1>░<g2>░<g1><ww>  Anya Lain apresenta                                                  <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  |\___/|                                                              ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  | 0.0 |                                                              ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  | ()()|                                                              ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  |      \                                                             <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  |       \                                                            <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  ---------=======                                                     <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Um hacking inacabado de verão                                        ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  Ou - como tentei rootear um Chromecast                               <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Versão Brasileira, Anya Lain                                         <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  ------------------------------------------------------------         ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Aparelhos espiões de big techs são coisas muito divertidas. O        ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  trade-off para o roubo de dados e rombo na segurança de rede é       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  conseguir automatizar sua casa.                                      <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  OK Google, Alexa, me faz um sanduíche. Esse é o futuro e ele já      <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  começou.                                                             ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Quando o frenezi dos dispositivos espiões a.k.a. home assistants     ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  começou, eu logo comprei um Google Home Mini do MercadoLivre. O      ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  aparelho tinha sido importado (talvez ilegalmente? but who cares), o <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  firmware dele não suportava português, mas ainda assim era algo bem  <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  divertido de se ter em casa, especialmente quando eu pedia para ele  <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  expulsar as pessoas da minha casa tocando Nickelback.                ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Eu estava me divertindo com meu aparelho espião da Google quando,    ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  num belo dia, o aparelho ficou o dia todo com quatro luzes acessas e ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  estáticas e não me respondia mais. Depois de tentar toda forma de    <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  reset, o aparelho continuou não dando sinal de vida. Ele estava      <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  morto, graças à uma atualização OTA (Over the Air) da Google [1].    ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  O aparelho não tinha sido lançado oficialmente no Brasil, a Google   ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  se comprometeu a substituir os aparelhos com brick desde que estejam ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  nos países em que o aparelho foi oficialmente lançado e, semanas     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  depois, eles lançaram o Nest Mini no Brasil (um aparelho             ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  extremamente similar ao Google Home Mini).                           <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  O que fazer com esse peso de papel? Por que não entender o porquê    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  dele ter brickado? A partir desse momento, entrei numa rabbit hole   <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  de hardware hacking e raw bytes. Muitos raw bytes.                   ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ------------------------------------------------------------         ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Eu assumi que o Google Home rodasse algum tipo de Android ou Chrome  <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  OS pois, afinal, é um dispositivo da Google. Tentei buscar alguns    ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  sources e até encontrei alguns no Google Code [2], mas eles já       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  tinham sumido há muito tempo. Durante um bom tempo não sabia muito o <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  que fazer, até que de repente me deparei com um artigo de abzman2k   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  chamado &quot;Google Home Autopsy&quot;. [3] Uau!                              <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  No artigo, abzman2k também tem o seu Google Home (primeira geração)  ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  brickado, então ele descobre dois test points de UART! Conectando    <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  num FTDI da vida e usando um screen ou picocom, ele obteve os logs   <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  do Google Home brickado dele e publicou eles no blog [3]. Buscando   ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  algumas coisas dos logs no Google eu também encontrei o código do    <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  bootloader num Pastebin [4].                                         <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  &gt; O que são test points afinal?                                      <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  &gt;&gt; Test points, ou test pads, são pequenos círculos que existem nas  ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  &gt;&gt; placas de circuito que permitem que                               <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  &gt;&gt; sinais sejam injetados para teste desses aparelhos, geralmente na ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  &gt;&gt; fábrica.                                                          <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  &gt;&gt; Normalmente esses test points não devem existir em dispositivos   <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  &gt;&gt; de produção, ou talvez existam somente para                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  &gt;&gt; QA.                                                               ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Vendo teardowns do Google Home Mini e do Chromecast, descobrimos que <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  os dois tem o mesmo processador ARMADA 1500 Mini Plus da Marvell.    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Isso significa que podemos pwnar qualquer device da família Google   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Home/Chromecast. Temos um teardown do Google Home Mini em [5] e um   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  do Chromecast 2 e Chromecast Audio em [6]. Eu não achei test pads no ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Google Home Mini, então meu próximo device tinha que ser o Chromecast<g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  2.                                                                   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  Eu arrebentei o Chromecast 2 inteiro para descobrir que não, ele não <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  tem também os test pads. Porém, olhando no iFixit, o Chromecast      <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Audio tinha algo muito interessante: dois test pads, bem próximos ao ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  processador! Fui no MercadoLivre de novo e achei o último Chromecast ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Audio já vendido (provavelmente). Comprei, arrebentei ele todinho,   <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  achei os pads e soldei dois fios da forma mais porca possível.       ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Comprei um CP2102 e                                                  ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  ep3tsa01rp&gt;sys_init start. boot_strap=0x000005c7 (source=NAND),      <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  boot_state=0x0                                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  ------------------------------------------------------------         <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  Okay, o source do Pastebin [4] parece shady, mas ele na verdade foi  <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  disponibilizado em diversos lugares de forma completamente legal.    <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  Vamos para nossa estratégia clean room aqui [7].                     <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  Na página de open source do Chromecast [8], há um link que leva para <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  um Google Drive. Nesse drive, temos até a versão 1.56 do source do   <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  kernel, da SDK e do bootloader. Para obter esses arquivos, é só ir   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  em:                                                                  ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  Chromecast Opensource Code &gt; 1.56 &gt; Kernel Bootloader SDK            ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  partner%2F1.56_sdk%2Fcombined-sdk-kernel-bootloader%2F253616%2Foss%2F·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  chromecast_sdk_oss.tgz                                               <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  (bootloader e kernel estão aqui)                                     <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Chromecast Opensource Code &gt; 1.56 &gt; Google Home Mini                 ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  internal%2F1.56%2Fmushroom-user%2F259165%2Fchromecast_oss.tgz        <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  (Chromium e arm toolchain estão aqui)                                <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Depois de um tempo, eu descobri também que o source do Nest/         ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Chromecast/Google Home é disponibilizado em [9] e que alguém         <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  esqueceu que arquivos do Git são para sempre [10].                   ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  Uma coisa legal desse source é que eu descobri que é possível bootar <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  uma imagem do USB nos aparelhos. Antes de descobrir o lance do test  ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  pad, eu tentei cegamente descobrir em quais USB reads do código ele  <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  parava usando o LED de um pendrive como side channel. [11]           ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ------------------------------------------------------------         <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Vamos dar uma breve olhadela no source code do bootloader do Google  ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Home aqui. [11]                                                      ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  O nosso entrypoint é a função Image_Load_And_Start. Ela primeiro     <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  verifica se o modo de boot foi USB ou recovery. Se não for nenhum    ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  desses (o usuário não apertou e segurou o botão de reset do          <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  aparelho), é feito o boot pela NAND.                                 <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  Eu não ligo pra boot pela NAND aqui, vamos de USB. A função          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  load_android_image então é chamada. Nessa função, seguindo as macros ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  de USB, temos o scan e o load do dispositivo USB, que pode ser um    ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  pendrive conectado via OTG (um OTG que tenha uma ponta para          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  micro-usb e outra para USB-A, permitindo assim ligar o dispositivo e <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  conectar o pendrive). Depois de ler algumas coisas e jogar tudo pra  ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  memória, é feita uma verificação de header na função                 <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  bootimg_hdr_verify. Temos isso aqui:                                 <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>      if (boot_src == BOOT_SRC_USB){                                   <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>          /* TODO(kolla): Enable checks for ver, mkt_id etc.*/         ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>          if (img_magic != CPU_IMG_CODE_MAGIC)                         ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>              return -1;                                               <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>          if (code_type != BCM_IMG_USBIMG_TYPE)                        ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>              return -1;                                               <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>          if (img_udata != CPU_IMG_USB_USRDATA)                        ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>              return -1;                                               ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Os defines são:                                                      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>      #define CPU_IMG_CODE_MAGIC       0xC0DE                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>      #define BCM_IMG_KERNEL_TYPE  4                                   <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      #define BCM_IMG_USBIMG_TYPE  5                                   <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>      #define CPU_IMG_USB_USRDATA      0xA33A                          <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  No [Apêndice B] eu incluí um script que faz os patches para que a    ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  boot.img tenha essas configurações no header.                        <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Voltando à função load_android_image, quando passamos da verificação <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  dos headers, entramos na verificação do BCM (Base Crypto Module).    <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>      /* Verify image header */                                        ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>      ret = bootimg_hdr_verify(k_buff_img, boot_src);                  <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>      if (ret) {                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>        lgpl_printf(&quot;ERROR: Boot image verify header failed!           <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                    └►ret=0x%x\n&quot;, ret);                               <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>        return -1;                                                     ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      }                                                                <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      ret = bcm_image_verify(bcm_img_type, (unsigned) k_buff,          <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                             └►(unsigned) k_buff);                     <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>      if (ret) {                                                       ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>          lgpl_printf(&quot;ERROR: Verify k_buff image                      <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                     └►failed!ret=0x%x\n&quot;, ret);                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>          return -1;                                                   <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>      }                                                                <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  A função bcm_image_verify é a mais... chata!                         <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  int bcm_image_verify(unsigned int type, unsigned int src, unsigned   <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  int dst)                                                             <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  É recebido aqui o image type (no caso, 5 para USB, 4 para NAND       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  [BCM_IMG_KERNEL_TYPE]), um source e um destination.                  <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  A interface do BCM é definida em [10], e pelo que entendi isso       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  funciona da seguinte maneira:                                        <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>     ----------   bus  -----------                                     ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    | Main SoC |------| trustzone |                                    <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>     ----------        -----------                                     <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>         |                |                                            <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>         V                V                                            <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>      ------------------------                                         <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>     |        memory          |                                        <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>      ------------------------                                         ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  No início da função bcm_image_verify, temos o seguinte:              ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  #define BCM_MAILBOX          MEMMAP_BCM_REG_BASE //0xF7930000        ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  ...                                                                  <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  volatile NOT_MAILBOX volatile *mb = (NOT_MAILBOX *) BCM_MAILBOX;     ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  Ou seja, mapeamos um endereço de memória em comum entre o TrustZone (·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  onde operações criptográficas executam) e o SoC principal (onde o    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  bootloader está executando).                                         <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Depois, mandamos o tipo de imagem (lembra, 5 para USB, 4 para NAND), ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  os buffers onde vamos armazenar coisas e o comando a ser executado   ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  no TrustZone                                                         <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  #define BCM_PI_IMAGE_VERIFY  0x004E                                  <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ...                                                                  ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>      mb-&gt;primitive_command_parameter0 = type;                         <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      mb-&gt;primitive_command_parameter1 = src;                          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>      mb-&gt;primitive_command_parameter2 = dst;                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>      mb-&gt;secure_processor_command = BCM_PI_IMAGE_VERIFY;              ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  Depois, existe um loop que espera até um hardware interrupt          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  acontecer:                                                           <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      for (waitCount=0; ; waitCount++) // Wait_For_WTM_Complete(       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>      0x10000, pCtrl );                                                <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>      {                                                                <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>          //if ((mb-&gt;command_fifo_status &amp; BCM_STATUS_BCM_CMD_FLIP) != ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>          status)                                                      ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>              //break;                                                 <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>          // wait for &quot;command complete&quot; or timeout                    <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>          if( mb-&gt; host_interrupt_register &amp; 0x1 )                     ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>              break;                                                   <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>          berlin_delay(100);                                           ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      }                                                                <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  Por vim, a gente retorna o status                                    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  status = mb-&gt;command_return_status;                                  <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Lá na função load_android_image, é verificado se o retorno disso é   <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  zero, e se for, prossegue pro boot.                                  <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>      if (ret) {                                                       ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>          lgpl_printf(&quot;ERROR: Verify k_buff image failed!ret=0x%x\n&quot;,  <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>           ret);                                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>          return -1;                                                   ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>      }                                                                ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  Uma coisa interessante do [13] é que, de acordo com os hackers do    <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  Exploitee.rs [14] (minuto 25:26), o retorno da verificação de        <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  assinatura não era validado, fazendo com que o bypass fosse          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  extremamente simples :) Hoje é bem difícil, e eu não sei exatamente  ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  como hackear a partir desse ponto...                                 <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  ------------------------------------------------------------         <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  Bom, nessa talk da DEFCON 27 [12], é exibido como baixar uma OTA do  <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  Google Home Mini. Seguindo o passo a passo da apresentação deles, eu <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  obtive o zip:                                                        <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  ota.375114.tz_stable-channel.joplin-b4.5b07d2aee0cb1d0               <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  └►602930fa2d18f930dbb81463.zip                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    inflating: META-INF/MANIFEST.MF                                    ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    inflating: META-INF/CERT.SF                                        <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    inflating: META-INF/CERT.RSA                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    inflating: META-INF/com/android/metadata                           ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    inflating: META-INF/com/google/android/update-binary               ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    inflating: META-INF/com/google/android/updater-script              <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>    inflating: boot.img                                                ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>    inflating: bootloader.joplin-b4                                    ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>    inflating: post-bootloader.joplin-b4                               <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>    inflating: system.img                                              ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>    inflating: tz_en.joplin-b4                                         ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  O Apêndice A contém um script que verifica, a partir do código do    <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  bootloader, quais bytes estão setados na imagem.                     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ./img-info.sh extracted/boot.img                                     ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Magic: c0de (should be c0de) at offset 4                             <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  User data 0000 (should be a33a for USB) at offset 10                 <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  Code Type: 04 (5 is USB, 4 is kernel) at offset 7                    <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  Header Type: 00000001 at offset 0                                    <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Market ID: 00000001 at offset 28                                     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  Market ID Mask: ffffffff at offset 32                                <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  Version ID: 01 at offset 36                                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  Version ID Mask: ff at offset 35                                     <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  Image size: 003e9000 at offset 40                                    ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Android Magic: ANDROID! at offset 332                                <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Algumas dessas coisas foram tiradas da ferramenta ./sign_image do    ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  chromecast_sdk_oss                                                   ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  (partner%2F1.56_sdk%2Fcombined-sdk-kernel-bootloader%2F253616%2Foss%2<g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Fchromecast_sdk_oss.tgz)                                             ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  No apêndice B temos um script que gera um formato de imagem pronto   <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  para o USB. Porém, essa imagem não vai funcionar por conta das       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  assinaturas necessárias :c                                           <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ./generate_bootimg.sh extracted/boot.img extracted/boot.img.mbr      <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  Patching extracted/boot.img                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Patching BCM_IMG_USBIMG_TYPE (5) at offset 7                         ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  1+0 records in                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  1+0 records out                                                      <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  1 byte copied, 7.1324e-05 s, 14.0 kB/s                               <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Patching CPU_IMG_USB_USRDATA (0xA33A) at offset 10                   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  2+0 records in                                                       ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  2+0 records out                                                      <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  2 bytes copied, 6.5483e-05 s, 30.5 kB/s                              <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  Creating 4KB zero padding from extracted/boot.img to extracted/      ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  boot.img.mbr                                                         <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  1+0 records in                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  1+0 records out                                                      <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  4096 bytes (4.1 kB, 4.0 KiB) copied, 7.2947e-05 s, 56.2 MB/s         <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  8008+1 records in                                                    ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  8008+1 records out                                                   <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  4100428 bytes (4.1 MB, 3.9 MiB) copied, 0.0677137 s, 60.6 MB/s       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Com isso, é só fazer um dd do boot.img.mbr para um pendrive e plugar ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  no Google Home/Chromecast usando um OTG powered (um OTG que tem      <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  entrada USB A e micro USB, que vai na energia) e segurar o botão de  <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  reset do aparelho.                                                   ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Temos um artigo mega foda em [15] sobre mais hacks do Google Home    ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Mini e em [16] mais análises de HW do Nest.                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ------------------------------------------------------------         ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Temos várias possibilidades de futuros trabalhos com o Chromecast e  <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  o Google Home. Uma delas seria fazer uma análise de voltage          ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  glitching para fazer o bypass da verificação de assinatura de imagem <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  USB. Com isso, poderíamos bootar nossa própria imagem do kernel :)   ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Outra coisa que eu queria muito testar é como carregar o firmware do <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Chromecast no QEMU. Pra isso, preciso tentar entender o layout da    <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  NAND e como traduzir isso pro QEMU. É provável que os binários de tz ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  loader e outros disponíveis no chromecast_sdk_oss estejam            <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  criptografados também.                                               <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Espero que essa jornada tenha sido interessante para vocês como foi  <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  pra mim. Até a próxima!                                              ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  ------------------------------------------------------------         ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Pesquisas futuras                                                    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  [17] possui um pouco sobre o modelo de Trusted Firmware da ARM, em   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  que o bootloader depende de alguns stages para executar.             <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  [18] possui o código do atf-marvell, do trusted firmware que a       ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Marvell usa.                                                         <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Entender isso é crucial para próximos desenvolvimentos.              <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  ------------------------------------------------------------         <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Referências                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  [1] <a href="https://www.cnet.com/home/smart-home/your-google-home-is-bricked-heres-how-to-get-a-new-one-for-free/">https://www.cnet.com/home/smart-home/your-google-home-is-brick   </a>·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  [2] <a href="https://code.google.com/archive/p/chromecast-mirrored-source/source">https://code.google.com/archive/p/chromecast-mirrored-source     </a><g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  [3] <a href="https://abzman2k.wordpress.com/2020/02/20/google-home-autopsy/">https://abzman2k.wordpress.com/2020/02/20/google-home-autopsy/   </a><g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  [4] <a href="https://pastebin.com/3c1BUieq">https://pastebin.com/3c1BUieq                                    </a><g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  [5] <a href="https://justlv.medium.com/google-home-mini-teardown-comparison-to-echo-dot-and-giving-technology-a-voice-c59a23724a26">https://justlv.medium.com/google-home-mini-teardown-comparison  </a>·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  [6] <a href="https://www.ifixit.com/News/7431/chromecast-2015-audio">https://www.ifixit.com/News/7431/chromecast-2015-audio           </a>░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  [7] <a href="https://en.wikipedia.org/wiki/Clean_room_design">https://en.wikipedia.org/wiki/Clean_room_design                  </a><g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  [8] <a href="https://support.google.com/product-documentation/answer/10525328?hl=en">https://support.google.com/product-documentation/answer   </a>       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  [9] <a href="https://nest-open-source.googlesource.com/manifest_repos/bootloader/">https://nest-open-source.googlesource.com/manifest_repos/bootl   </a><g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  [10] <a href="https://nest-open-source.googlesource.com/manifest_repos/bootloader/+/836ad32e08388e0e4ce8d03fe4f14d2c3ea8ba13/berlin_tools/bootloader/bcm_hal.c">https://nest-open-source.googlesource.com/.../.../bcm_hal.c     </a>░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  [11] <a href="https://nest-open-source.googlesource.com/manifest_repos/bootloader/+/836ad32e08388e0e4ce8d03fe4f14d2c3ea8ba13/berlin_tools/bootloader/bootloader.c#889">https://nest-open-source.googlesource.com/.../bootloader.c#889  </a><g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  [12] <a href="https://www.youtube.com/watch?v=YBwT7PU6QU4">https://www.youtube.com/watch?v=YBwT7PU6QU4                     </a><g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  [13] <a href="https://nest-open-source.googlesource.com/manifest_repos/bootloader/+/836ad32e08388e0e4ce8d03fe4f14d2c3ea8ba13/berlin_tools/bootloader/bootloader.c#1977">https://nest-open-source.googlesource.com/...bootloader.c#1977  </a><g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  [14] <a href="https://www.youtube.com/watch?v=_FxJJ2eDC_I">https://www.youtube.com/watch?v=_FxJJ2eDC_I                     </a>░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  [15] <a href="https://courk.cc/running-custom-code-google-home-mini-part1">https://courk.cc/running-custom-code-google-home-mini-part1     </a><g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  [16] <a href="https://www.beer.org/blog/index.php/2019/12/                    <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  [17] <a href="https://chromium.googlesource.com/external/github.com/ARM-software/arm-trusted-firmware/+/v0.4-rc1/docs/firmware-design.md">https://chromium.googlesource.com/external/...firmware-design.md</a><g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  [18] <a href="https://github.com/MarvellEmbeddedProcessors/atf-marvell">https://github.com/MarvellEmbeddedProcessors/atf-marvell        </a><g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                       <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ------------------------------------------------------------         <g2>░░<ww>░<g1><ww>
+    ··░                                                                       ░··
+
+
+    
+    Apêndice A
+
+    img-info.sh
+
+    BOF
+    #!/bin/bash
+
+    INPUT_FILE=$1
+
+    IMG_START=0
+    MKBOOTIMG_START=332
+    MAGIC_OFFSET=`expr $IMG_START + 4`
+
+    MAGIC=`xxd -e -l 2 -s $MAGIC_OFFSET $INPUT_FILE | awk '{print $2}'`
+    if [ "$MAGIC" != "c0de" ]; then
+        echo "Will change IMG_START to 4096"
+        IMG_START=4096
+        MAGIC_OFFSET=`expr $IMG_START + 4`
+        MAGIC=`xxd -e -l 2 -s $MAGIC_OFFSET $INPUT_FILE | awk '{print $2}'`
+        [ "$MAGIC" == "c0de" ] || echo "Still couldn't find magic :("
+    fi
+
+    echo "Magic: $MAGIC (should be c0de) at offset $MAGIC_OFFSET"
+
+    USR_DATA_OFFSET=`expr $IMG_START + 10`
+    USR_DATA=`xxd -e -l 2 -s $USR_DATA_OFFSET $INPUT_FILE | awk '{print $2}'`
+    echo "User data $USR_DATA (should be a33a for USB) at offset $USR_DATA_OFFSET"
+
+    CODE_TYPE_OFF=`expr $IMG_START + 7`
+    CODE_TYPE=`xxd -e -l 1 -s $CODE_TYPE_OFF $INPUT_FILE | awk '{print $2}'`
+    echo "Code Type: $CODE_TYPE (5 is USB, 4 is kernel) at offset $CODE_TYPE_OFF"
+
+    HEADER_TYPE_OFF=`expr $IMG_START`
+    HEADER_TYPE=`xxd -e -l 4 -s $HEADER_TYPE_OFF $INPUT_FILE | awk '{print $2}'`
+    echo "Header Type: $HEADER_TYPE at offset $HEADER_TYPE_OFF"
+
+    MARKET_ID_OFF=`expr $IMG_START + 28`
+    MARKET_ID=`xxd -e -l 4 -s $MARKET_ID_OFF $INPUT_FILE | awk '{print $2}'`
+    echo "Market ID: $MARKET_ID at offset $MARKET_ID_OFF"
+
+    MARKET_ID_MASK_OFF=`expr $IMG_START + 32`
+    MARKET_ID_MASK=`xxd -e -l 4 -s $MARKET_ID_MASK_OFF $INPUT_FILE | awk '{print $2}'`
+    echo "Market ID Mask: $MARKET_ID_MASK at offset $MARKET_ID_MASK_OFF"
+
+    VERSION_ID_OFF=`expr $IMG_START + 36`
+    VERSION_ID=`xxd -e -l 1 -s $VERSION_ID_OFF $INPUT_FILE | awk '{print $2}'`
+    echo "Version ID: $VERSION_ID at offset $VERSION_ID_OFF"
+
+    VERSION_ID_MASK_OFF=`expr $IMG_START + 35`
+    VERSION_ID_MASK=`xxd -e -l 1 -s $VERSION_ID_MASK_OFF $INPUT_FILE | awk '{print $2}'`
+    echo "Version ID Mask: $VERSION_ID_MASK at offset $VERSION_ID_MASK_OFF"
+
+    IMAGE_SIZE_OFF=`expr $IMG_START + 40`
+    IMAGE_SIZE=`xxd -e -l 4 -s $IMAGE_SIZE_OFF $INPUT_FILE | awk '{print $2}'`
+    echo "Image size: $IMAGE_SIZE at offset $IMAGE_SIZE_OFF"
+
+    ANDROID_MAGIC_OFF=`expr $IMG_START + 332`
+    ANDROID_MAGIC=`xxd -e -l 8 -s $ANDROID_MAGIC_OFF $INPUT_FILE | awk '{print $4}'`
+    echo "Android Magic: $ANDROID_MAGIC at offset $ANDROID_MAGIC_OFF"
+
+    if [ "$IMG_START" -ne 0 ]; then
+        echo "Will also check crypto headers"
+        ./check_encrypted_header.sh $INPUT_FILE
+    fi
+    EOF
+
+    ------------------------------------------------------------
+
+    Apêndice B
+
+    generate_bootimg.sh
+
+    BOF
+    #!/bin/bash
+
+    INPUT_FILE=$1
+    OUTPUT_FILE=$2
+
+    echo "Patching $INPUT_FILE"
+
+    echo "Patching BCM_IMG_USBIMG_TYPE (5) at offset 7"
+    printf '\x05' | dd of=$INPUT_FILE bs=1 seek=7 conv=notrunc
+
+    echo "Patching CPU_IMG_USB_USRDATA (0xA33A) at offset 10"
+    printf '\x3a\xa3' | dd of=$INPUT_FILE bs=1 seek=10 conv=notrunc
+
+    echo "Creating 4KB zero padding from $INPUT_FILE to $INPUT_FILE.mbr"
+    dd if=/dev/zero of=$OUTPUT_FILE bs=4096 count=1
+    dd if=$INPUT_FILE >> $OUTPUT_FILE
+    EOF
+
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                
+
+</div></pre>
+</body>
+</html>

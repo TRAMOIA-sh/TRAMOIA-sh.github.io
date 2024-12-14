@@ -1,0 +1,396 @@
+Evolução Genética de Payloads para Detecção de Sanitizadores HTML
+⠀⠀⠀⠀⠀⠀
+caioluders
+  
+         <st                                  av>            
+        <   <strike><tr>ptgrou<figure><h2<sele  >  
+         <   >                              <   >
+          <   >                            <   >
+            <  <select><<i>ar<sub<discard>a   >
+             <   >                       <   >
+               <   >                   <   >
+                 <   >               <   >
+                   <   >           <   > 
+                     <   >       <   >
+                       ><<tr>ptgrou>
+                        <figure<h2>
+                     <   >       <   >
+                   <   >           <   > 
+                 <   >               <   > 
+               <   >                   <   >  
+             <  <<i>ar<sub<discard>av><str   >
+           <   >                           <   >
+          <   >                             <   >
+          <   <strike><tr>ptgrou<figure><h2<se  >
+          <   t><<i>ar<sub<discard>av><strike   >
+           <   >                           <   >
+            <    <<i>ar<sub<discard>av><st    >
+              <   >                     <   >  
+                 <   >               <   > 
+                   <   >           <   > 
+                     <   >       <   >
+                        <figure<h2>
+                       ><<tr>ptgrou>
+                     <   >       <   >
+                   <   >           <   > 
+                 <   >               <   >
+               <   >                   <   >
+             <   >                       <   > 
+            <  <select><<i>ar<sub<discard>a   >
+           <   >                            <   >
+          <   >                              <   >
+         <   <strike><tr>ptgrou<figure><h2<sele  >  
+          <st                                  av>   
+
+
+              vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+      ------> http://lude.rs/detecta_sanitizer <-----------
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+---[  Index
+
+0 - Introdução
+1 - Laboratório
+2 - Algoritmo genético
+3 - Melhorias // EOF
+
+---[ 0 - Introdução
+
+Já tentou bypassar um HTML sanitizer server-side e perdeu 30 horas
+fazendo força bruta em tags html aleatórias? SEUS PROBLEMAS ACAB...
+nossa eu tô velho. Bem, como todo server-side sanitizer é destinado 
+ao FRACASSO por não ser um browser, e cada um implementa de acordo 
+com a sua criatividade ( 1001 regexes, virtual DOM, .replace() , etc 
+), não seria possível identificar qual sanitizador está sendo 
+utilizado dependendo de como ele ... humm ... sanitiza? Seria 
+possível criar um payload que se comporte diferente para TODOS os 
+sanitizers?
+
+Sim, aqui está :
+
+<strike><tr>ptgrou<figure><h2<select><<i>ar<sub<discard>av>
+
+Mas nem fudendo que eu ia fazer isso na mão. Primeiro tive que 
+adaptar e atualizar um laboratório com (quase) todos os sanitizers 
+mais usados, fiz (leia-se: mandei a IA fazer) uma API usável e 
+dockerizei tudo. Depois, criei (IA criou) um script que usa 
+algoritmo genético para encontrar um payload que é tratado diferente 
+por todos os sanitizers, e que executa estranhamente rápido. Dai é 
+só jogar o payload na aplicação alvo e comparar com os resultados 
+para identificar.   
+
+---[ 1 - Laboratório
+
+Pesquisando se alguém já tinha feito algum laboratário parecido pra
+não ter que fazer do zero, encontrei esse repositório
+https://github.com/SoheilKhodayari/html-sanitizer-testing-pipeline
+que foi feito como base para o paper "It’s (DOM) Clobbering Time: 
+Attack Techniques, Prevalence, and Defenses"
+https://publications.cispa.saarland/3756/1/sp23_domclob.pdf 
+Recomendo bastantea leitura, é bem interessante e aborda testes 
+dinâmicos para identicação de DOM Clobbering[1]. Esse repositório 
+foi uma ótima base, mas faltava algumas features importantes para 
+facilitar minha vida. Fiz um fork 
+https://github.com/caioluders/html-sanitizer-testing-pipeline 
+que adiciona alguns sanitizers, criei um site local para facilitar 
+os testes manuais, além de transformar tudo em container para ser 
+mais fácil de rodar. Também criei uma API HTTP, se alguém quiser 
+rodar um programa externo para brutar algo, ou sei la. Infelizmente 
+não consegui fazer o docker funcionar para C# e Java a tempo :( 
+(aceito pull requests!)
+
+Para subir o laboratório só rodar um 
+  $ docker compose up
+Na pasta do repositório.
+Basta acessar a interface gráfica (site) em http://127.0.0.1:3003/
+Ela é necessária para testar os sanitizadores client-side !!! (Dá 
+pra fazer com puppeteer depois, mas deu preguiça, usa teu browser ai 
+ou faz um pull)
+
+ASCII do site:
+ ___________________________________________________________________
+|(x)( )( ) /_HTML_Sa../_____________________________________________|
+| < > @  (http://127.0.0.1:3003/)                                   |
+|-------------------------------------------------------------------|
+|   HTML Sanitizers Playground                                      |
+|    _______________________                                        |
+|   [______<h1>tst</h1>_____]                                       |
+|   [_______________________]                                       |
+|   (Go)                                                            |
+|                                                                   |
+| +--------------+  +--------------+  +--------------+              |
+| | dompurify    |  | sanitizehtml |  | jsxss        |              |
+| | <h1>tst</h1> |  | tst          |  | <h1>tst</h1> |              |
+| +--------------+  +--------------+  +--------------+              |
+|                                                                   |
+| +-------------------------------------+                           |
+| | nodejs bleach-default               |                           |
+| | <h1>tst</h1>                        |                           |
+| +-------------------------------------+   [ETC...]                |
+|___________________________________________________________________|
+
+A API é super-simples e só precisa enviar um POST com os inputs
+
+$ curl -H "Content-Type: application/json" --data 
+'{"markups":["<a>aaa</h1>"]}' "http://127.0.0.1:3000/sanitize"
+
+{
+  "nodejs": {
+    "angular": [
+      {
+        "input": "aaaaa",
+        "output": " "
+      }
+    ],
+    "arcgis": [
+      {
+        "input": "aaaaa",
+        "output": "aaaaa"
+      }
+    ],
+    "bleach-default": [
+      {
+        "input": "aaaaa",
+        "output": "aaaaa"
+      }
+    ],
+    "bleach-strict": [
+      {
+        "input": "aaaaa",
+        "output": "aaaaa"
+      }
+    ],
+    "dompurify": [
+      {
+        "input": "aaaaa",
+        "output": "aaaaa"
+      }
+    ],
+    [ETC...]
+
+Lembrando que a API é apenas para sanitizadores server-side !!!
+Para client-side, acesse o site.
+
+Atualmente, os seguintes sanitizadores estão implementados:
+
+Client-side:
+  dompurify
+  caja
+  jsxss
+  sanitizehtml
+  angular
+Server-side:
+  nodejs arcgis 
+  nodejs bleach-default 
+  nodejs bleach-strict 
+  nodejs dompurify 
+  nodejs insane-default 
+  nodejs insane-strict 
+  nodejs yahoopurify 
+  php htmlawed 
+  php htmlpurifier 
+  php htmlsanitizor 
+  php symphony 
+  php typo3 
+  php wordpress wp_kses
+  python bleach 
+
+---[ 2 - Algoritmo genético
+
+Com o laboratório pronto, pensei em ir montando o payload na mão até 
+construir um que se transformasse diferente pra cada sanitizador. 
+Depois de meia hora tentando e quebrando a cabeça, deu pra perceber 
+que ia demorar muito e não seria otimizado. Dai lembrei que talvez 
+um algoritmo genético [2] conseguisse resolver e criar um payload 
+pequeno e satisfatório. 
+
+Como funciona um algoritmo genético para esse caso específico?
+
+┌────────────┐                                                    
+│Lê lista de │ 
+│tags HTML   │         
+└─────┬──────┘                                                       
+      │                                                              
+      │                                                              
+ ┌────▼──────────┐    ┌─────────────┐   ┌───────────────┐
+ │Cria população │    │Acessa o site│   │Calcula fitness├►Resultados 
+ │inicial com N  ├────►do lab com   ├───►dos payloads   │ diferentes  
+ │tags randomicas│    │puppeteer    │   │gerados        │ dividido
+ └───────────────┘    └──────▲──────┘   └───────┬───────┘ pelo total
+                             │                  │         de
+                             │                  │         sanitizers
+                             │        ┌─────────▼┐
+                             │        │Resultado └──────────┐
+                             │        │Diferente para       │      
+                 ┌───────────┴───┐    │todos sanitizadores? │ 
+                 │Aplica mutação │    └───────┬─┐           │ 
+                 │nos filhos com │            │ └────┬──────┘        
+                 │novas tags HTML│            │      │ ☆ﾟ.*･｡ﾟ☆ﾟ.*･｡ﾟ☆ﾟ
+                 │aleatorias     │        Nao │      │ ┌───────────┐
+                 └─────────▲─────┘            │      └────►Printa e│
+                           │                  │      Sim        sai│
+                           │                  │       └────────────┘
+            ┌──────────────┴───────┐          │        .*･｡ﾟ☆ﾟ.*･｡ﾟ☆ﾟ.
+            │Cria nova populacao   │     ┌────▼────────┐
+            │com M filhos          │     │Seleciona os │
+            │combinando os payloads◄─────┤payloads mais│
+            │pais em pontos        │     │adequados    │
+            │aleatorios            │     └─────────────┘
+            └──────────────────────┘                                            
+
+O Cursor [3] implementou quase tudo, mas precisei fazer ajustes aos 
+parâmetros totais do cálculo, a fitness function também tava cagada e 
+perdi muito tempo debuggando (problemas com usar o puppeteer pra 
+automatizar coisa e ter que botar delay em tudo, chrome mto lento). 
+Fiquei bem surpreso ao rodar pela primeira vez e achar um resultado em
+quase 5 segundos, era meio gigante, tipo 200 caracters, mas 
+funcionava. Rodei mais algumas vezes até encontrar um payload
+pequeno.  
+
+https://github.com/caioluders/genetic_payload_generator_html_sanitizer
+
+Alguns dos payloads encontrados:
+
+<abbr><m><<hr>oupg><frame>io<e<blockquote>><textare<image><td><pi<
+input4>ture>rt
+
+<noframe<data>>det<<sub>omman<q>>g<keygen>s<<nobr>ource><<<s>rticl<
+rtc>>><articl
+
+e><no<<param>i<picture>ure<span>r<details>mes<h3><<p<summary><r<
+summary>>>t<blin
+
+k>ike>v<com<code><opti<progress>n>nd<a><<<em>mbed><b<data>se>ns<
+e<<marquee>tr<h1
+
+><track>e>eme<td>t>i<q><<<meta>body><app<noframes>et><input4>ress<
+command>ea<co<
+
+strike>>er>ti<applet>abbr><samp<select><<acronym<s<
+param><strike><spacer>>i<sub>
+
+<meta>ds<con<keygen>ent>t><select>xtarea<image2<i>m<dl><noframes>d
+<fiel<summary>
+
+set><<anim<templ<big>te>tetransform>p<xmp>l<<var>body><em><tfoot>><<<main><<h2>r
+
+>m<form>>l><c<spa<title>er>del><audio>shadow>va<b>><option><tt><b>
+ex<a<nobr>plet
+
+>area<th<select>ad>p<w<s<basefont>r><bdo>><acrony<iframe>><dt>d<
+nav><<optgroup>n
+
+<d<listing><datalist>car<input>>u<command>dt>4<noframes>on<cit<hea<
+animatemotion
+
+>er>><p<font><area><bgsound>span>3><img2<h6><dir>
+em><tf<<form><animatetransform>
+
+<a<h3><source>a>>ot<search><co<article><object>>l<form>ckq<tfoo
+<summary>h1<artic
+
+le>><anim<optgroup>te><<select>mage3>><thead>s>x<<<s>e<<da
+<input>alist>el>ter><s
+
+ection>><code>str<caption><svg><<dd>ortal><custom tags>br>
+<<<da<font>alis<fields
+
+et>>od<rb><menu><address><dat<p<abbr>ram>><iframe>object>
+<title>ist<tra<address>
+
+k>n<<col>am<dl>><param>an<in<summary><f<portal>
+rm><animate><bdi>>ma<<ul>><va<ima<nav>e3<br>>
+
+<<section><html><i<anim<tfoot>te<keygen>otio<section>>
+age><<<ruby>ink>tc>am<im
+
+<caption>s<nobr>yle><st<in<q><isindex><ins>4>ong>area
+>d><label>ba<discard<em>efo
+
+
+<strike><tr>ptgrou<figure><h2<select><<i>ar<sub<discard>av>
+
+
+E um JSON detalhando como fica o resultado do payload em cada sanitizer:
+
+"<strike><tr>ptgrou<figure><h2<select><<i>ar<sub<discard>av>" : {
+  "dompurify": "<strike>ptgrou<figure>&lt;<i>
+  arav&gt;</i></figure></strike>",
+  "caja": "<strike><tr>ptgrou<figure><h2>&lt;<i>ar<sub>
+  av&gt;</sub></i></h2></fig
+  ure></tr></strike>",
+  "jsxss": "<strike><tr>ptgrou<figure>&lt;h2&lt;select&gt;&lt;<i>
+  ar&lt;sub&lt;dis
+  card&gt;av&gt;",
+  "sanitizehtml": "<strike><tr>ptgrou&lt;<i>arav&gt;</i></tr></strike>",
+  "angular": "<strike>ptgrou<figure>&lt;<i>
+  arav&gt;</i></figure></strike>",
+  "nodejs arcgis (Server-side)": "&lt;strike&gt;<tr>ptgrou<
+  figure>&lt;h2&lt;selec
+  t&gt;&lt;<i>ar&lt;sub&lt;discard&gt;av&gt;",
+  "nodejs bleach-default (Server-side)": "<strike><tr>ptgrou<
+  figure><h2<select><<
+  i>ar<sub<discard>av>",
+  "nodejs bleach-strict (Server-side)": "ptgrouarav>",
+  "nodejs dompurify (Server-side)": "<strike>ptgrou<figure>&lt;<i>
+  arav&gt;</i></f
+  igure></strike>",
+  "nodejs insane-default (Server-side)": "<strike><tr>
+  ptgrou</tr></strike>",
+  "nodejs yahoopurify (Server-side)": "<tr>ptgrou<figure>&lt;<i>
+  arav></i></figure
+  ></tr>",
+  "php htmlawed (Server-side)": "<span style=\"text-decoration: 
+  line-through;\">p
+  tgrou&lt;&lt;i&gt;ar<sub>av&gt;</sub></span>",
+  "php htmlpurifier (Server-side)": "<figure><h2>&lt;<i>ar<sub>
+  av&gt;</sub></i></
+  h2></figure>",
+  "php htmlsanitizor (Server-side)": "ptgrou<figure><h2><i>ar<sub>
+  av&gt;</sub></i
+  ></h2></figure>",
+  "php symphony (Server-side)": "<strike><tr>ptgrou<figure><h2>
+  <select><i>ar<sub>
+  </sub></i></select></h2></figure></tr></strike>",
+  "php typo3 (Server-side)": 
+  "&lt;strike&gt;&lt;tr&gt;ptgrou&lt;figure&gt;&lt;h2&
+  gt;&lt;select&gt;&lt;i&gt;ar&lt;sub&gt;&lt;discard&gt;av&amp;gt;
+  &lt;/discard&gt
+  ;&lt;/sub&gt;&lt;/i&gt;&lt;/select&gt;&lt;/h2&gt;&lt;/figure
+  &gt;&lt;/tr&gt;&lt;
+  /strike&gt;",
+  "python bleach (Server-side)": 
+  "&lt;strike&gt;&lt;tr&gt;ptgrou&lt;figure&gt;&lt
+  ;h2&lt;select&gt;&lt;<i>ar&lt;sub&lt;discard&gt;av&gt;</i>",
+  "Provavelmente alguma templating engine, strip_tags(), ou similar": 
+  "ptgrou"
+}
+
+
+Pedi pro cursor fazer um site esdrúxulo e ele fez essa maravilha aqui
+
+http://lude.rs/detecta_sanitizer
+
+Assim fica mais fácil de usar o payload e detectar os sanitizadores.
+
+---[ 3 - Melhorias // EOF
+
+Com certeza daria pra melhorar a fitness function levando em conta o 
+tamanho, número de tags, etc. Outra melhoria seria criar a população 
+com atributos aleatórios e conteúdo de acordo com as tags, algo como
+o que o shazzer.co.uk faz. O laboratório além de precisar ser 
+ampliado para outras tecnologias, também é necessário um sistema de 
+controle das versões, já que cada versão pode alterar como os 
+sanitizadores funcionam. Acredito que seja possível criar um payload 
+que além de detectar o sanitizador também detecte a versão, ou um 
+conjunto de payloads que faça isso.
+
+Espero que ajude nas traquinagens de vocês (:
+
+---[ 4 - Referências
+
+[1] https://portswigger.net/web-security/dom-based/dom-clobbering
+[2] https://pt.wikipedia.org/wiki/Algoritmo_genético
+[3] https://cursor.com
+ 

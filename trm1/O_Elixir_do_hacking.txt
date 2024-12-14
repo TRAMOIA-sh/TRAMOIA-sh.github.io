@@ -1,0 +1,372 @@
+
+                             ^
+                _______     ^^^
+               |xxxxxxx|  _^^^^^_
+               |xxxxxxx| | [][]  |
+            ______xxxxx| |[][][] |
+           |++++++|xxxx| | [][][]|      HACKTOWN
+           |++++++|xxxx| |[][][] |       TR4M014 - trm 0x1
+           |++++++|_________ [][]|
+           |++++++|=|=|=|=|=| [] |
+           |++++++|=|=|=|=|=|[][]|
+___________|++HH++|  _HHHH__|   _________   _________  _________
+         _______________   ______________      ______________
+__________________  ___________    __________________    ____________
+
+|=-----------------------------------------------------------------=|
+|=-[ O Elixir do hacking "concorrente, distribuído e ofensivo"  ]--=|
+|=-----------------------------------------------------------------=|
+|=--------[ Rodrigo "N4s" Girorme <g1r0rm3 at gm41l com> ]---------=|
+|=------------------------------p0cl4bs----------------------------=|
+
+
+--[ Agenda
+
+- 0 -> Um curioso que gosta de hacking
+- 1 -> A ideia
+- 2 -> As possibilidades
+- 3 -> Implementações
+- 4 -> Agradecimento
+
+### 0 - Um curioso que gosta de hacking
+
+Fala meu p0v0!
+
+Faz um tempo que não submeto algum conteúdo para a galera que gosta
+de hacking. O engraçado é que antes mesmo de começar esse artigo eu
+estava lendo a phrack #71... e cara, como é bom ver que o hacking ta
+vivo e te observando.
+O hacking disperta vários sentimentos: a necessidade em aprender,
+entender como as coisas funcionam. O hacking te ensina a ser uma
+pessoa melhor. Nele pode se originar o professor, o hostil, o
+defensor de alguma ideia, não importa... o hacking te transforma.
+
+Lembro de vários episódios de quando eu era um a̶r̶r̶u̶a̶c̶e̶i̶r̶o̶ jovem e
+ficava maluco para documentar, transformar ou simplesmente 
+compartilhar nos canais da época o que tinha rolado em noite X ou Y. 
+Uma "pesquisa" que deu certo, uma ferramenta nova que captura
+centenas, milhares de máquinas, de várias formas e de várias 
+maneiras.
+
+Em algum momento do espaço tempo eu tive oportunidade conhecer várias
+pessoas que além de ótimos ser humanos n̶e̶m̶ ̶s̶e̶m̶p̶r̶e̶ ̶:̶D̶ eram ótimos
+programadores/hackers. Desenvolveram ferramentas excelentes, criaram
+artigos incríveis, ajudaram a comunidade e de forma direta ou 
+indireta me motivaram muito a aprender o pouco que sei hoje.
+
+Dessa galera obviamente impossível de citar todos, lembro bem de 
+nomes como:
+t4ph0d4, cool3r, kingcope, strauss, bsdaemon, burtay, 
+miyachung,mh4x0f /hc0d3r/joridos -> (até hoje eles ownam ta? Zuera! 
+xD).
+
+Não só eles mas vários outros dispertaram no eterno newbie aqui uma
+vontade muito grande em aprender, a programar e entender como as
+coisas funcionam, então nada mais junto do que essa menção honrosa.
+
+> "It is not just about computers. It's about understanding how 
+the world works. The world is made up of people. As much as machines
+keep society running, those machines are programmed by people--people
+with managers, spouses, and children; with wants, needs, and dreams.
+And it is about using that knowledge to bring about the change you
+want to see. That is what being a hacker is all about."
+
+> "Não se trata apenas de computadores. É sobre entender como o mundo
+funciona. O mundo é feito de pessoas. Por mais que as máquinas
+mantenham a sociedade funcionando, essas máquinas são programadas por
+pessoas—pessoas com gerentes, cônjuges e filhos; com desejos,
+necessidades e sonhos. E se trata de usar esse conhecimento para
+promover a mudança que você quer ver.
+Isso é o que significa ser um hacker."
+
+cts (@gf_256) # phrack #71
+
+### 1 - A ideia
+
+Talvez esse artigo não tenha o puro suco do hacking, popando shell a
+torto e direito mas vai ajudar a aquecer os motores para outras
+publicações ou até quem sabe alguma talk por ai (h2hc ta chegando pra
+gente tomar umas). Aqui basicamente quero compartilhar algumas ideias
+e pesquisas que tenho feito no meio da programação distribuida e
+concorrente.
+
+Para dar um "background" e todos ficarem na mesma linha, nesse artigo
+a gente fala basicamente sobre elixir e erlang.
+
+Elixir
+> Linguagem que roda na vm do erlang, conhecida pela sua capacidade 
+de construir aplicações resilientes em tempo real, além de ótimo 
+suporte a concorrência e escalabilidade
+
+Erlang
+> O elixir funciona do jeito que funciona por causa do Erlang que foi
+criado para desenvolver sistemas de escala gigantesca (concorrência e
+escalabilidade nascem daqui), principalmente fazendo uso de técnicas
+para sistemas -> distribuídos!
+
+Basicamente um canivete suíço quando o assunto é aplicação que 
+precisa escalar e trabalhar com concorrêcia de forma violenta. E ca 
+pra nós, essas carateristícas são essenciais para criar ótimas 
+ferramentas para tramoiar por ai :)
+
+### 2 - As possibilidades
+A vm aqui (beam) lida eficientemente com concorrência, permitindo que
+múltiplos processos sejam criados de forma muito "barata".
+Algo parecido com que temos no golang (CSP):
+
+  ...
+  func main() {
+  	go say("world") <----- say executa de forma concorrente
+  	say("hello")
+  }
+
+
+Pode ser feito no elixir da seguinte forma:
+
+  ...
+  def main() do
+      spawn(fn -> say("world") end) <---- say executa de forma      
+      say("hello")                        concorrente    
+  end
+
+
+Essa syntax parecida com ruby é exatamente o que parece. Muita gente
+do core do ruby (alô msf) ajudou o elixir a nascer. Por ser uma
+linguagem funcional (aproveita as características como imutabilidade 
+e outros dentro da concorrência) possui algumas declarações 
+diferentes como with, pattern matching, etc.
+
+No geral o ponto forte da linguagem é o modelo de atores que é 
+herdado do erlang:
+
+
+Actor model
+~~~
++-----------------------------------+ 
+|            Scheduler              |  ---> Lida com múltiplos 
++-----------------------------------+       processos
+         |                       |           
+         v                       v          
++-----------------------+ +------------------------+
+|    Process 1          | |    Process 2           |  ---> "Atores 
+|-----------------------| |------------------------|    independentes"
+|  - Execução de código | |  - Execução de código  |
+|  - Gerencia de estado | |  - Gerencia de estado  |
++-----------------------+ +------------------------+
+         |               /
+         v               v
++-----------------+ +-----------------+
+|   Mailbox 1     | |   Mailbox 2     |  ---> Mensagens de cada 
++-----------------+ +-----------------+  processo (Pode ser uma 
+                         lista de urls,conteúdo de arquivo ou X)
+
+
+Vale mencionar também o conceito de "supervisão" para que um ou mais
+processos sejam supervisionados de forma muito inteligente:
+
+
+                                    APP
+                          +----------------------+
+                          |      Supervisor      |
+                          |----------------------|
+                          |   (Root Supervisor)  |
+                          +----------+-----------+
+                                     |
+             +-----------------------+-----------------------+
+             |                                               |
++-----------------------+                   +-----------------------+
+|     BotManager        |                   |   CrawlerManager      |
+|-----------------------|                   |-----------------------|
+|  (Supervised Process) |                   |  (Supervised Process) |
++----------+------------+                   +----------+------------+
+           |                                           |
+           v                                           v
++-----------------------+                   +-----------------------+
+|   BotWorker 1         |                   |   CrawlerWorker 1     |
+|-----------------------|                   |-----------------------|
+|  (Supervised Process) |                   |  (Supervised Process) |
++-----------------------+                   +-----------------------+
+           |
+           v
++-----------------------+
+|   BotWorker 2         |
+|-----------------------|
+|  (Supervised Process) |
++-----------------------+
+
+
+Basicamente processos que estão trabalhando em alguma tarefa podem 
+ser monitorados, de forma que caso alguma falha aconteça, a 
+aplicação conseguirá restaurar o trabalho de forma "automágica"
+
+### 3 - Implementações
+Com esse modelo em mãos é possível planejar coisas como:
+
+- Bots
+    - De forma nativa é possível que várias instâncias de uma 
+    ferramenta se conecte a um cluster, executando trabalhando 
+    concorrente
+    - Por se tratar de aplicações erlang, dentro do elixir podemos 
+    criar árvores de supervisões, que ao detectar falhas se 
+    recuperam automaticamente
+- Coleta de informação
+    - Sem a necessidade de filas de mensagens como kafka ou 
+    similares é possível criar mecanismos para recebimento de 
+    mensagens async para execução de tarefas diversas
+    - Ótimo por ser "long running app" por natureza (telefonia/
+    erlang...)
+- Entre outros...
+
+Um exemplo que posso mencionar aqui que criei recente foi a 
+ferramenta "binoculo", que é um simples banner grabber, que utiliza 
+de concorrência:
+
+
+Binoculo arch:
+        
+      +-------+     
+      |  CLI  |     
+      +-------+      
+          |                  
+          v                  
++------------------+     +------------------+
+|    MAIN          |     |     Maestro      |
+|  (Binoculo       |---->|  Spawning workers| (Processo supervisionado)
+|   backend)       |     +------------------+
++------------------+                |
+                                    |
+                            +--------+---------+
+                            | Parallel workers |
+                            | +---+ +---+ +---+|
+                            | |W1 | |W2 | |W3 ||
+                            | +---+ +---+ +---+| (Cada worker executa 
+                            | +---+ +---+ +---+| trabalho de forma 
+                            | |W4 | |W5 | |W6 || concorrente)
+                            | +---+ +---+ +---+|
+                            +------------------+
+                                    |
+                                    v
+                         +------------------+
+                         |  Save data to    |
+                         |  Meilisearch/DB  | (Outro processo 
+                         +------------------+ concorrente e supervionado se comunica com N 
+                         fontes: banco de dados, motores de busca, etc)
+
+
+ref: https://github.com/girorme/binoculo
+
+A ferramenta é bem rápida (milhões de hosts em pouco tempo) e foi
+inspirada no pnscan (quem lembra em?) e poderia escalar utilizando as
+features de distribuição da linguagem, em breve prs sobre xD.
+
+--=--=--=--=
+
+Uma aplicação concorrente e distribuída dentro do elixir pode rodar 
+em máquinas ao redor do mundo, dentro um k8s ou simplesmente em 
+algumas instâncias de docker na sua máquina local. A partir do 
+momento que temos um cluster de aplicações, tudo pode se conectar e 
+escalar (o whatsapp usufrui muito dessa arquitetura (eles amam 
+erlang <3)).
+
+Para ilustrar as possibilidades uma simples aplicação se conectando
+entre si poderia ser obtida da seguinte forma:
+
+~ init da aplicação
+
+  $ mix new bot_manager --module BotManager
+
+
+~ criação de um genserver (processo com estado que pode ser
+supervisionado)
+
+  defmodule BotManager do
+    use GenServer
+
+    def start_link(_) do
+      GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+    end
+
+    def init(:ok) do
+      IO.puts("Botmanager from Node #{inspect(Node.self())} is
+      starting...")
+      {:ok, []}
+    end
+
+    def handle_cast({:send_message, message}, state) do
+    # Essa função lida com as mensagens recebidas
+      IO.puts("Received message: #{message}")
+      {:noreply, state}
+    end
+
+    def send_message(node, message) do
+      GenServer.cast({__MODULE__, node}, {:send_message, message}) 
+ #a api que possibilita a chamada via qualquer entrada (cli, web, 
+ #etc)
+    end
+  end
+
+
+~ start da mesma aplicação duas vezes (poderia ser um k8s em pods
+diferentes, máquinas em regiões diferentes, etc)
+
+  girorme@aristoteles [~/repositorios/research/tramoia/bot_manager] 
+  -> $ iex --sname node1 -S mix
+  ... em outro terminal:
+  iex --sname node2 -S mix
+
+
+Com os comandos acima, temos dois REPL's em tempo real. Dito isso:
+
+  iex(node1@aristoteles)2> Node.connect(:"node2@aristoteles")
+  true
+  ... --> outro terminal
+  iex(node2@aristoteles)1> BotManager.start_link([])
+  Botmanager from Node :node2@aristoteles is starting...
+
+
+Com a conexão estabelecida é possível transitar mensagens entre os 
+nós da aplicação:
+
+  iex(node1@aristoteles)3>
+  BotManager.send_message(:"node2@aristoteles", "Hi from node1")
+  ...
+
+No terminal 2:
+
+  Received message: Hi from node1
+  iex(node2@aristoteles)2>
+
+
+Aqui o simples texto poderia ser qualquer coisa que faça sentido no
+nosso contexto:
+
+- Uma máquina entrando para uma rede de bots
+- Uma máquina se juntando ao cluster para executar trabalho de
+concorrente e distribuído (imagine um brute force ou crawler que roda
+infinitamente recebendo mais máquinas sobre demanda para compor um
+grande cluster)
+- Sua criatividade que manda...
+
+
+### 4 - Agradecimento
+
+Já dizia o mestre: De grão em grão a galinha enche o papo.
+E é isso amigo, uma gota do humilde conhecimento do que pode ser
+aplicado nas interwebs da vida.
+Meu agradecimento vai a quem mantém o hacking vivo e aos amigos que
+coletamos nessa longa jornada, um brinde aos true dos true!
+
+
+ __i  Hey Nass, what're you doing here?
+|---|   /  
+|[_]|  /  
+|:::|    
+|:::|    
+`\   \   
+  \_=_\ jsm
+
+I'm drinking beers and enjoying some bugs.
+
+No mais, n4s.
+
+[]'s

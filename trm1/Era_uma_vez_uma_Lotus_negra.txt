@@ -1,0 +1,943 @@
+[+]--------------------------------------------------------------[+]
+ | Era uma vez uma Lótus Negra:                                   |
+ | Uma introdução à UEFI, SecureBoot e à CVE-2022-21894           |
+ | por Mr. Clusterfvck                                            |
+[+]--------------------------------------------------------------[+]
+                             ..:..
+                        ... ..-#=.. ....
+                     .-+... .:###=.. ...=-.
+                 .-##+:.. ..:#####-.. .:+##=..
+               .-####*... ..*#####*:. ..+####=..
+          .... .=######+...+#######+...=######=. ....
+    ..=-...... .=########::#########-:*#######=.. .....--..
+   ..=####+:....-#######+.*##########.=#######=....:+####=.
+    ..*#######+-.:*#####:-###########+:*####*-.:+#######*..
+   . ..*##########+::=#+.#############:+#=::+###########:..
+      .:#############*:.-#############=..*#############:..
+      ..-#############*:+#############+.##############-..
+       ..+############*:*#############*:#############+..
+        ..=###########*:*#############*:############+...
+       ....=##########*:+#############+.###########=...
+    ...-+*#:-##########=-#############=-##########-:**+-...
+ .....=########-:#########*:+###########*.+#########:-########=.....
+ .:*############+.=########+.+#########*:=########=.+############+..
+ ....:+###########=:=#######*.=#######+.+#######+.=###########+:.....
+  ....:+#########=.-*######-.*###*:-######*-.=########*+:....
+     .....:=+*####*=::-==++=..:..=++==-::=*####*+=:....
+        ..........:---:.............:--::..........
+                           ... . ..
+
+Resumo:
+
+Não muito tempo atrás lá em 2022, Zammis Clark/Wack0[1], um
+pesquisador focado em reversing e exploitdev de bootloaders no
+Windows (pesquisando pelo nome dele você acha alguns acontecimentos
+interessantes ;]) lançou no github uma PoC da CVE-2022-21894,
+descoberta por ele. A CVE consiste em um bypass das proteções de
+SecureBoot implementadas na UEFI, permitindo que o processo de boot
+da máquina afetada possa ser manipulado.
+Talvez o que o Wack0 não esperasse (ou esperasse, quem sabe ¯\_(ツ)_/¯)
+é que um trombadinha virtual, fã de visual novels e da
+Hasherezade[2], fosse utilizar seu exploit no desenvolvimento de um
+bootkit, dando vida assim ao BlackLotus. Menos ainda que esse
+malware funcionaria tão bem, que seria necessário uma nota de
+mitigação da NSA[3] pra essa ameaça. Quem diria que com um pouco de
+criatividade, um exploit pronto e maldade no coração você consegue
+ir tão longe ;].
+Esse simples artigo escrito pelo que vos fala, tem o intuito de
+introduzir o funcionamento da UEFI e seus internals de forma
+resumida, falar sobre o mecanismo de SecureBoot e trazer uma
+explicação da CVE-2022-21894 e como ela foi utilizada pelo
+BlackLotus durante sua cadeia de infecção.
+
+[+]--------------------------------------------------------------[+]
+ | 0. Em uma galáxia muito distante, nascia a BIOS                |
+[+]--------------------------------------------------------------[+]
+
+Dessa vez, muito tempo atrás lá em 1975, Gary Kildall conceitualiza
+a primeira BIOS (Bicho Ignorante Operando Sistema? Não! Basic Input
+Output System) com o intuito de ser uma implementação de plataforma
+de firmware boot, se mantendo como a principal ferramenta do mercado
+por 30 anos. A BIOS tem o papel de agir como um “homem do meio”
+entre o hardware e o software (esse sendo normalmente o SO),
+cuidando do fluxo de dados entre essas partes e realizar as funções
+primárias de inicialização da máquina (também podem ser usada para
+fazer com que os dados fluam diretamente pra memória de alguns
+dispositivos, como GPUs), sendo acessada pelo processador em um chip
+EPROM (Erasable Programmable Read-Only Memory), um chip de memória
+não volátil que pode armazenar seus dados por até 20 anos.
+Sua função básica pode ser resumida com a sigla ICTC (Identificar,
+Configurar, Testar e Conectar), e durante o processo de
+inicialização da máquina, a BIOS faz as seguintes etapas:
+ 1. Power On Self Test (POST) - Testa o hardware do dispositivo e
+ suas conexões para verificar se está tudo devidamente
+ conectado e funcionando, se tratam de testes elétricos para
+ verificar se há algum mal funcionamento das peças (lembra
+ quando você foi ligar seu computador e deu aquele beeeep logo
+ antes de desligar novamente? isso é o POST avisando que alguma
+ peça sua está com problema ou mal conectada);
+ 2. CMOS Setup - Checa informação em uma pequena quantidade de RAM
+ (64 bytes) localizada na CMOS (Complementary Metal-Oxide
+ Semiconductor) para fornecer informações detalhadas sobre seu
+ sistema (como data e hora do sistema, quantidade e tipos de
+ drives, memória interna,...);
+ 3. Execução de BIOS de outros dispositivos - Ela executa a BIOS
+ de outros dispositivos (como GPUs por exemplo, que podem ter
+ sua própria BIOS);
+ 4. Identifica o dispositivo de boot - Baseado nas configurações
+ captadas durante o CMOS Setup, a BIOS identifica os bootable
+ devices da máquina e sua ordem de sequência;
+ 5. Identificação e carregamento do MBR na RAM - A BIOS procura
+ pelo MBR (Master Boot Record) no primeiro setor do dispositivo
+ de boot (offset físico 0) e então carrega o SO na RAM, baseado
+ nas configurações do bootstrap code do MBR, inicializando o
+ sistema operacional da máquina.
+
+Abaixo tem um exemplo da estrutura de um MBR genérico:
+
++-------------+---------------------------------+------------------+
+| Endereço    | Descrição                       | Tamanho (bytes)  |
++-------------+---------------------------------+------------------+
+|             |                                 |                  |
+|             |                                 |                  |
+|             |                                 |                  |
+|             |                                 |                  |
+|             |                                 |                  |
+|   0x0000    | Bootstrap Code Area             | 446              |
+|             |                                 |                  |
+|             |                                 |                  |
+|             |                                 |                  |
+|             |                                 |                  |
+|             |                                 |                  |
+|             |                                 |                  |
++-------------+-------------------+-------------+------------------+
+| 0x01BE      | Partition Entry 1 |             | 16               |
++-------------+-------------------+             |------------------+
+| 0x01CE      | Partition Entry 2 | Partition   | 16               |
+|-------------+-------------------+ Table       |------------------+
+| 0x01DE      | Partition Entry 3 |             | 16               |
+|-------------+-------------------+             |------------------+
+| 0x01EE      | Partition Entry 4 |             | 16               |
+|-------------+-------------------+-------------+------------------+
+| 0x01FE      | 0x55              | Boot        |                  |
+|-------------+-------------------+ Signature   | 2                |
+| 0x01FF      | 0xAA              |             |                  |
++-------------+-------------------+-----+-------+------------------+
+          | Tamanho total: 512 bytes |
+          +--------------------------+
+
+Vale dizer que existem outros tipos de MBR (como AAP MBR ou NEWLDR
+MBR por exemplo) com adições de outras entradas, verificações e até
+divisões da área do bootstrap code, mas de forma simples, esse
+exemplo é um esqueleto da grande maioria dos MBRs usados desde
+antigamente até hoje em dia. Mais na frente a gente vai ver a
+diferença entre MBR e GPT, então guardem essa estrutura na cabeça
+até lá ;].
+
+[*]-----------------------------------[*]
+ | 0.1 Mas nem tudo são flores…        |
+[*]-----------------------------------[*]
+
+Conforme o tempo foi passando, a BIOS começou a apresentar problemas
+para a época:
+ - Suporte de drives limitado: Devido à limitações da época em
+ que foi desenvolvida, a BIOS suportava somente drives de até
+ 2.2TB;
+ - Suporte de drivers guardado em ROM: Fazer atualizações dos
+ drivers da BIOS era de fato muito trabalhoso devido à seu
+ suporte ser guardado em uma Read-Only Memory, o que
+ dificultava a experiência do usuário;
+ - Rodava em modo 16-bits: Por conta de seu funcionamento em
+ 16-bits, a interface gráfica era extremamente limitada e
+ dependia de informações guardadas em outras memórias para
+ mostrar dados do sistema (como o dia e hora por exemplo);
+ - Escrita totalmente em ASM: Por ser desenvolvida completamente
+ em Assembly, fazer atualizações e manter o código era
+ extremamente trabalhoso e custoso para as fabricantes;
+ - Adaptada para recursos obsoletos da arquitetura x86: Por mais
+ que a BIOS fosse atualizada, suas adaptações principais já não
+ serviam tanto uma vez que foram pensadas em recursos obsoletos
+ da arquitetura x86.
+
+Logo, houve uma necessidade por parte das OEMs (Original Equipment
+Manufacturers) de melhorar a BIOS para poder suportar as novas
+tecnologias que estavam popularizando-se no mercado, foi então que
+ao final de 1990, a Intel decidiu iniciar um projeto sobre um novo
+sistema que viria a substituir a BIOS como conhecemos: a EFI.
+
+[+]--------------------------------------------------------------[+]
+ | 1. E então veio outra explosão… UEFI                           |
+[+]--------------------------------------------------------------[+]
+
+A EFI (Extensible Firmware Interface) nasceu como uma ideia da Intel
+para suceder a BIOS na era moderna, focando principalmente em
+melhorar os principais problemas que a BIOS começou a apresentar com
+o tempo. Desde o início de sua criação, a EFI sofreu diversas
+alterações com o tempo, já começando pelo seu nome, uma vez que a
+Intel decide se juntar com outras grandes empresas em 2005 para
+fundar o UEFI Forum, ganhando assim a letra U de “Unified” na sua
+sigla. A linha do tempo abaixo fala um pouco sobre essas mudanças e
+atualizações desde a década de 70 até eventos mais recentes:
+
+            1975                             1990
+      Criação da BIOS                Mudanças na tecnologia
++--------------------------+      +--------------------------+
+|> Idealizada por Gary     |      |> 32-bit protected mode   |
+| Kildall                  |      |> CPUs mais rápidas       |
+|> Principal implementação |      |> Mais memória            |
+| de firmware boot por     | ---> |> Novos dispositivos      |
+| 30 anos                  |      |> Complexidade máxima da  |
+|> Closed-source e         |      | BIOS atingida            |
+| distribuída em binários  |      |                          |
++--------------------------+      +--------------------------+
+   _________________________________________|
+   ↓
+          1998                                2005
+   Desenvolvimento da EFI              Nascimento da UEFI
++--------------------------+      +--------------------------+
+|> Intel começa a          |      |> Última especificação da |
+| trabalhar na EFI para    |      | EFI (1.10)               |
+| substituir a BIOS nas    |      |> Criação do UEFI Forum   |
+| plataformas Intel-HP     | ---> |> Especificação da EFI é  |
+| Itanium                  |      | contribuída ao Forum     |
+|> Sua documentação era    |      | pela Intel               |
+| restrita à parceiros     |      |> Criação da UEFI         |
++--------------------------+      +--------------------------+
+   _________________________________________|
+   ↓
+          2006                                2007
+        UEFI 2.0                            UEFI 2.1
++--------------------------+      +--------------------------+
+|> Introdução de mecanismos|      |> Autenticação via rede   |
+| de criptografia e        |      |> Atualização de          |
+| segurança                |      |Arquitetura da UI         |
+|> Versão 1.0 da Platform  |----> |                          |
+| Initialization é         |      |                          |
+| lançada                  |      |                          |
+|                          |      |                          |
++--------------------------+      +--------------------------+
+   _________________________________________|
+   ↓
+          2010                                2018
+     Expansão da UEFI                      Projeto Mu
++--------------------------+      +--------------------------+
+|> BIOS ainda era o padrão,|      |> Microsoft anuncia o     |
+|mas a UEFI começou a ser  |      |projeto Mu (um fork do    |
+|utilizada em massa        |      |EDKII da TianoCore para o |
+|> Diversas implementações | ---> |Surface e o Hyper-V)      |
+| da UEFI começaram a      |      |                          |
+| disponibilizar um modo de|      |                          |
+| compatibilidade legado   |      |                          |
++--------------------------+      +--------------------------+
+
+Analisando as atualizações e as funcionalidades adicionadas ao longo
+dos anos, temos essa lista resumida:
+
+       1998 - 2005                           2005 - …
+           EFI                                 UEFI
+- Menos limitada comparada à         - Interfaces unificadas para
+BIOS, mas sem visão de unificação;   serviços e programação;
+- Adicionou suporte para drives.     - Padrão aberto com
+maiores que 2TB;                     implementação em C;
+- Permitiu independência de          - Adicionou suporte para USB,
+arquitetura;                         PCI/PCIe, SCSI, ACPI e
+- Design modular;                    Networking;
+- Retrocompatibilidade via CSM       - Implementação de mecanismos
+(Compatibility Support Mode).        de segurança (SecureBoot e
+                                     driver signing);
+                                     - Melhor UI;
+                                     - Runtime services modernos;
+                                     - Shell própria.
+
+
+[+]--------------------------------------------------------------[+]
+ | 1. UEFI Internals 101                                          |
+[+]--------------------------------------------------------------[+]
+
+            [*]-----------------------------------[*]
+             | 1.1 UEFI Services                   |
+            [*]-----------------------------------[*]
+
+A UEFI define dois tipos de serviços principais:
+ - Boot services: Disponíveis somente enquanto o firmware está
+ sob controle da máquina (tudo antes da chamada da função
+ ExitBootServices()), como serviços de controle de blocos,
+ dispositivos e bus, por exemplo.
+ - Runtime services: Disponíveis também durante o controle do SO,
+ como serviços de data e hora e acesso de NVRAM.
+Alguns desses principais serviços da UEFI são:
+ - UEFI Memory map
+ - SMM (espaço de memória usado pelo proc que tem acesso ao OS
+ mas a recíproca não é verdadeira, bootkits gostam daqui ;])
+ - ACPI
+ - SMBIOS
+ - Time
+ - Variables
+
+Vamos dar um pouco de destaque pro serviço de variáveis listado
+acima, onde essas variáveis UEFI (UEFI variables) são usadas como
+uma forma de guardar dados em áreas de memória não-volátil. Por
+exemplo, variáveis UEFI podem ser usadas para armazenar mensagens de
+crash na NVRAM depois de um problema. Aqui um exemplo de variáveis
+UEFI em um sistema:
+
+ root@kharon ~# efivar --list
+ 8be4df61-93ca-11d2-aa0d-00e098032b8c-SignatureSupport
+ 8be4df61-93ca-11d2-aa0d-00e098032b8c-BootOrder
+ 8be4df61-93ca-11d2-aa0d-00e098032b8c-SecureBoot
+ a04a27f4-df00-4d42-b552-39511302113d-Setup
+ 59d1c24f-50f1-401a-b101-f33e0daed443-SecureBootEnforce
+ 8be4df61-93ca-11d2-aa0d-00e098032b8c-OsIndications
+ 59d1c24f-50f1-401a-b101-f33e0daed443-PhysicalBootOrder
+ d719b2cb-3d3a-4596-a3bc-dad00e67656f-db
+ 8be4df61-93ca-11d2-aa0d-00e098032b8c-SetupMode
+ 8be4df61-93ca-11d2-aa0d-00e098032b8c-PK
+ d719b2cb-3d3a-4596-a3bc-dad00e67656f-dbx
+ 8be4df61-93ca-11d2-aa0d-00e098032b8c-KEK
+ 59d1c24f-50f1-401a-b101-f33e0daed443-CustomSecurity
+ 8be4df61-93ca-11d2-aa0d-00e098032b8c-Boot0003
+ 8be4df61-93ca-11d2-aa0d-00e098032b8c-Boot0002
+
+            [*]-----------------------------------[*]
+             | 1.2 UEFI Applications               |
+            [*]-----------------------------------[*]
+
+Aplicações UEFI são arquivos guardados em partições EFI (chamadas de
+ESPs, a gente vai falar mais sobre essas partições jajá). Essas
+aplicações podem ser executadas pela UEFI Shell, pelo boot manager
+do firmware ou por outras aplicações UEFI (por sinal, bootloaders,
+como o GRUB e o Windows Boot Manager são aplicações UEFI, assim como
+a própria UEFI Shell, chame isso de recursão :P). Elas podem ser
+desenvolvidas e instaladas manualmente pelos OEMs do SO ou do
+hardware da sua máquina.
+
+            [*]-----------------------------------[*]
+             | 1.3 EFI System Partitions           |
+            [*]-----------------------------------[*]
+
+As ESPs nada mais são que partições de armazenamento de dados
+acessados pelo firmware da UEFI durante a inicialização da máquina,
+nelas ficam armazenadas as aplicações UEFI e seus arquivos (como os
+bootloaders que a gente comentou). As ESPs suportam os esquemas de
+partição MBR e GPT (não o chat, mas a GUID Partition Table), a MBR
+sendo suportada como parte do sistema de compatibilidade da BIOS
+(CSM). Em suma, a diferença entre as partições GPT e MBR está em sua
+arquitetura e na quantidade de partições suportadas:
+
+      MBR (4 partições)                GPT (128 partições)
++--------------------------+      +--------------------------+
+| Master Boot Record       |      | Protective MBR           |
++--------------------------+      +--------------------------+
+| Primary Partition (C:).  |      | Primary GUID Header      |
++--------------------------+      +--------------------------+
+| Primary Partition (E:)   |      | Primary GUID Entry Array |
++--------------------------+      +--------------------------+
+| Primary Partition (F:)   |      | Primary Partition (C:)   |
++--------------------------+      +--------------------------+
+| Extended Partition       |      | Primary Partition (E:)   |
++--------------------------+      +--------------------------+
+                                  | Primary Partition n      |
+                                  +--------------------------+
+                                  | Backup GUID Entry Array  |
+                                  +--------------------------+
+                                  | Backup GUID Header       |
+                                  +--------------------------+
+
+            [*]-----------------------------------[*]
+             | 1.4 UEFI Booting                    |
+            [*]-----------------------------------[*]
+
+O boot usando a UEFI é diferente da BIOS, sendo as principais
+diferenças a implementação do SecureBoot (que veremos mais pra
+frente), uso de operações com velocidade de 64-bits e o abandono de
+uso de boot sectors por conta do uso de partições GPT (porém contudo
+todavia, boot sectors ainda podem ser utilizados pelo CSM caso o
+usuário opte usar partições MBR) no seu disco. Em vez de utilizar
+boot sectors, a UEFI define um Boot Manager como mecanismo
+principal, checando os dados de configuração de boot (BCD - Boot
+Configuration Data, dados esses definidos pelas variáveis que a
+gente estudou, armazenadas na NVRAM) e inicializando o bootloader do
+SO instalado naquele disco. Aqui um exemplo do fluxo de boot com
+UEFI no Windows:
+
+
+              +----------------+
+              | Máquina ligada |
+              +-------|--------+
+                      |
+              +-------↓--------+
+              | Firmware       |
+              | bootloaders    |
+              +-------|--------+
++- UEFI --------------↓--------------------------------------------+
+|             +-----------------+         +-----------------+      |
+|             | Aplicações UEFI |         | Drivers UEFI e  |      |
+|             | de OEMs         |         | serviços        |      |
+|             +-----------------+         +-----------------+      |
+|+- Ambiente de Boot -|----------------------------------------+   |
+||                    |                   +-----------------+  |   |
+||            +-------↓---------+         | Bibliotecas de  |  |   |
+||            |                 |         |      Boot       |  |   |
+||            |   Windows Boot  |         +-----------------+  |   |
+||            |     Manager     |                              |   |
+||            |                 |         +-----------------+  |   |
+||            |                 |         |       BCD       |  |   |
+||            +----|------|-----+         +-----------------+  |   |
+|+-----------------|------|------------------------------------+   |
++------------------|------|----------------------------------------+
+  +----------------↓+ +---↓-------------+
+  |      SO         | | Atualizar SO    |
+  +-----------------+ +-----------------+
+
+
+            [*]-----------------------------------[*]
+             | 1.5 UEFI SecureBoot                 |
+            [*]-----------------------------------[*]
+
+O SecureBoot nasceu como uma medida de proteção contra ameaças que
+visavam modificar arquivos e aplicações durante o processo de boot
+da máquina, essas ameaças sendo normalmente bootkits e ataques de
+recuperação de senha de boot. Em suma, ele impede o carregamento de
+UEFI drivers ou aplicações UEFI que não são assinados com uma
+assinatura digital, através de várias checagens à cada etapa do
+boot.
+Quando o SecureBoot é ativado, ele inicia no modo “setup”,
+escrevendo uma chave pública mestra conhecida como Platform Key(PK)
+no firmware da máquina. Após essa escrita, ele entra no modo “user”
+onde apenas UEFI drivers e aplicações UEFI assinados com a PK podem
+ser carregados pelo firmware. Key Enrollment Keys (KEKs, aonde estão
+meus manos do WoW? XD) também podem ser adicionadas ao banco de
+dados de chaves guardado na memória para permitir o uso de outros
+certificados (embora essas KEKs possam ser adicionadas por usuários
+para testes com certificados auto-assinados, elas ainda precisam ter
+uma conexão com a PK para serem válidas). O fluxo de SecureBoot no
+Windows funciona da seguinte forma (senta que lá vem história):
+
+
+                  +----------------+                   +---------+
+                  | Máquina ligada |---+      não +--> | Erro no |
+                  +----------------+   |          |    | Boot    |
+                                       ↓          |    +---------+
+ +----------------+                   +----------------+      ^
+ | OEM_PK_HASH    |-------checa------>| Ta assinado?   | -----+
+ +----------------+                   +----------------+      |
+       ^                                    |                 |
+       |                    +----- sim -----+                 |
+       |                    ↓                                 |
+       |      +----------------+      +----------------+      | não
+       |      | Bootloaders    |----->| Ta assinado?   |      |
+       |      | Pré-UEFI       |      +----------------+      | 
+       |      +----------------+            |                 |
+       |                                    |                 |
+       |                  +----- sim -----+ |                 |
+       |                  ↓                                   |
+       |      +----------------+   +----------------+         |
+       |      | UEFI Boot      |-->| Ta assinado?   |---------+
+       |      | Manager        |   +----------------+         |
+       |      +----------------+            |                 |
+       |                                    |                 |
+       |                                    |                 |
+       |                    +----- sim -----+                 |
+       |                    ↓                                 |
+       |      +----------------+   +----------------+         |
+       |      |Todos os drivers|-->| Ta assinado?   |---------+
+       |      | e apps UEFI    |   +----------------+         |
+       |      +----------------+            |                 |
+       |                                    |                 |
+       |                    +----- sim -----+                 |
+       |                    ↓                                 |
+       |      +----------------+   +----------------+         |
+       |      | Windows Boot   |-->| BCD Correto?   |---------+
+       |      | Manager        |   +----------------+         |
+       |      +----------------+      |           |           |
+       |                             sim    se não, aplicar   |
+       ↓                              |     valores de BCD    |
+ +----------------+                   |     default           |
+ | Chaves UEFI    |                   |           |           |
+ +----------------+                   ↓           ↓           |
+                                   +----------------+         |
+                                   | Ta assinado?   |---------+
+                                   +----------------+         |
+                                            |                 |
+                            +----- sim -----+                 |
+                            ↓                                 |
+                  +----------------+   +----------------+     |
+                  | Windows        |-->| Ta assinado?   |-----+
+                  | Bootloader     |   +----------------+
+                  +----------------+           |
+                                               |
+                               +----- sim -----+
+                               ↓
+                    +----------------+
+                    | Boot do SO e   |
+                    | seus drivers   |
+                    +----------------+
+
+
+Agora que a gente entendeu (ou pelo menos espero que tenha entendido
+:P) melhor sobre o SecureBoot, vamos pra parte interessante de fato
+:]
+
+[*]--------------------------------------------------------------[*]
+ | 2. Baton Drop (CVE-2022-21894)                                 |
+ | https://github.com/Wack0/CVE-2022-21894                        |
+[*]--------------------------------------------------------------[*]
+
+Publicada em 11 de Janeiro de 2022, A CVE-2022-21894 (Baton Drop)
+descoberta pelo brilhante Wack0, consiste em um bypass que quebra as
+políticas do SecureBoot, permitindo que um atacante manipulasse o
+processo de carregamento dessas policies antes delas serem
+carregadas na memória da máquina. A vulnerabilidade é baseada e faz
+parte de um conjunto de outras CVEs e pesquisas do próprio Wack0 e
+outros pesquisadores sobre falhas no processo de SecureBoot (em
+março de 2023 ele apresentou uma palestra[4] sobre essas pesquisas e
+uma explicação mais detalhada e profunda sobre a exploração da Baton
+Drop, que a gente vai ver de forma mais resumida e simples agorinha,
+então recomendo fortemente você assistir!!).
+Em 10 de Agosto do mesmo ano, o Wack0 sobe no GitHub o disclosure
+junto com uma PoC da exploração da Baton Drop, explicando para nós
+mortais sobre todo funcionamento dessa vulnerabilidade e como
+explorá-la:
+
+A Baton Drop consiste em abusar de aplicações UEFI vulneráveis no
+Windows e configurações armazenadas nos BCDs para remover blocos de
+memória contendo dados serializados do memory map, esses dados sendo
+a SecureBoot Policy. O atributo truncatememory passado em um BCD,
+permite remover toda memória acima de um endereço de memória físico
+do memory map antes da SecureBoot Policy ser lida da memória. Dessa
+forma, esse atributo pode ser utilizado para remover a policy
+serializada do memory map, fazendo com que outros atributos
+“perigosos” (como bootdebug, testsigning, nointegritychecks) possam
+ser carregados pelo bootloader, assim quebrando o SecureBoot. Para
+que a exploração seja efetuada com sucesso, o atacante deve ter
+certeza que a policy serializada esteja alocada acima de um endereço
+físico conhecido, para resolver essa questão, o atributo
+avoidlowmemory pode ser usado para garantir que alocações de memória
+física estejam acima de um endereço físico especificado. Além desse
+bypass, a UEFI application hvloader.efi pode ser carregada com o
+atributo nointegritychecks já mencionado para carregar uma DLL
+auto-assinada (mcupdate.dll, cujo entry point é chamado antes da
+função ExitBootServices()) para realizar execução de código na
+máquina. Essa exploração também permite realizar o dump das chaves
+do BitLocker, e embora o método para realização deste não tenha sido
+divulgado, o Wack0 falou sobre na palestra que eu citei mais cedo.
+
+[*]--------------------------------------------------------------[*]
+ |  3. O mito se torna realidade: BlackLotus                      |
+[*]--------------------------------------------------------------[*]
+
+                “O primeiro bootkit UEFI descoberto
+              in-the-wild que subverte as proteções de
+                     SecureBoot em sistemas UEFI
+              100% atualizados agora é uma realidade”
+                               - Martin Smolár, ESET (traduzido)
+
+A CVE já havia sido publicada, o exploit divulgado e a Microsoft já
+havia lançado um “patch” para mitigar essa falha no Windows, porém,
+como o problema envolve aplicações UEFI vulneráveis, mesmo em um
+sistema atualizado, o que aconteceria se um atacante criativo
+decidisse manualmente injetar essas aplicações vulneráveis no
+sistema? Foi então que um pequeno trombadinha virtual chamado
+“maxwell187”, anunciou no dia 6 de Outubro de 2022 no eXploit[5], que
+estava vendendo um UEFI bootkit com um bypass integrado de
+SecureBoot, bypass esse sendo a CVE do Wack0! O nome desse malware?
+BlackLotus (onde estão meus manos do Magic?).
+
+O BlackLotus realmente foi uma surpresa para muitos analistas em
+2022, visto que um malware que subvertia as proteções do SecureBoot
+em sistemas UEFI atualizados parecia conto de fadas. Seu impacto na
+comunidade foi grande o suficiente para chamar a atenção da NSA, que
+até liberou uma nota de mitigação para a ameaça. Aqui eu vou focar
+em explicar sobre como o BlackLotus utilizou o exploit desenvolvido
+pelo Wack0 na sua cadeia de infecção, mas também vou deixar linkado
+um artigo[6] escrito pelo Martin Smolár[7] da ESET sobre uma análise
+completa do malware, que pra quem se interessar, recomendo
+fortemente a leitura :]
+
+[*]-----------------------------------[*]
+ |  3.1 Instalação                     |
+[*]-----------------------------------[*]
+
+ㄴ Etapa 0 - Instalador
+ ㄴ O instalador primeiro verifica seus privilégios, e caso ele
+ esteja com um nível baixo, executa um UAC Bypass[8] para
+ escalar privilégios;
+ ㄴ Checa a presença do SecureBoot utilizando a Win32API, caso o
+ dispositivo não esteja protegido, já inicia a etapa de
+ persistência;
+ ㄴ Renomeia o Windows Boot Manager (bootmgfw.efi) para
+ “winload.efi” e reinicia a máquina (uma forma de backup caso o
+ processo de exploração seja interrompido ou o operador do malware
+ deseje desinstalar ele da máquina da vítima).
+ㄴ Etapa 1 - Deploy
+ ㄴ Implanta arquivos em dois diretórios da máquina:
+  ㄴ ESP:\EFI\Microsoft\Boot\ (ESP UEFI padrão da Microsoft)
+  ㄴ ESP:\system32\ (ESP criado pelo instalador)
+
+[*] - Malicioso
+[**] - Legítimo, mas vulnerável
+[***] - Legítimo e não vulnerável
+
++-------------------------------------------------------------------+
+| Diretório              | Arquivos        | Descrição              |
++------------------------+-----------------+------------------------+
+|ESP:\EFI\Microsoft\Boot\|grubx64.efi[*]   | BlackLotus bootkit     |
++------------------------+-----------------+------------------------+
+|ESP:\EFI\Microsoft\Boot\|bootload.efi[***]|Binário shim assinado   |
++------------------------+-----------------+------------------------+
+|ESP:\EFI\Microsoft\Boot\|bootmgfw.efi[**] |Windows Boot Manager (1)|
++------------------------+-----------------+------------------------+
+|ESP:\EFI\Microsoft\Boot\|BCD[*]           |BCD do atacante (1)     |
++------------------------+-----------------+------------------------+
+|ESP:\EFI\Microsoft\Boot\|BCDR[***]        |Backup do BCD da vítima |
++------------------------+-----------------+------------------------+
+|ESP:\system32           |hvloader.efi[**] |WinHypervisor Loader    |
++------------------------+-----------------+------------------------+
+|ESP:\system32           |bootmgr.efi[**]  |Windows Boot Manager (2)|
++------------------------+-----------------+------------------------+
+|ESP:\system32           |mcupdate.dll[*]  |DLL usada no exploit    |
++------------------------+-----------------+------------------------+
+|ESP:\system32           |BCD[*]           |BCD do atacante (2)     |
++------------------------+-----------------+------------------------+
+
+ㄴ Etapa 2 - Desativando o HVCI
+ ㄴ O HVCI (Integridade de Memória/Hypervisor Enforced Code
+ Integrity) é um recurso da VBS (Segurança Baseada em
+ Virtualização/Virtualization Based Security) utilizado para
+ proteção contra manipulações de memória em kernel mode;
+ ㄴ O instalador define o valor de registro Enabled da chave de
+ registro do HVCI para 0:
+
+ int DisableHypervisorEnforcedCodeIntegrity() {
+   KeyHandle = 0i64;
+   Value = 0;
+   //\Registry\Machine\SYSTEM\CurrentControlSet\Control\DeviceGuar
+   d\Scenarios\HypervisorEnforcedCodeIntegrity v0 =
+       DecryptStr(&unk_140009C30, 0x69u, 1);
+   RtlInitUnicodeString(&v3, v0);
+   ObjectAttributes.RootDirectory = 0i64;
+   ObjectAttributes.ObjectName = &v3;
+   ObjectAttributes.Length = 48;
+   ObjectAttributes.Attributes = 64;
+   *&ObjectAttributes.SecurityDescriptor = 0i64;
+   result = ZwOpenKey(&KeyHandle, 0xF003Fu, &ObjectAttributes);
+   if (result >= 0) {
+     v2 = DecryptStr(&unk_140009D08, 8u, 1);  // “Enabled”
+     RtlInitUnicodeString(&ValueName, v2);
+     ZwSetValueKey(KeyHandle, &ValueName, 0, 4u, &Value, 4u);
+     return ZwClose(KeyHandle);  // “0”
+   }
+   return result;
+ }
+
+ㄴ Etapa 3 - Desativando o BitLocker
+ ㄴ O BitLocker é o recurso nativo de criptografia de volumes do
+ Windows (o BitLocker está para o Windows como o VeraCrypt está
+ para o Linux), ele é usado em conjunto da TPM (Trusted Platform
+ Unset
+ Module, sem piadinhas dessa vez), que é um criptoprocessador que
+ realiza funções criptográficas na máquina, criando e armazenando
+ chaves para confirmar se o SO e o firmware não foram adulterados
+ enquanto o sistema estiver offline;
+ ㄴ O instalador caminha por todos os volumes no WMI
+ (Instrumentação de Gerenciamento do Windows/Windows Management
+ Instrumentation) namespace Root\CIMV2\Security\
+ MicrosoftVolumeEncryption e checa seus status de proteção;
+ ㄴ Para os volumes protegido pelo BitLocker, ele chama o método
+ DisableKeyProtectors() com o parâmetro DisableCount alterado para
+ zero.
+
+ㄴ Etapa 4 - Reiniciar a máquina
+ ㄴ ¯\_(ツ)_/¯
+
+[*]-----------------------------------[*]
+ |  3.2 “Dropping the baton”           |
+[*]-----------------------------------[*]
+
+ㄴ Exploitation
+ ㄴ Após reiniciar a máquina, o sistema executa o bootmgfw.efi
+ implantado pelo instalador;
+ ㄴ Após a execução do arquivo, ele carrega o primeiro BCD
+ implantado no diretório ESP:\EFI\Microsoft\Boot\;
+ ㄴ O Windows Boot Manager segue para carregar o ESP:\system32\
+ bootmgr.efi com os elementos do primeiro BCD:
+ avoidlowmemory:0x10000000 e custom:22000023 (esse argumento
+ apontando para o segundo BCD guardado no diretório
+ ESP:\system32\);
+
+       ANTES DA EXPLORAÇÃO
+
+Windows Boot Manager
+--------------------
+identifier              {bootmgr}
+device                  partition=\Device\HarddiskVolume2
+path                    \EFI\Microsoft\Boot\bootmgfw.efi
+description             Windows Boot Manager
+locale                  en-US
+inherit                 {globalsettings}
+default                 {current}
+resumeobject            {499d02c2-23e9-11ec-81bc-c8c171fb7d17}
+displayorder            {current}
+tooldisplayorder        {memdiag}
+timeout                 30
+
+Windows Boot Loader
+-------------------
+identifier              {current}
+device                  partition=C:
+path                    \WINDOWS\system32\winload.efi
+description             Windows 10
+locale                  en-US
+inherit                 {bootloadersettings}
+recoverysequence        {499d02c2-23e9-11ec-81bc-c8c171fb7d17}
+displaymessageoverride  Recovery
+recoveryenabled         Yes
+isolatedcontext         Yes
+allowedinmemorysettings 0x15000075
+osdevice                partition=C:
+systemroot              \WINDOWS
+resumeobject            {499d02c2-23e9-11ec-81bc-c8c171fb7d17}
+nx                      OptIn
+bootmenupolicy          Standard
+hypervisorlaunchtype    Auto
+
+       DEPOIS DA EXPLORAÇÃO
+
+Windows Boot Manager
+--------------------
+identifier              {bootmgr}
+description             Windows Boot Manager
+locale                  en-US
+inherit                 {globalsettings}
+bootdebug               No
+displayorder            {527f84fc-036e-11ec-abb0-005056c00008}
+timeout                 30
+
+Windows Boot Loader
+-------------------
+identifier              {527f84fc-036e-11ec-abb0-005056c00008}
+device                  boot
+path                    \system32\bootmgr.efi <---
+description             RIP the woo
+locale                  en-US
+inherit                 {bootloadersettings}
+avoidlowmemory          0x10000000 <---
+bootdebug               No
+isolatedcontext         Yes
+custom:22000023         \system32\bcd <---
+ems                     Yes
+
+ㄴ O bootmgr.efi executado então carrega o segundo BCD com os
+parâmetros truncatememory:0x10000000, nointegritychecks:Yes e
+testsigning:Yes;
+
+Windows Boot Manager
+--------------------
+identifier              {bootmgr}
+description             Windows Boot Manager
+locale                  en-US
+inherit                 {globalsettings}
+bootdebug               No
+displayorder            {527f84fc-036e-11ec-abb0-005056c00008}
+timeout                 30
+
+Windows Boot Loader
+-------------------
+identifier              {527f84fc-036e-11ec-abb0-005056c00008}
+device                  boot
+path                    \system32\hvloader.efi <---
+description             Hoy la disco se flota
+locale                  en-US
+inherit                 {bootloadersettings}
+truncatememory          0x10000000 <---
+avoidlowmemory          0x1000
+nointegritychecks       Yes <---
+testsigning             Yes <---
+isolatedcontext         Yes
+osdevice                boot
+systemroot.             \
+ems                     Yes
+ ㄴ Devido às opções carregadas do BCD, a política de SecureBoot
+ foi apagada da memória, permitindo que o bootmgr.efi agora
+ carregasse outra aplicação vulnerável implantada pelo
+ instalador: hvloader.efi;
+ ㄴ Durante sua execução, o hvloader.efi carrega e executa a
+ mcupdate_*.dll;
+ ㄴ A DLL executa um MokInstaller integrado, iniciando assim a
+ fase de persistência e finalizando a exploração do bug.
+
+    hvloader.efi
+ unsigned __int64 __fastcall BtLoadUpdateDll(__int64 a1, _QWORD *imageEP) {
+   platform = 0i64;
+   BtpUpdateDllImagePages = 0i64;
+   v9[1] = v9;
+   v9[0] = v9;
+   // Identifica a plataforma baseada no CPUID
+   status = BtpIdentifyPlatform(a1, &platform);
+   if … 
+    mcupdate_filename = *(platform + 16);
+   if …
+     // Carrega a imagem do
+     //<dispositivo>
+     //:\\<systemroot>\system32\mcupdate_<platform>.dll 
+   status = BtpLayoutImage(mcupdate_filename, v10, &image, v9, &platform, a1, 1);
+   v7 = *(platform + 0x30);
+   BtpUpdateDllImagePages = v7;
+   if (status) {
+     // Erro, chamar gHvlpInvalidHypervisorImage
+     (*(a1 + 0x78))(L”\\SystemRoot\\system32\\”, *(platform + 16));
+   } else {
+     image.ImageBase = v7;
+     BtpProcessImageLoadConfig(v10, &image.ImageBase, v7, 0);
+     *imageEP = BtpUpdateDllImagePages + image.AddressOfEntryPoint;
+   }
+ }
+
+ mcupdate_*.dll
+ // Verifica se a imagebase do hvloader foi encontrada checando se o
+ // IMAGE_NT_HEADERS64.OptionalHeader.CheckSum é igual à 0xEC35E 
+ if (*(*(HvloaderImageBase + 0x3C) + HvloaderImageBase + 0x58) ==
+                   0xEC35E) {
+   EfiImageHandle = *(HvloaderImageBase + 0x113670);
+   BlpArchSwitchContext = HvloaderImageBase + 0xC550;
+   if (EfiImageHandle) {
+     EfiST = *(HvloaderImageBase + 0x1136C8);  // achar o
+     //ponteiro para EFI_SYSTEM_TABLE
+     if (EfiST) {
+       // BlImgAllocateImageBuffer
+       if (((HvloaderImageBase + 0x3CC0C))(
+         &ImageBase, MINtHdrs->OtionalHeader.SizeOfImage, 0xE0000012i64,
+         0x424000i64, 0, 1) >= 0 &&
+           ImageBase) {
+         // Copiar os headers do MokInstaller na
+         //memória alocada
+         for (i = 0i64;
+                        i < MINtHdrs->OptionalHeader.SizeOfHeaders, ++i) *
+             (i + ImageBase) = gMokInstallEfiApp[i];
+         j = 0;
+         // Copiar o resto dos dados para memória alocada
+         for (v1 = MINtHdrs + MINtHdrs->FileHeader.SizeOfOptionalHeader;
+                      j < MINtHdrs->FileHeader.NumberOfSections; ++j) {
+           if…  // Copiar o resto dos dados para a memória alocada
+         }
+         if (MINtHdrs->OptionalHeader.AddressOfEntryPoint)
+           // Executar o EntryPoint do MokInstaller
+           ((ImageBase + MINtHdrs->OptionalHeader.AddressOfEntryPoint))(
+               EfiI mageHandle, EfiST, BlpArchSwitchContext);
+       }
+     }
+   }
+ }
+
+ㄴ Exploração resumida
+
+bootmgfw.efi
+[+] BCD (ESP:\EFI\Microsoft\Boot\)
+    |
+    +------> bootgmr.efi
+             - avoidlowmemory:0x10000000
+             - custom: 22000023
+                           | bootmgr.efi
+                           +----> [+] BCD (ESP:\system32\)
+                                   - path: \system32\hvloder.efi --+
+                                   - truncatememory: 0x10000000    |
+                                   - nointegritychecks: Yes        |
+                                   - testsigning: Yes              |
+                                                                   |
+persistência <------ mcupdate_*.dll <------ hvloader.efi <---------+
+
+ㄴ Impacto final do bootkit
+Uma vez que o malware executa o exploit e a persistência na máquina
+da vítima (vale lembrar que o malware fica localizado no file system
+como uma aplicação UEFI), ele procede para funcionar como um HTTP
+Loader, mantendo comunicação com servidor de C&C (ou C2, pros mais
+chegados). De acordo com o criador, as máquinas infectadas eram
+controladas por uma interface web e usadas como bots para o que o
+operador daquele malware quisesse usar. Por se tratar de uma
+persistência em um nível tão baixo, AVs não seriam capazes de
+detectá-lo e removê-lo.
+
+Mais recentemente (12 de Julho de 2023) o suposto código do
+BlackLotus foi vazado no GitHub[9], e embora ele utilize outro
+exploit que não o Baton Drop, pesquisadores como o Alex Matrosov[10]
+afirmam realmente se tratar do bootkit original, e que as funções de
+carregamento da UEFI, infecção e pós-exploração permanecem
+inalterados.
+
+[*]--------------------------------------------------------------[*]
+ | 4. Agradecimentos e referências                                |
+[*]--------------------------------------------------------------[*]
+
+Chegamos ao fim deste artigo, e tudo que eu posso falar é obrigado
+por ter lido até aqui. Essa pesquisa foi o resultado de pelo menos 3
+meses de pesquisa sobre diversos assuntos que eu nunca sequer tinha
+chegado perto de estudar antes, e realmente deu bastante trabalho,
+mas como tudo de bom nessa vida, nada vem fácil ;]
+“Meses do meu trabalho, pra alguns minutos do seu entretenimento”
+
+Tem algumas pessoas que eu faço questão de agradecer, tanto pela
+inspiração para realizar essa pesquisa quanto por ajuda técnica
+durante o processo de estudo:
+ - rodnt: Se não fosse por você, eu não estaria onde eu tô hoje,
+ tanto literalmente quanto hipoteticamente. Você confiou em mim
+ quando ninguém mais confiava e me deu um ponta pé inicial que
+ eu jamais vou poder retribuir. Não sei o que você viu ou vê em
+ mim que te faz achar que eu sou digno de tanta ajuda que você
+ me deu e dá, mas eu prometo que vou continuar estudando pra
+ ser essa pessoa que você vê em mim :]
+ - fxo: Você pode achar que não ajudou muito, mas o simples fato
+ de ter confiado em mim com as ideias pra fazer essa pesquisa
+ já é uma ajuda imensurável. Por mais que quem tenha feito a
+ pesquisa fui eu, a ideia dela veio de você, e ter achado que
+ eu seria capaz de efetuá-la já é muito pra mim. Talvez você
+ não goste quando as pessoas digam isso, mas você é uma enorme
+ inspiração pra mim :]
+ - Wack0: Já começa que se não fosse por você, essa pesquisa não
+ existiria, uma vez que ela é toda construída nos seus estudos,
+ mas além disso, durante o processo de análise da CVE, eu
+ encontrei algumas dificuldade por se tratar de um assunto
+ completamente novo pra mim, e te pingar no mastodon com
+ algumas dúvidas sem a mínima expectativa de resposta, você me
+ respondeu em menos de 5min, respondendo todos os meus
+ questionamentos e me ajudando a entender melhor a sua
+ pesquisa. Você não tinha a mínima obrigação de me ajudar, mas
+ fez mesmo assim no mesmo instante, humilde :D
+
+Tem bem mais gente que eu gostaria de agradecer e que são tão
+importantes quanto os que eu citei aqui, mas se eu fosse citar todo
+mundo, dava pra fazer um artigo só disso :]
+
+[1]https://haqueers.com/@Rairii
+[2]https://twitter.com/hasherezade
+[3]https://www.nsa.gov/Press-Room/Press-Releases-Statements/Press-Re
+lease-View/Article/3435305/nsa-releases-guide-to-mitigate-blacklotus
+-threat/
+[4]https://www.youtube.com/watch?v=U02ClZS8hqw
+[5]https://www.bleepstatic.com/images/news/u/1109292/2022/BlackLotus
+_promo.png
+[6]https://www.welivesecurity.com/2023/03/01/blacklotus-uefi-bootkit
+-myth-confirmed/
+[7]https://twitter.com/smolar_m ||
+https://www.welivesecurity.com/en/our-experts/martin-smolar/
+[8]https://book.hacktricks.xyz/windows-hardening/authentication-cred
+entials-uac-and-efs/uac-user-account-control
+[9]https://github.com/ldpreload/BlackLotus
+[10]https://twitter.com/matrosov
+[11]https://p.ost2.fyi/courses/course-v1:OpenSecurityTraining2+Arch4
+021_intro_UEFI+2023_v1/course/
+[12]https://learn.microsoft.com/en-us/windows-hardware/drivers/bring
+up/boot-and-uefi
+[13]https://eclypsium.com/research/theres-a-hole-in-the-boot/
+[14]https://learn.microsoft.com/en-us/windows-hardware/design/device
+-experiences/oem-secure-boot
+[15]https://learn.microsoft.com/en-us/windows/security/operating-sys
+tem-security/system-security/secure-the-windows-10-boot-process
+[16]https://www.binarly.io/posts/The_Untold_Story_of_the_BlackLotus_
+UEFI_Bootkit/index.html
+[17]https://uefi.org/
+[18]https://media.blackhat.com/us-13/us-13-Bulygin-A-Tale-of-One-Sof
+tware-Bypass-of-Windows-8-Secure-Boot-Slides.pdf
+[19]Babar, Y. Hands-on Booting: Learn the Boot Process of Linux,
+Windows, and Unix. Apress, 2020.
+[20]Yao, J., Zimmer, V. Building Secure Firmware: Armoring the
+Foundation of the Platform. Apress, 2020.

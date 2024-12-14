@@ -1,0 +1,503 @@
+As complexidades da aleatoriedade na computação 
+(Ou como falhei em tentar aumentar a aleatoriedade)
+
+<! -- [índice]
+
+0 - Introdução- Questões a aleatoriedade
+1 - Entendendo um pequeno gerador de números pseudoaleatórios
+2 - Ideia inicial
+3 - A pseudo-aleatoriedade pode ser exploitada?
+4 - A próxima ideia: tentando gerar números mais aleatórios
+    4.1 - Ideia de melhoria
+    4.2 - Tentativa fracassada :(
+5 - Finalização
+    5.1 - Conclusão
+    5.2 - Como você pode terminar ou melhorar esse projeto
+-->
+
+
+<! -- 0 [Introdução- Questões sobre a aleatoriedade]
+
+Algo que quase todos sabem é que os computadores não geram números 
+verdadeiramente aleatórios. A aleatoriedade é algo complexo, pois os 
+computadores são lógicos demais para gerar números aleatórios, e os 
+humanos são emocionais demais para tentar gerar números verdadeiramente
+aleatórios. Uma pesquisa mostrou que os humanos tendem padrões para 
+escolher números aleatórios[1][2][3], nessa pesquisa, foi pedido que 
+escolhessem um número aleatório entre 1 e 10, e de longe o número mais 
+escolhido foi 7. Outro exemplo simples, porém interessante, é quando 
+pedimos 'Pense em 8 números aleatórios entre 1 e 10'. É bem provável 
+que a pessoa tente ser o mais aleatória possível, evitando repetições 
+de números ou sequências. No entanto, algo realmente aleatório poderia 
+resultar em todos os números sendo iguais ou em uma ordem específica, 
+como de 1 a 8 ou de 8 a 1, pois os eventos são totalmente independentes.
+Quando falamos sobre máquinas gerando números aleatórios, surge outra 
+questão: como um computador (pense em um script) seria capaz de gerar 
+um número verdadeiramente aleatório?
+
+A resposta é simples: Ele não vai ser capaz =D. Um computador é uma 
+máquina exata que utiliza cálculos para tudo, tornando-o previsível. 
+
+Eu "fiz" um programa para "gerar um número aleatório"
+
+root@tramoia:~/tramoia# cat gen.py
+
+  import random
+  print(f"Número aleatório: {random.randint(1, 100)}")
+
+
+  root@tramoia:~/tramoia# python3 gen.py
+  Numéro aleatório: 86
+  root@tramoia:~/tramoia# python3 gen.py
+  Numéro aleatório: 65
+  root@tramoia:~/tramoia# python3 gen.py
+  Numéro aleatório: 75
+  root@tramoia:~/tramoia# python3 gen.py
+  Numéro aleatório: 24
+
+Esses resultados não são aleatórios. Antes de qualquer explicação, 
+precisamos entender o que são números pseudoaleatórios. 
+-->
+
+<! -- 1 [Entendendo um pequeno gerador de números pseudoaleatórios]
+
+Os números pseudoaleatórios são números que parecem ser aleatórios, 
+mas que na verdade não são. Como não sou muito bom em matemática, vou 
+dar um exemplo sobre um gerador de fácil entendimento chamado 
+'Geradores Congruentes Lineares'[4] . Eu vou fazer uma versão em 
+python do gerador de congruentes linerares para usar como exemplo, 
+em seguida vou mostrar a melhor maneira de piorar ele! Mas que é bem 
+legal :) .
+
+
+1 -> Escolhemos uma seed (Semente) inicial, esse valor pode ser obtido 
+de vários maneiras, mas vamos definir ela manualmente. A semente será 
+o X_0.
+2 -> Aplicamos essa equação para calcular o x1: X_{1}=(AX_0+B) mod M 
+3 -> Agora vamos calcular o X2: X_{2}=(AX_1+B) mod M
+4 -> Bom... Vamos calcular o X3: X_{3}=(AX_2+B) mod M
+5 -> Acho que deu para entender o que vai acontecer aqui 
+
+De maneira tosca, definimos uma seed X_0 ​ e aplicamos uma operação de 
+multiplicação de A (um multiplicador) com X_0 ​ (a seed), somamos B 
+(um incremento), e, em seguida, aplicamos a operação mod M (Encontrar 
+o resto da divisão) para obter o próximo número aleatório X1, em 
+seguida, esse número X1 será utilizado para gerar o próximo número, 
+podemos dizer que ele é a nova seed. Isso pode parecer confuso, certo? 
+Valores reais podem ajudar a entender melhor
+
+  A = 5
+  B = 3
+  M = 16
+  X0 = 7 (seed)
+
+  X1​ = (5×7+3) módulo 16  = 38 mod 16 = *6*  
+  //38 ÷ 16 = 2 e o resto é 6, 2 × 16 + 6 = 38 
+  X1 = 6
+
+  X2 = (5×6+3) módulo 16 = 33 mod 16 = *1*
+  X2 = 1
+
+  X3 = (5×1+3) módulo 16 = 8 mod 16 = *8*
+X3 = 8
+
+-->
+
+
+<! -- 2 [Ideia inicial]
+
+Minha ideia inicial era quebrar a lib random do python. Não havia 
+nenhum motivo específico para isso, apenas queria executar o mesmo 
+programa várias vezes e sempre ser retornado os mesmos valores, claro 
+que sem setar a seed no próprio script, e sim manipulando os fatores 
+externos utilizado pela lib para gerar uma seed aleatória.
+
+A biblioteca random utiliza o algoritmo Mersenne-Twister[5], que é 
+muito mais complexo que um gerador congruente linear e possui um 
+período bem maior (2^19937-1) o que significa que somente após 
+(2^19937-1) números gerados, a sequencia vai se repetir, muito 
+provavelmente você não vai conseguir gerar todos eles mesmo se deixar 
+um while true com multi threads executando. Um detalhe óbvio, mas que 
+vale ser dito: Não importa se serão gerados números entre 1 e 5 ou 1 e 
+12389429823, a questão é a quantidade de números gerados até esgotar o 
+período e os número começarem a ser os mesmos (na mesma ordem, como se 
+fosse a primeira vez executando). De maneira superficial, será definida 
+uma seed e em seguida aplicada as operações matemáticas.
+
+
+Você deve estar se perguntando "Bom, se eu não setei a seed, por que 
+quando eu rodo o script outra vez ele não retorna os mesmo valores? Se 
+eu não setei uma seed, qual seed ele usa?" Essa é uma ótima pergunta. 
+Essa questão foi a minha motivação e ideia inicial para estudar isso. 
+A biblioteca random do python[6] possui um mecanismo simples, ela pode 
+utilizar das fontes de entropia do sistema operacional para gerar 
+números aleatórios (/dev/urandom no Linux e CryptGenRandom no Windows) 
+para gerar a seed. CASO esses mecanismos estejam indisponíveis, o 
+script utiliza outras fontes para gerar a seed (Como horário atual, e 
+outras informações, não consegui concluir isso). Eu queria deletar o 
+/dev/urandom da minha máquina e forçar a lib utilizar outras fontes 
+para gerar a seed, em paralelo deixar algum tipo de loop para manipular 
+essas "outras fontes" (como forçar o horário do meu PC a ficar 
+exatamente o mesmo), mas falhei nisso. Ainda sim é um projeto que eu 
+gostaria de retomar. Mas gostaria de encerrar mostrando que de fato, 
+a aleatoriedade pode ser exploitada:
+
+-->
+
+<! -- 3 [A pseudo-aleatoriedade pode ser exploitada?]
+
+No livro "A arte de invadir" de Kevin Mitnick, na história "Invadindo 
+os cassinos por um milhão de pratas", é mostrado um ataque divertido 
+que envolve a fraqueza dos geradores de números pseudo-aleatórios. 
+Nessa história, Kevin conta que alguns programadores compraram um caça 
+níquel e decidiram fazer a engenharia reversa para entender seu 
+funcionamento e encontraram uma "vulnerabilidade", o vetor de ataque 
+foi o GNA (Gerador de números aleatórios). Nessa história, a falha 
+estava de fato no gerador de números, pois o mesmo não podia ser 
+verdadeiramente pseudo-aleatório, pois o lucro da casa não pode 
+depender de sorte. Mas vou dar um exemplo tosco, imagine que de alguma 
+forma, você consegue descobrir a seed, é possível encontrar quais serão 
+os próximos números a serem gerados, pois é possível determinar a 
+posição que o gerador está na lista de números. Parte do ataque 
+mostrado nesse capitulo do livro envole algo semelhante a isso.
+
+Eu fiz 3 programas bem simples
+1- Gerador.py: Esse programa vai definir a seed 'Tr4moia2024', gerar 
+5000 números pseudo-aleatórios entre 1 e 100 e salvá-los em uma lista.
+
+  root@tramoia:~/tramoia# cat gerador.py
+  import random
+  random.seed("Tr4moia2024")
+  numeros_aleatorios = [random.randint(1, 100) for _ in range(5000)]
+  with open("numeros.txt", "w") as f:
+      for num in numeros_aleatorios:
+          f.write(f"{num}\n")
+
+2- Encontrar.py: Esse script tem como função ler a lista de números 
+aleatórios, solicitar os últimos 10 números gerados, para que eles 
+sejam encontrados na lista e sejam retornados os próximos 10.
+
+  root@tramoia:~/tramoia# cat encontrar.py
+  with open("numeros.txt", "r") as f:
+    numeros_aleatorios = [int(line.strip()) for line in f.readlines()]
+  def encontrar_sequencia(lista, sequencia):
+    """Encontra a sequência de números na lista e retorna os 
+    próximos 10 números."""
+    for i in range(len(lista) - len(sequencia)):
+      if lista[i:i + len(sequencia)] == sequencia:
+        return lista[i + len(sequencia):i + len(sequencia) + 10]
+    return None
+  entrada = input("Digite 10 números separados por espaço: ")
+  sequencia_usuario = list(map(int, entrada.split()))
+  proximos_numeros = encontrar_sequencia(numeros_aleatorios, 
+                                        └►sequencia_usuario)
+  if proximos_numeros:
+      print(f"Os próximos 10 números são: {proximos_numeros}")
+  else:
+      print("Sequência não encontrada.")
+
+3- apenasgere.py: A única coisa que esse script vai fazer é gerar uma 
+quantidade aleatória de números em um intervalo de 1 a 100 (Ou seja, 
+serão gerados X números entre 1 e 5000).
+
+  root@tramoia:~/tramoia# cat apenasgere.py
+  import time
+  import random
+  soma = 0
+  numero_aleatorio = random.randint(1, 5000)
+  print(f"Número aleatório gerado: {numero_aleatorio}")
+  random.seed("Tr4moia2024")
+  while soma < numero_aleatorio:
+      print(f"{random.randint(1, 100)} ")
+      soma = soma + 1
+
+Exemplo de execução:
+
+  root@tramoia:~/tramoia#  python3 gerador.py 
+  # Foram gerados os 5000 números aleatórios 
+  # entre 1 e 100 com a seed Tr4moia2024.
+
+  root@tramoia:~/tramoia# python3 eunaosei.py
+  Número aleatório gerado: 2207 #Será gerado 2207 números aleatórios
+  36
+  56
+  18
+  85
+  96
+  82
+  21
+  [...]
+  46  # Esse é o número 1
+  85
+  27
+  49
+  9
+  5
+  23
+  36
+  67
+  85  # Esse é o número 10
+  54
+  69
+  64
+  38
+  16
+  35
+  52
+  99
+  67
+35
+
+Teoricamente, se o nosso script de previsão de números estiver certo, 
+deverá ser retornado 54 69 64 38 16 35 52 99 67 35.
+
+root@tramoia:~/tramoia# python3 encontrar.py
+Digite 10 números separados por espaço: 46 85 27 49 9 5 23 36 67 85
+Os próximos 10 números são: [54, 69, 64, 38, 16, 35, 52, 99, 67, 35]
+
+O que acabou de acontecer? O encontrar.py achou os números na lista e 
+conseguiu retornar os próximos 10 números, e foram exatamente iguais 
+aos retornado pelo script 2. Isso significa que, se o script 2 fosse um
+caça-níquel, estaríamos milionários! =D
+
+-->
+
+
+
+<! -- 4 [A próxima ideia: tentando gerar números mais aleatórios]
+
+  <! -- 4.1 [Ideia de melhoria]
+
+Eu fiquei um pouco decepcionado e resolvi tentar gerar números 
+verdadeiramente aleatórios para aumentar a aleatoriedade. Mas como um 
+computador vai gerar números verdadeiramente aleatórios? Sozinho, é 
+impossível, mas existem várias maneiras de conseguir isso, podemos, 
+por exemplo, utilizar fatores externos como ruídos elétricos. Existem 
+técnicas como Avalanche Noise[7][8].
+
+
+Eu optei por utilizar ruídos elétricos (Também adicionei ruído sonoro 
+e luminoso, porém a oscilação era praticamente nula, não sei até que 
+ponto eles estavam ajudando ou atrapalhando) e o Process ID do programa 
+que executa o Mersenne-Twister. Integrei os valores em uma versão em 
+Python do Mersenne-Twister.  
+
+Para captar os ruídos elétricos, utilizei uma bobina (que, neste caso, 
+é uma forma minimamente formal de se referir a uma bola de papel 
+alumínio amassado) e um Arduino; os ruídos eram enviados via serial. 
+
+A montagem física ficou assim:
+
+                                                      +-----+
+                         +----[PWR]-------------------| USB |--+
+                         |                            +-----+  |
+                         |         GND/RST2  [ ][ ]            |
+                         |       MOSI2/SCK2  [ ][ ]  A5/SCL[ ] |   C5 
+  *****                  |          5V/MISO2 [ ][ ]  A4/SDA[ ] |   C4 
+***   ***                |                             AREF[ ] |
+**     **                |                              GND[ ] |
+***   ***                | [ ]N/C                    SCK/13[ ] |   B5
+  *****                  | [ ]IOREF                 MISO/12[ ] |   .
+   | |                   | [ ]RST                   MOSI/11[ ]~|   .
+   | |                   | [ ]3V3    +---+               10[ ]~|   .
+   | |                   | [ ]5v     | A |                9[ ]~|   .
+   | |                   | [ ]GND   -| R |-               8[ ] |   B0
+   | |                   | [ ]GND   -| D |-                    |
+   | |                   | [ ]Vin   -| U |-               7[ ] |   D7
+ __| |__                 |          -| I |-               6[ ]~|   .
+|_______|----------------|-[X]A0    -| N |-               5[ ]~|   .
+______________           | [ ]A1    -| O |-               4[ ] |   .
+|SensorSonoro|-----------|-[X]A2     +---+           INT1/3[ ]~|   .
+|____________|          -|-[X]A3                     INT0/2[ ] |   .
+________________       | | [ ]A4/SDA  RST SCK MISO     TX>1[ ] |   .
+|SensorLuminoso|-------- | [ ]A5/SCL  [ ] [ ] [ ]      RX<0[ ] |   D0
+|______________|         |            [ ] [ ] [ ]              |
+                         |  UNO_R3    GND MOSI 5V  ____________/
+                          \_______________________/          
+                          
+                  https://github.com/busyDuckman/ascii-art-arduinos/
+
+
+O código do Arduino ficou extremamente simples, basicamente lê os 
+valores dos 3 "sensores" cada 0.5 segundos e envia por serial:
+
+
+  const int noisePin = A0;
+  const int micPin = A2;
+  const int ldrPin = A3;
+
+
+  void setup() {
+    Serial.begin(9600);
+    delay(2000);
+  }
+
+  void loop() {
+    int ldrValue = analogRead(ldrPin);
+    Serial.println(ldrValue);
+    delay(500);
+
+    int micValue = analogRead(micPin);
+    Serial.println(micValue);
+    delay(500);
+
+    int noiseValue = analogRead(noisePin);
+    Serial.println(noiseValue);
+    delay(500);
+  }
+
+
+O Mersenne-Twister modificado ficou assim:
+
+
+  import time
+  import os
+  import serial
+
+  (w, n, m, r) = (32, 624, 397, 31)
+  a = 0x9908B0DF
+  (u, d) = (11, 0xFFFFFFFF)
+  (s, b) = (7, 0x9D2C5680)
+  (t, c) = (15, 0xEFC60000)
+  l = 18
+  f = 1812433253
+
+  MT = [0 for _ in range(n)]
+  index = n + 1
+  lower_mask = 0x7FFFFFFF
+  upper_mask = 0x80000000
+
+  def mt_seed(seed):
+      global index
+      index = n
+      MT[0] = seed
+      for i in range(1, n):
+          temp = f * (MT[i-1] ^ (MT[i-1] >> (w-2))) + i
+          MT[i] = temp & 0xFFFFFFFF
+
+  def extract_number(serial_port):
+      global index
+      if index >= n:
+          twist()
+          index = 0
+
+      noise_value = int(read_serial_data(serial_port))
+      ldr_value = int(read_serial_data(serial_port))
+      mic_value = int(read_serial_data(serial_port))
+      current_millis = current_time_millis()
+      pid = get_pid()
+
+      y = MT[index] ^ ldr_value ^ mic_value ^ noise_value ^ 
+          └►current_millis ^ pid 
+          #Eu confesso que isso foi extremamente mal feito =D
+      y = y ^ ((y >> u) & d)
+      y = y ^ ((y << s) & b)
+      y = y ^ ((y << t) & c)
+      y = y ^ (y >> l)
+
+      index += 1
+      return y & 0xFFFFFFFF, ldr_value, mic_value, noise_value, 
+       └►pid, current_millis
+
+  def twist():
+      for i in range(n):
+          x = (MT[i] & upper_mask) + (MT[(i + 1) % n] & lower_mask)
+          xA = x >> 1
+          if x % 2 != 0:
+              xA = xA ^ a
+          MT[i] = MT[(i + m) % n] ^ xA
+
+  def current_time_millis():
+      return round(time.time() * 1000)
+
+  def get_pid():
+      return os.getpid()
+
+  def read_serial_data(serial_port):
+      try:
+          data = serial_port.readline().decode('latin-1').strip()
+          return int(data)
+      except ValueError:
+          print("Error converting data to integer. Default value used.")
+          return 0
+
+  def main():
+      serial_port = serial.Serial('COM5', 9600, timeout=1)
+      time.sleep(2)
+
+      while True:
+          random_number, ldr_value, mic_value, noise_value, pid, 
+            └►current_millis = extract_number(serial_port)
+          print(f"Random: {random_number} | LDR: {ldr_value} | 
+          └►Mic: {mic_value} | Noise: {noise_value} | PID: {pid} 
+          └►| Time: {current_millis}")
+          time.sleep(1)
+
+  if __name__ == '__main__':
+      main()
+
+
+  # Creditos: yinengy[13]
+
+--> 
+  <! -- 4.2 [Tentativa fracassada :( ]
+
+Existem várias falhas nessa ideia, e nem vou entrar em detalhes sobre 
+a maneira como os ruídos foram integrados ao Mersenne-Twister, ainda 
+que fosse adicionado corretamente, é preciso considerar que o Arduino 
+possui poucos bits de entrada analógica (10 bits, um intervalo de 
+0-1023, o que é extremamente baixo quando falamos de aleatoriedade). 
+Para ser mais prático, imagine que você deseja gerar valores entre 
+12123 e 239823433426 para sua 
+"super_criptografia_que_não_pode_ser_quebrada4.0", mas seu gerador 
+utiliza uma entrada de apenas 10 bits para gerar a seed, muito 
+inseguro, correto? 
+
+Fique totalmente a vontade para melhorar o script ou me xingar por ter 
+criado essa integração ruim
+-->
+-->
+
+<! -- 5 [Finalização]
+
+  <! -- 5.1 [Conclusão]
+Podemos concluir que a aleatoriedade é sim uma área complexa e que não 
+é tão simples melhorar ou criar uma implementação funcional e segura. 
+Espero que essa tentativa falha tenha mostrado a você um ramo a qual 
+eu não domino, mas que acho fascinante... "Anyone who considers 
+arithmetical methods of producing random digits is, of course, in a 
+state of sin" - John Von Neumann[9][10]. Recomendo altamente a leitura 
+do artigo "Entropia para a criação de criptografia" escrito por 
+Giulia Riceto Mendes, o mesmo faz parte do Tramoia.
+-->
+  <! -- 5.2 - [Como você pode terminar ou melhorar esse projeto]
+Não posso oferecer uma solução para algo que  não consegui resolver, 
+contudo, o próximo passo nesse projeto seria a implementação do ruído 
+de avalanche, No entanto, existem duas dificuldades: a primeira, que é 
+superável, é montar e validar o hardware responsável por gerar o ruído 
+de avalanche, acredito que um osciloscópio será necessário nesta etapa. 
+A segunda e maior dificuldade seria processar esses dados, uma vez que 
+temos poucos bits de entrada disponíveis. Claro, você não precisa se 
+limitar a um Arduino ou esp32 (No caso do esp, são 12 bits de resolução,
+o que dá um intervalo de 0-4095, porém continua sendo um valor baixo), 
+acredito que existem outros microcontroladores, como o Teensy 
+3.6[11][12], que talvez oferecem uma resolução maior.
+-->
+-->
+
+<! --- [Referências]
+
+[1] - https://torvaney.github.io/projects/human-rng
+[2] - https://flothesof.github.io/testing-human-random-number-generator.html
+[3] - https://www.reddit.com/r/dataisbeautiful/comments/acow6y/asking_over_8500_students_to_pick_a_random_number/
+[4] - https://en.wikipedia.org/wiki/Linear_congruential_generator
+[5] - https://pt.wikipedia.org/wiki/Mersenne_Twister
+[6] - https://github.com/python/cpython/blob/main/Lib/random.py
+[7] - https://betrusted.io/avalanche-noise.html
+[8] - https://www.vishay.com/docs/85966/thenoiseofavalanchebreakdown.pdf
+[9] - https://en.wikiquote.org/wiki/John_von_Neumann
+[10] - https://ieeexplore.ieee.org/abstract/document/10461442/
+[11] - https://www.pjrc.com/store/teensy36.html
+[12] - https://forum.pjrc.com/index.php?threads/teensy-4-0-and-16-bit-resolution-pwm-duty-cycle-issue.62420/
+[13] - https://github.com/yinengy/Mersenne-Twister-in-Python
+-->

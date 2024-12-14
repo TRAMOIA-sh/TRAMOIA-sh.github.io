@@ -1,26 +1,47 @@
 body {
 	color:#fefefe;
 	background-color: black;
-	max-width: max-content;
-	margin: auto;
+	display: flex;
+	min-height: 100vh;
+	margin: 0;
+	padding: 0;
 }
-
 
 @font-face {
 	font-family: ibm;
 	src: url("./Web437_IBM_VGA_8x14.woff") format("woff");
 }
 
+@font-face {
+	font-family: hp100;
+	src: url("./WebPlus_HP_100LX_6x8.woff") format("woff");
+}
+
+@font-face {
+	font-family: ibmcga;
+	src: url("./WebPlus_ToshibaSat_8x14.woff") format("woff");
+}
+
+img {
+	width: 30%;
+	height: 30%;
+	display: block;
+	padding-left: 20%;
+}
+
 pre {
-	font-family: ibm;
-	font-size: 15px;
+	font-family: hp100;
+	font-size:15px; 
 	line-height: 1;
+	padding-left: 20px;
 }
 
 .txtdiv {
 	display: block;
 	text-align: left;
-}
+	color: white;
+	padding-left: 15%;
+  }
 
 g1{
 	color: #c0c0c0;
@@ -32,4 +53,28 @@ g2{
 
 ww{
 	color: white;
+}
+
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    font-family: ibm;
+    color: #3a3a3a;
+    /* overflow: hidden; */
+    pointer-events: none;
+}
+
+a {
+  color: #8A9A5B;
+  text-decoration: none;
+  text-align: left;
+}
+
+a:visited {
+	color: #4F7942;
+	text-decoration: none;
 }
