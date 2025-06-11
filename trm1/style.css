@@ -8,17 +8,17 @@ body {
    
    @font-face {
 	font-family: ibm;
-	src: url("./Web437_IBM_VGA_8x14.woff") format("woff");
+	src: url("/Web437_IBM_VGA_8x14.woff") format("woff");
    }
    
    @font-face {
 	font-family: hp100;
-	src: url("./WebPlus_HP_100LX_6x8.woff") format("woff");
+	src: url("/WebPlus_HP_100LX_6x8.woff") format("woff");
    }
    
    @font-face {
 	font-family: ibmcga;
-	src: url("./WebPlus_ToshibaSat_8x14.woff") format("woff");
+	src: url("/WebPlus_ToshibaSat_8x14.woff") format("woff");
    }
    
    img {
@@ -48,6 +48,30 @@ body {
    }
    
    ww{
+	color: white;
+   }
+
+   r1{
+	color: red;
+   }
+
+   y1{
+	color: yellow;
+   }
+
+   b1{
+	color: blue;
+   }
+
+   m1{
+	color: magenta;
+   }
+
+   c1{
+	color: cyan;
+   }
+
+   w1{
 	color: white;
    }
    

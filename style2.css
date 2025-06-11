@@ -1,0 +1,170 @@
+body {
+	color:#fefefe;
+	background-color: black;
+	display: flex;
+	justify-content: center; /* Center horizontally */
+	align-items: flex-start; /* Align to top on mobile to prevent zoom issues */
+	min-height: 100vh; /* Full viewport height */
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+   }
+   
+   @font-face {
+	font-family: ibm;
+	src: url("./Web437_IBM_VGA_8x14.woff") format("woff");
+   }
+   
+   @font-face {
+	font-family: hp100;
+	src: url("./WebPlus_HP_100LX_6x8.woff") format("woff");
+   }
+   
+   @font-face {
+	font-family: ibmcga;
+	src: url("./WebPlus_ToshibaSat_8x14.woff") format("woff");
+   }
+
+   @font-face{
+   	font-family: ibmvga;
+   	src: url("./Web437_IBM_VGA_9x8.woff") format("woff");
+   }
+
+   @font-face {
+    font-family: "IBM VGA 8x16";
+    src: url( "font/WebPlus_IBM_VGA_8x16.woff" ) format( "woff" );
+	}
+   
+   img {
+	width: 30%;
+	height: 30%;
+	display: block;
+   }
+   
+   pre {
+	font-family: ibmcga;
+	font-size: 15px; 
+	line-height: 15px;
+	white-space: pre; /* Ensure whitespace is preserved */
+    letter-spacing: 0; /* Adjust letter spacing if needed */
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: auto; /* Allow height to be flexible */
+    overflow-x: auto; /* Allow horizontal scroll if needed */
+   }
+   
+   .txtdiv {
+	display: block;
+	text-align: left;
+	color: white;
+	padding: 10px;
+	box-sizing: border-box;
+	}
+   
+   g1{
+	color: #c0c0c0;
+   }
+   
+   g2{
+	color: #808080;
+   }
+   
+   ww{
+	color: white;
+   }
+
+   r1{
+	color: red;
+   }
+
+   g1{
+	color: green;
+   }
+
+   y1{
+	color: yellow;
+   }
+
+   b1{
+	color: blue;
+   }
+
+   m1{
+	color: magenta;
+   }
+
+   c1{
+	color: cyan;
+   }
+
+   w1{
+	color: white;
+   }
+   
+   .background {
+	   position: fixed;
+	   top: 0;
+	   left: 0;
+	   width: 100%;
+	   height: 100%;
+	   z-index: -1;
+	   font-family: ibm;
+	   color: #3a3a3a;
+	   /* overflow: hidden; */
+	   pointer-events: none;
+   }
+   
+   a {
+	 color: cyan;
+	 text-decoration: none;
+	 text-align: left;
+   }
+   
+   a:visited {
+	color: darkcyan;
+	text-decoration: none;
+	}
+
+	a:hover {
+	background-color: cyan;
+	color: black;
+	}
+   
+   /* Mobile and tablet responsive styles */
+@media only screen and (max-width: 1050px) {
+body {
+ padding: 0;
+ align-items: flex-start; /* Start from top on mobile */
+}
+pre {
+ font-size: clamp(6px, 1.5vw, 11px); /* Slightly larger for better readability */
+ line-height: clamp(6px, 1.5vw, 11px); /* Keep line-height matching font-size */
+}
+.txtdiv {
+ padding: 5px;
+ width: 100vw;
+ overflow-x: auto;
+}
+img {
+ padding: 0;
+ width: 40%;
+ height: auto;
+}
+}
+   
+   /* Extra small screens (phones in portrait) */
+@media only screen and (max-width: 480px) {
+body {
+ padding: 0;
+}
+pre {
+ font-size: clamp(5px, 2vw, 9px);
+ line-height: clamp(5px, 2vw, 9px);
+}
+.txtdiv {
+ padding: 3px;
+ font-size: 1em;
+}
+}
+   
