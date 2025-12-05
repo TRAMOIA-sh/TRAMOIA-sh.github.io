@@ -3,6 +3,72 @@
 // https://www.dgp.toronto.edu/people/stam/reality/Research/pdf/GDC03.pdfd
 // https://mikeash.com/pyblog/fluid-simulation-for-dummies.html
 
+window.addEventListener('load', () => {
+
+// add _ to padding the artpre element based on window width
+const artPreElement = document.getElementById('artpre');
+const spanCalculated = document.createElement('span');
+spanCalculated.textContent = '_';
+spanCalculated.style.fontSize = '16px';
+spanCalculated.style.lineHeight = '16px';
+spanCalculated.style.display = 'inline-block';
+spanCalculated.style.width = '16px';
+spanCalculated.style.position = 'absolute';
+spanCalculated.style.top = '0';
+spanCalculated.style.fontFamily = 'ibmcga';
+spanCalculated.style.height = '16px';
+spanCalculated.style.backgroundColor = 'transparent';
+spanCalculated.style.color = 'transparent';
+document.body.appendChild(spanCalculated);
+const spanWidth = spanCalculated.offsetWidth;
+const spanHeight = spanCalculated.offsetHeight;
+// Add a buffer to handle potential rounding errors or font loading race conditions
+const howManyCharactersWindowFit = Math.ceil(window.innerWidth / spanWidth) + 4;
+document.body.removeChild(spanCalculated);
+
+// Measure original width before adding underscores to calculate correct centering
+const originalLines = artPreElement.innerText.split('\n');
+const originalWidth = Math.max(...originalLines.map(l => l.length));
+
+let multiplier;
+if (window.innerWidth > 1024) {
+    multiplier = 1.79;  // for desktop
+} else {
+    multiplier = 0.0; // for mobile
+}
+artPreElement.innerHTML += `_`.repeat(howManyCharactersWindowFit*multiplier);
+
+// Calculate how many underscores were added for centering
+const numPaddingUnderscores = Math.floor(howManyCharactersWindowFit * multiplier);
+
+// Calculate padding spaces to add (center justify)
+// Use the original width to ensure the art is centered in the expanded container
+let numSpacesPadding = 0;
+if (multiplier > 0) {
+    // Center the art: Padding = (TotalWidth - ArtWidth) / 2
+    numSpacesPadding = Math.ceil((numPaddingUnderscores - originalWidth)-1)/2;
+    if (numSpacesPadding < 0) numSpacesPadding = 0;
+}
+
+// Pad each line inside artpre with spaces (on the left)
+function padArtPreLines() {
+    // Get list of lines as HTML (preserving color tags)
+    // We'll operate on .innerHTML to not break <g1>, <g2>, <ww> etc.
+    let lines = artPreElement.innerHTML.split('\n');
+    for (let i = 0; i < lines.length-2; i++) {
+        // Only pad lines that aren't trivially empty
+        // But do not touch special decoration lines if any (optional, can be removed)
+        if (lines[i].trim().length > 0) {
+            lines[i] = ' '.repeat(numSpacesPadding) + lines[i];
+        }
+    }
+    artPreElement.innerHTML = lines.join('\n');
+}
+
+// Run this after the underscores are added
+padArtPreLines();
+
+
 // Calculate fluid grid size based on actual art dimensions
 const tempArtElement = document.getElementById('artpre');
 const tempArtText = tempArtElement.innerText;
@@ -12,11 +78,13 @@ const WIDTH = Math.max(...tempArtLines.map(line => line.length));
 const HEIGHT = tempArtLines.length;
 
 // Calculate scaling factor for higher resolution
-const FONT_SCALE = 0.5; // This will make the font size effectively 8px (assuming original is 16px)
+const FONT_SCALE = 0.6; // This will make the font size effectively 8px (assuming original is 16px)
 const SCALED_WIDTH = Math.floor(WIDTH / FONT_SCALE);
 const SCALED_HEIGHT = Math.floor(HEIGHT / FONT_SCALE);
 
 console.log('Fluid grid dimensions (based on art):', SCALED_WIDTH, 'x', SCALED_HEIGHT, '=', SCALED_WIDTH * SCALED_HEIGHT, 'cells');
+
+
 
 // --- Fluid Simulation Code ---
 
@@ -125,10 +193,15 @@ class FluidCube {
       * Modified to respect solid boundaries and only process active cells.
       */
      lin_solve(b, x, x0, a, cRecip, iter) {
+        const width = this.width;
+        const height = this.height;
+        const widthMinus1 = width - 1;
+        const heightMinus1 = height - 1;
+        
         for (let k = 0; k < iter; k++) {
-            for (let j = 1; j < this.width - 1; j++) { // x-coord
-                for (let i = 1; i < this.height - 1; i++) { // y-coord
-                    const index = IX(j, i);
+            for (let j = 1; j < widthMinus1; j++) { // x-coord
+                for (let i = 1; i < heightMinus1; i++) { // y-coord
+                    const index = j + i * width; // IX(j, i) = j + i * width
                     
                     // Skip inactive cells for performance
                     if (!activeMap[index]) continue;
@@ -139,12 +212,18 @@ class FluidCube {
                         continue;
                     }
                     
+                    // Cache neighbor indices (avoid repeated IX() calls)
+                    const idxRight = (j + 1) + i * width;
+                    const idxLeft = (j - 1) + i * width;
+                    const idxTop = j + (i + 1) * width;
+                    const idxBottom = j + (i - 1) * width;
+                    
                     x[index] =
                         (x0[index] +
-                            a * (x[IX(j + 1, i)] +
-                                 x[IX(j - 1, i)] +
-                                 x[IX(j, i + 1)] +
-                                 x[IX(j, i - 1)]
+                            a * (x[idxRight] +
+                                 x[idxLeft] +
+                                 x[idxTop] +
+                                 x[idxBottom]
                                 )) * cRecip;
                 }
             }
@@ -161,16 +240,20 @@ class FluidCube {
      * @param {number} iter - Number of solver iterations.
      */
      diffuse(b, x, x0, diff, iter) {
-        // const N_actual = this.width;
+        const widthMinus2 = this.width - 2;
+        const heightMinus2 = this.height - 2;
         // Use width/height in factor calculation
-        const a = this.dt * diff * (this.width - 2) * (this.height - 2);
+        const a = this.dt * diff * widthMinus2 * heightMinus2;
         // Avoid division by zero or very small numbers if a is close to 0
         const cRecip = 1.0 / (1 + 4 * a); // Assuming dx=dy=1, Gauss-Seidel uses 4 neighbors
-        if (a === 0 || cRecip === Infinity || isNaN(cRecip)) {
+        if (a === 0 || cRecip === Infinity || cRecip !== cRecip) { // NaN check without isNaN
             // If no diffusion, simply copy x0 to x for the internal cells
-            for (let j = 1; j < this.width - 1; j++) {
-                for (let i = 1; i < this.height - 1; i++) {
-                    x[IX(j, i)] = x0[IX(j, i)];
+            const width = this.width;
+            const height = this.height;
+            for (let j = 1; j < width - 1; j++) {
+                for (let i = 1; i < height - 1; i++) {
+                    const index = j + i * width; // IX(j, i) = j + i * width
+                    x[index] = x0[index];
                 }
             }
             this.set_bnd(b, x);
@@ -186,17 +269,27 @@ class FluidCube {
      advect(b, d, d0, velocX, velocY) {
         let i0, i1, j0, j1;
 
-        const dtx = this.dt * (this.width - 2); // Scale dt by grid size for stable advection
-        const dty = this.dt * (this.height - 2);
+        const width = this.width;
+        const height = this.height;
+        const widthMinus1 = width - 1;
+        const heightMinus1 = height - 1;
+        const widthMinus2 = width - 2;
+        const heightMinus2 = height - 2;
+        
+        const dtx = this.dt * widthMinus2; // Scale dt by grid size for stable advection
+        const dty = this.dt * heightMinus2;
 
         let s0, s1, t0, t1;
         let tmp1, tmp2, x, y;
 
-        const NfloatW = this.width;
-        const NfloatH = this.height;
-        for (let j = 1; j < this.width - 1; j++) { // x-coord
-            for (let i = 1; i < this.height - 1; i++) { // y-coord
-                const index = IX(j, i);
+        const NfloatW = width;
+        const NfloatH = height;
+        const NfloatWMinus1_5 = width - 1.5;
+        const NfloatHMinus1_5 = height - 1.5;
+        
+        for (let j = 1; j < widthMinus1; j++) { // x-coord
+            for (let i = 1; i < heightMinus1; i++) { // y-coord
+                const index = j + i * width; // IX(j, i) = j + i * width
                 
                 // Skip inactive cells for performance
                 if (!activeMap[index]) {
@@ -217,8 +310,8 @@ class FluidCube {
                 y = i - tmp2;
 
                 // Clamp coordinates to grid bounds (0.5 to N-1.5 representing cell centers)
-                x = Math.max(0.5, Math.min(NfloatW - 1.5, x));
-                y = Math.max(0.5, Math.min(NfloatH - 1.5, y));
+                x = x < 0.5 ? 0.5 : (x > NfloatWMinus1_5 ? NfloatWMinus1_5 : x);
+                y = y < 0.5 ? 0.5 : (y > NfloatHMinus1_5 ? NfloatHMinus1_5 : y);
 
                 // Get integer and fractional parts for interpolation
                 j0 = Math.floor(x);
@@ -227,10 +320,11 @@ class FluidCube {
                 i1 = i0 + 1;
 
                 // Check if we're trying to interpolate from solid areas
-                const idx00 = IX(j0, i0);
-                const idx01 = IX(j0, i1);
-                const idx10 = IX(j1, i0);
-                const idx11 = IX(j1, i1);
+                // Cache width multiplication for index calculations (IX(x,y) = x + y * width)
+                const idx00 = j0 + i0 * width;
+                const idx01 = j0 + i1 * width;
+                const idx10 = j1 + i0 * width;
+                const idx11 = j1 + i1 * width;
                 
                 // If any interpolation source is solid, use reflection instead of decay
                 if (solidMap[idx00] || solidMap[idx01] || solidMap[idx10] || solidMap[idx11]) {
@@ -250,8 +344,8 @@ class FluidCube {
                     }
                     
                     // Clamp reflected position
-                    reflectedX = Math.max(0.5, Math.min(NfloatW - 1.5, reflectedX));
-                    reflectedY = Math.max(0.5, Math.min(NfloatH - 1.5, reflectedY));
+                    reflectedX = reflectedX < 0.5 ? 0.5 : (reflectedX > NfloatWMinus1_5 ? NfloatWMinus1_5 : reflectedX);
+                    reflectedY = reflectedY < 0.5 ? 0.5 : (reflectedY > NfloatHMinus1_5 ? NfloatHMinus1_5 : reflectedY);
                     
                     // Get new interpolation indices for reflected position
                     j0 = Math.floor(reflectedX);
@@ -259,10 +353,11 @@ class FluidCube {
                     i0 = Math.floor(reflectedY);
                     i1 = i0 + 1;
                     
-                    const ridx00 = IX(j0, i0);
-                    const ridx01 = IX(j0, i1);
-                    const ridx10 = IX(j1, i0);
-                    const ridx11 = IX(j1, i1);
+                    // Cache width multiplication for reflected indices (IX(x,y) = x + y * width)
+                    const ridx00 = j0 + i0 * width;
+                    const ridx01 = j0 + i1 * width;
+                    const ridx10 = j1 + i0 * width;
+                    const ridx11 = j1 + i1 * width;
                     
                     // If reflected position is also solid, just use current value with slight decay
                     if (solidMap[ridx00] || solidMap[ridx01] || solidMap[ridx10] || solidMap[ridx11]) {
@@ -301,10 +396,15 @@ class FluidCube {
       * Modified to respect solid boundaries and only process active cells.
       */
      project(velocX, velocY, p, div) {
+        const width = this.width;
+        const height = this.height;
+        const widthMinus1 = width - 1;
+        const heightMinus1 = height - 1;
+        
         // Calculate divergence (using central differences, h=1)
-        for (let j = 1; j < this.width - 1; j++) {
-            for (let i = 1; i < this.height - 1; i++) {
-                const index = IX(j, i);
+        for (let j = 1; j < widthMinus1; j++) {
+            for (let i = 1; i < heightMinus1; i++) {
+                const index = j + i * width; // IX(j, i) = j + i * width
                 
                 // Skip inactive cells for performance
                 if (!activeMap[index]) {
@@ -320,8 +420,14 @@ class FluidCube {
                     continue;
                 }
                 
-                div[index] = -0.5 * (velocX[IX(j + 1, i)] - velocX[IX(j - 1, i)] +
-                                       velocY[IX(j, i + 1)] - velocY[IX(j, i - 1)]);
+                // Cache neighbor indices (IX(x,y) = x + y * width)
+                const idxRight = (j + 1) + i * width;
+                const idxLeft = (j - 1) + i * width;
+                const idxTop = j + (i + 1) * width;
+                const idxBottom = j + (i - 1) * width;
+                
+                div[index] = -0.5 * (velocX[idxRight] - velocX[idxLeft] +
+                                       velocY[idxTop] - velocY[idxBottom]);
                 p[index] = 0; // Initialize pressure
             }
         }
@@ -332,9 +438,9 @@ class FluidCube {
         this.lin_solve(0, p, div, 1, 1.0 / 4.0, iter);
 
         // Subtract pressure gradient from velocity field (using central differences, h=1)
-        for (let j = 1; j < this.width - 1; j++) {
-            for (let i = 1; i < this.height - 1; i++) {
-                const index = IX(j, i);
+        for (let j = 1; j < widthMinus1; j++) {
+            for (let i = 1; i < heightMinus1; i++) {
+                const index = j + i * width; // IX(j, i) = j + i * width
                 
                 // Skip inactive cells for performance
                 if (!activeMap[index]) continue;
@@ -346,8 +452,14 @@ class FluidCube {
                     continue;
                 }
                 
-                velocX[index] -= 0.5 * (p[IX(j + 1, i)] - p[IX(j - 1, i)]);
-                velocY[index] -= 0.5 * (p[IX(j, i + 1)] - p[IX(j, i - 1)]);
+                // Cache neighbor indices (IX(x,y) = x + y * width)
+                const idxRight = (j + 1) + i * width;
+                const idxLeft = (j - 1) + i * width;
+                const idxTop = j + (i + 1) * width;
+                const idxBottom = j + (i - 1) * width;
+                
+                velocX[index] -= 0.5 * (p[idxRight] - p[idxLeft]);
+                velocY[index] -= 0.5 * (p[idxTop] - p[idxBottom]);
             }
         }
         this.set_bnd(1, velocX);
@@ -359,43 +471,98 @@ class FluidCube {
      * Modified to respect solid boundaries.
      */
      set_bnd(b, x) {
-        // First handle solid constraints
-        for (let i = 0; i < solidMap.length; i++) {
-            if (solidMap[i]) {
-                x[i] = 0;
-            }
-        }
+        const width = this.width;
+        const height = this.height;
+        const widthMinus1 = width - 1;
+        const heightMinus1 = height - 1;
+        const widthMinus2 = width - 2;
+        const heightMinus2 = height - 2;
+        
+        // First handle solid constraints - only iterate through known solid cells
+        // Instead of iterating through entire array, handle solids during boundary processing
         
         // Then handle regular boundaries
-        for (let j = 1; j < this.width - 1; j++) { 
-            if (!solidMap[IX(j, 0)]) {
-                x[IX(j, 0)] = b === 2 ? -x[IX(j, 1)] : x[IX(j, 1)];
+        for (let j = 1; j < widthMinus1; j++) {
+            const idxTop = j + 0 * width; // IX(j, 0)
+            const idxTopInner = j + 1 * width; // IX(j, 1)
+            const idxBottom = j + heightMinus1 * width; // IX(j, height-1)
+            const idxBottomInner = j + heightMinus2 * width; // IX(j, height-2)
+            
+            if (!solidMap[idxTop]) {
+                x[idxTop] = b === 2 ? -x[idxTopInner] : x[idxTopInner];
+            } else {
+                x[idxTop] = 0;
             }
-            if (!solidMap[IX(j, this.height - 1)]) {
-                x[IX(j, this.height - 1)] = b === 2 ? -x[IX(j, this.height - 2)] : x[IX(j, this.height - 2)];
+            if (!solidMap[idxBottom]) {
+                x[idxBottom] = b === 2 ? -x[idxBottomInner] : x[idxBottomInner];
+            } else {
+                x[idxBottom] = 0;
             }
         }
-        for (let i = 1; i < this.height - 1; i++) {
-            if (!solidMap[IX(0, i)]) {
-                x[IX(0, i)] = b === 1 ? -x[IX(1, i)] : x[IX(1, i)];
+        for (let i = 1; i < heightMinus1; i++) {
+            const iWidth = i * width;
+            const idxLeft = 0 + iWidth; // IX(0, i)
+            const idxLeftInner = 1 + iWidth; // IX(1, i)
+            const idxRight = widthMinus1 + iWidth; // IX(width-1, i)
+            const idxRightInner = widthMinus2 + iWidth; // IX(width-2, i)
+            
+            if (!solidMap[idxLeft]) {
+                x[idxLeft] = b === 1 ? -x[idxLeftInner] : x[idxLeftInner];
+            } else {
+                x[idxLeft] = 0;
             }
-            if (!solidMap[IX(this.width - 1, i)]) {
-                x[IX(this.width - 1, i)] = b === 1 ? -x[IX(this.width - 2, i)] : x[IX(this.width - 2, i)];
+            if (!solidMap[idxRight]) {
+                x[idxRight] = b === 1 ? -x[idxRightInner] : x[idxRightInner];
+            } else {
+                x[idxRight] = 0;
             }
         }
 
         // Handle corners (only if they're not solid)
-        if (!solidMap[IX(0, 0)]) {
-            x[IX(0, 0)] = 0.5 * (x[IX(1, 0)] + x[IX(0, 1)]);
+        const idx00 = 0;
+        const idx01 = width;
+        const idx10 = 1;
+        if (!solidMap[idx00]) {
+            x[idx00] = 0.5 * (x[idx10] + x[idx01]);
+        } else {
+            x[idx00] = 0;
         }
-        if (!solidMap[IX(0, this.height - 1)]) {
-            x[IX(0, this.height - 1)] = 2.5 * (x[IX(1, this.height - 1)] + x[IX(0, this.height - 2)]);
+        
+        const idx0H = heightMinus1 * width;
+        const idx0HInner = 1 + idx0H;
+        const idx0HInner2 = (heightMinus2) * width;
+        if (!solidMap[idx0H]) {
+            x[idx0H] = 2.5 * (x[idx0HInner] + x[idx0HInner2]);
+        } else {
+            x[idx0H] = 0;
         }
-        if (!solidMap[IX(this.width - 1, 0)]) {
-            x[IX(this.width - 1, 0)] = 0.5 * (x[IX(this.width - 4, 0)] + x[IX(this.width - 1, 1)]);
+        
+        const idxW0 = widthMinus1;
+        const idxW0Inner = widthMinus2;
+        const idxW01 = widthMinus1 + width;
+        if (!solidMap[idxW0]) {
+            x[idxW0] = 0.5 * (x[idxW0Inner] + x[idxW01]);
+        } else {
+            x[idxW0] = 0;
         }
-        if (!solidMap[IX(this.width - 1, this.height - 1)]) {
-            x[IX(this.width - 1, this.height - 1)] = 0.5 * (x[IX(this.width - 4, this.height - 1)] + x[IX(this.width - 1, this.height - 2)]);
+        
+        const idxWH = widthMinus1 + idx0H;
+        const idxWHInner1 = widthMinus2 + idx0H;
+        const idxWHInner2 = widthMinus1 + idx0HInner2;
+        if (!solidMap[idxWH]) {
+            x[idxWH] = 0.5 * (x[idxWHInner1] + x[idxWHInner2]);
+        } else {
+            x[idxWH] = 0;
+        }
+        
+        // Handle all solid cells in one pass (only those not on boundaries)
+        for (let j = 1; j < widthMinus1; j++) {
+            for (let i = 1; i < heightMinus1; i++) {
+                const idx = j + i * width; // IX(j, i) = j + i * width
+                if (solidMap[idx]) {
+                    x[idx] = 0;
+                }
+            }
         }
      }
 }
@@ -414,30 +581,47 @@ const ACTIVITY_THRESHOLD = 0.01; // Minimum density/velocity to consider a cell 
 
 // Function to update active cells based on current fluid state
 function updateActiveCells() {
+    const width = SCALED_WIDTH;
+    const height = SCALED_HEIGHT;
+    const size = width * height;
+    
     // Reset active map
     activeMap.fill(false);
     
-    for (let i = 0; i < SCALED_WIDTH * SCALED_HEIGHT; i++) {
+    for (let i = 0; i < size; i++) {
         // A cell is active if it has significant density, velocity, or is near solid boundaries
-        const hasSignificantDensity = fluid.density[i] > ACTIVITY_THRESHOLD;
-        const hasSignificantVelocity = Math.abs(fluid.Vx[i]) > ACTIVITY_THRESHOLD || Math.abs(fluid.Vy[i]) > ACTIVITY_THRESHOLD;
+        const density = fluid.density[i];
+        const vx = fluid.Vx[i];
+        const vy = fluid.Vy[i];
+        const hasSignificantDensity = density > ACTIVITY_THRESHOLD;
+        const hasSignificantVelocity = (vx > ACTIVITY_THRESHOLD || vx < -ACTIVITY_THRESHOLD) || 
+                                      (vy > ACTIVITY_THRESHOLD || vy < -ACTIVITY_THRESHOLD);
         
         if (hasSignificantDensity || hasSignificantVelocity || solidMap[i]) {
             activeMap[i] = true;
             
             // Also mark neighboring cells as active (fluid can spread)
-            const x = i % SCALED_WIDTH;
-            const y = Math.floor(i / SCALED_WIDTH);
+            // Cache calculations
+            const x = i % width;
+            const y = (i - x) / width; // Equivalent to Math.floor(i / width) but faster
             
-            for (let dx = -1; dx <= 1; dx++) {
-                for (let dy = -1; dy <= 1; dy++) {
-                    const nx = x + dx;
-                    const ny = y + dy;
-                    if (nx >= 0 && nx < SCALED_WIDTH && ny >= 0 && ny < SCALED_HEIGHT) {
-                        const neighborIndex = IX(nx, ny);
-                        activeMap[neighborIndex] = true;
-                    }
-                }
+            // Optimize neighbor marking - only check valid neighbors (avoid nested loops)
+            const hasLeft = x > 0;
+            const hasRight = x < width - 1;
+            const hasTop = y > 0;
+            const hasBottom = y < height - 1;
+            
+            if (hasTop) {
+                if (hasLeft) activeMap[i - width - 1] = true;
+                activeMap[i - width] = true;
+                if (hasRight) activeMap[i - width + 1] = true;
+            }
+            if (hasLeft) activeMap[i - 1] = true;
+            if (hasRight) activeMap[i + 1] = true;
+            if (hasBottom) {
+                if (hasLeft) activeMap[i + width - 1] = true;
+                activeMap[i + width] = true;
+                if (hasRight) activeMap[i + width + 1] = true;
             }
         }
     }
@@ -478,10 +662,15 @@ function parseArtForSolids() {
 
 // Function to enforce solid constraints with proper bounce-back
 function enforceSolidConstraints() {
+    const width = SCALED_WIDTH;
+    const height = SCALED_HEIGHT;
+    const widthMinus1 = width - 1;
+    const heightMinus1 = height - 1;
+    
     // Apply bounce-back boundary conditions only to active cells
-    for (let j = 1; j < SCALED_WIDTH - 1; j++) {
-        for (let i = 1; i < SCALED_HEIGHT - 1; i++) {
-            const index = IX(j, i);
+    for (let j = 1; j < widthMinus1; j++) {
+        for (let i = 1; i < heightMinus1; i++) {
+            const index = j + i * width; // IX(j, i) = j + i * width
             
             // Skip inactive cells for performance
             if (!activeMap[index]) continue;
@@ -497,11 +686,15 @@ function enforceSolidConstraints() {
                 continue;
             }
             
-            // Check for solid neighbors and apply bounce-back
-            const leftSolid = solidMap[IX(j - 1, i)];
-            const rightSolid = solidMap[IX(j + 1, i)];
-            const bottomSolid = solidMap[IX(j, i - 1)];
-            const topSolid = solidMap[IX(j, i + 1)];
+            // Check for solid neighbors and apply bounce-back (cache neighbor indices, IX(x,y) = x + y * width)
+            const idxLeft = (j - 1) + i * width;
+            const idxRight = (j + 1) + i * width;
+            const idxBottom = j + (i - 1) * width;
+            const idxTop = j + (i + 1) * width;
+            const leftSolid = solidMap[idxLeft];
+            const rightSolid = solidMap[idxRight];
+            const bottomSolid = solidMap[idxBottom];
+            const topSolid = solidMap[idxTop];
             
             // Bounce-back horizontal velocity if hitting vertical walls
             if (leftSolid && fluid.Vx[index] < 0) {
@@ -558,8 +751,9 @@ function addRandomDrop() {
     // Pick a random drop point
     const dropPoint = dropPoints[Math.floor(Math.random() * dropPoints.length)];
     
-    // Check if drop point is not solid
-    if (!solidMap[IX(dropPoint.x, dropPoint.y)]) {
+    // Check if drop point is not solid (cache index calculation)
+    const dropIndex = dropPoint.x + dropPoint.y * SCALED_WIDTH;
+    if (!solidMap[dropIndex]) {
         // Add fluid at the drop point
         fluid.addDensity(dropPoint.x, dropPoint.y, 10.0);
         fluid.addVelocity(dropPoint.x, dropPoint.y, 0, -25); // Reduced velocity
@@ -617,6 +811,73 @@ const createDensityOverlays = () => {
 // Create overlay pre element that sits on top
 const fluidOverlays = createDensityOverlays();
 
+// --- Mouse Interaction ---
+let lastMouseX = -1;
+let lastMouseY = -1;
+
+function handleMouseMove(e) {
+    const rect = tempArtElement.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Check if inside
+    if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+        lastMouseX = -1;
+        lastMouseY = -1;
+        return;
+    }
+
+    // Map to grid coordinates
+    const gridX = Math.floor((x / rect.width) * SCALED_WIDTH);
+    // Visual Y increases downwards (0 at top). Simulation Y increases upwards (SCALED_HEIGHT-1 at top).
+    const visualGridY = Math.floor((y / rect.height) * SCALED_HEIGHT);
+    const gridY = SCALED_HEIGHT - 1 - visualGridY;
+
+    if (lastMouseX !== -1 && lastMouseY !== -1) {
+        // Calculate velocity
+        const dx = x - lastMouseX;
+        const dy = y - lastMouseY;
+
+        // Scale velocity to be meaningful for simulation
+        // Subtle force: Reduced multiplier from 5.0 to 1.5
+        const force = 0.2; 
+        const velX = dx * force;
+        const velY = -dy * force; // Screen Y down is positive, Sim Y up is positive. So dy>0 (down) -> velY<0 (down)
+
+        // Add velocity and minimal density at current position
+        const radius = 1;
+        addForce(gridX, gridY, velX, velY, radius);
+    }
+
+    lastMouseX = x;
+    lastMouseY = y;
+}
+
+function addForce(cx, cy, vx, vy, r) {
+     // Loop around center
+     for (let i = -r; i <= r; i++) {
+         for (let j = -r; j <= r; j++) {
+             const x = cx + i;
+             const y = cy + j;
+             
+             // Bounds check
+             if (x >= 0 && x < SCALED_WIDTH && y >= 0 && y < SCALED_HEIGHT) {
+                 const index = x + y * SCALED_WIDTH;
+                 // Check solid
+                 if (!solidMap[index]) {
+                     fluid.addVelocity(x, y, vx, vy);
+                     // Add very subtle density trail to see the interaction
+                     const speed = Math.sqrt(vx*vx + vy*vy);
+                     // Reduced density injection: max 1.0 instead of 5.0
+                     fluid.addDensity(x, y, Math.min(speed * 0.05, 1.0)); 
+                 }
+             }
+         }
+     }
+}
+
+document.addEventListener('mousemove', handleMouseMove);
+
 // Add debugging variables outside the animation loop
 let frameCount = 0;
 let layerUsageCount = [0, 0, 0];
@@ -656,12 +917,27 @@ function animate() {
     }
 
     // Generate separate ASCII strings for each density layer
+    const width = SCALED_WIDTH;
+    const height = SCALED_HEIGHT;
+    const densityArray = fluid.density;
+    const densityScale = 1.0 / 2.0; // Pre-calculate 1/2.0
+    const isLastLayer = fluidOverlays.length - 1;
+    
     fluidOverlays.forEach((overlayData, layerIndex) => {
+        const layer = overlayData.layer;
+        const layerChars = layer.chars;
+        const charsLengthMinus1 = layerChars.length - 1;
+        const layerRange = layer.maxDensity - layer.minDensity;
+        const layerRangeRecip = 1.0 / layerRange;
+        const isLast = layerIndex === isLastLayer;
+        const minDensity = layer.minDensity;
+        const maxDensity = layer.maxDensity;
+        
         let asciiString = "";
         
-        for (let i = SCALED_HEIGHT - 1; i >= 0; i--) {
-            for (let j = 0; j < SCALED_WIDTH; j++) {
-                const index = IX(j, i);
+        for (let i = height - 1; i >= 0; i--) {
+            for (let j = 0; j < width; j++) {
+                const index = j + i * width; // IX(j, i) = j + i * width
                 
                 // Quick check for inactive cells
                 if (!activeMap[index]) {
@@ -669,36 +945,37 @@ function animate() {
                     continue;
                 }
                 
-                const densityValue = fluid.density[index];
+                const densityValue = densityArray[index];
                 
-                if (isNaN(densityValue) || densityValue === undefined) {
+                // Check for NaN/undefined (faster than isNaN check)
+                if (densityValue !== densityValue || densityValue === undefined) {
                     asciiString += ' ';
                     continue;
                 }
                 
-                const normalizedDensity = Math.min(Math.max(densityValue / 2.0, 0), 1);
-                const layer = overlayData.layer;
-                
-                // Track max density for debugging
+                // Track max density for debugging (only when needed)
                 if (densityValue > maxDensitySeen) {
                     maxDensitySeen = densityValue;
                 }
                 
+                // Normalize density (optimize Math.min/Math.max)
+                const normalizedDensity = densityValue * densityScale;
+                const clampedDensity = normalizedDensity < 0 ? 0 : (normalizedDensity > 1 ? 1 : normalizedDensity);
+                
                 // Only show characters if density is within this layer's range
-                const isInRange = layerIndex === fluidOverlays.length - 1 
-                    ? (normalizedDensity >= layer.minDensity && normalizedDensity <= layer.maxDensity) // Include 1.0 in the last layer
-                    : (normalizedDensity >= layer.minDensity && normalizedDensity < layer.maxDensity);
+                const isInRange = isLast 
+                    ? (clampedDensity >= minDensity && clampedDensity <= maxDensity)
+                    : (clampedDensity >= minDensity && clampedDensity < maxDensity);
                 
                 if (isInRange) {
                     // Track layer usage for debugging
                     layerUsageCount[layerIndex]++;
                     
                     // Map density within this layer's range to character index
-                    const layerRange = layer.maxDensity - layer.minDensity;
-                    const densityInLayer = (normalizedDensity - layer.minDensity) / layerRange;
-                    const charIndex = Math.floor(densityInLayer * (layer.chars.length - 1));
-                    const safeCharIndex = Math.max(0, Math.min(charIndex, layer.chars.length - 1));
-                    const char = layer.chars[safeCharIndex];
+                    const densityInLayer = (clampedDensity - minDensity) * layerRangeRecip;
+                    const charIndex = Math.floor(densityInLayer * charsLengthMinus1);
+                    const safeCharIndex = charIndex < 0 ? 0 : (charIndex > charsLengthMinus1 ? charsLengthMinus1 : charIndex);
+                    const char = layerChars[safeCharIndex];
                     asciiString += char !== undefined ? char : ' ';
                 } else {
                     asciiString += ' ';
@@ -711,4 +988,5 @@ function animate() {
     });
 }
 
-animate(); // Start the animation loop
+    animate(); // Start the animation loop
+});
