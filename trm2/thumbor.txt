@@ -1,0 +1,759 @@
+```
+
+                                o   
+                      ___      o    
+                     ( - -\__»»     
+         ___________.'/'--'         
+     ___( ___________|_____         
+  __|___|___________ )_____|        
+ <   |  |___________ )    ||        
+  \  |  |___________ )    ||        
+   \ |__|___________ )____|`------. 
+    \|__|___________ )____| _____ | 
+     |  |___________ )     |     || 
+     |  |___________ )     |     || 
+     |  |___________ )     |     || 
+     |  ( ___________|     |     || 
+     |  |___________ )     |    //' 
+     |   ___________ |     |  //'   
+     (  ( ___________)     )//'     
+     ;  +-----------.`\    ;'       
+      \     <   ^   >`\Oo /         
+       `\    `\ | /'    /'          
+         `\____|||____/'            
+          |    ___    |             
+         /    (___)    \            
+        |_______________|           
+                                    
+```
+
+# Imagens sao dificeis - Thumbor 0days
+por caioluders
+
+# 1 - Introducao: Por que Thumbor?
+
+Eu queria estudar pwning, então procurei por algum projeto open-source "grande",
+brasileiro e com essa superfície de ataque. Pedi pra IA procurar e me dar umas
+opções e o thumbor pareceu ser legal pra fazer pesquisa, sei lá. 
+Essa pesquisa é mais didática que ofensiva e os exploits apresentados são bem 
+difíceis de explorar no mundo real. De toda forma, os bugs são interessantes e
+me fizeram aprender bastante, espero que a vocês também.
+
+O Thumbor é um serviço open-source de processamento de imagens criado
+pela Globo.com [10] [11]. É amplamente usado em produção para resize, crop e
+aplicacao de filtros on-the-fly. 10k+ estrelas.
+
+Basicamente a API exposta pra internet consiste da url da imagem que será
+processada, os filtros que serão aplicados , seus parâmetros e do tamanho final
+da imagem (também existe uma assinatura por segurança que explicarei ja ja).
+
+```javascript
++-------------------------------------------------------------------+
+|                         REQUISIÇÃO HTTP                           |
+|                                                                   |
+|   /unsafe/{largura}x{altura}/filters:{filtro}({params})/url       |
++-------------------------------------------------------------------+
+                               |
+                               v
++-------------------------------------------------------------------+
+|                         SERVIDOR THUMBOR                          |
+|                                                                   |
+|   +-----------+      +-----------+      +----------------------+  |
+|   |  Loader   |----->|    PIL    |----->|  Filtros em C        |  |
+|   | (http/fs) |      | (decode)  |      | (_composite,         |  |
+|   +-----------+      +-----------+      |  _sharpen,           |  |
+|        |                   |            |  _nine_patch, ...)   |  |
+|        |                   |            +----------------------+  |
+|   entrada do usuário    parsing             código nativo         |
++-------------------------------------------------------------------+
+```
+
+Alguns filtros foram implementados em C como extensões para o Python, aqui que
+fica legal.
+
+# 2 - HMAC vs .replace()
+
+```javascript
+    # URL segura vs insegura
+    /unsafe/300x200/https://exemplo/image.jpg               # Sem verificacao
+    /8Lz2x5...HMAC/300x200/https://exemplo/image.jpg        # HMAC signature
+```
+
+O Thumbor usa HMAC-SHA1 para assinar URLs e prevenir abuso, como carregar
+imagens arbitrárias de qualquer URL ou chamar qualquer filtro, sem isso daria
+pra colocar qualquer imagem no subdomínio do g1 por exemplo. Todo thumbor em
+prod deveria estar configurado assim.
+
+Então para um ataque completamente externo dar certo você precisa bypassar o
+HMAC-SHA1, apesar do SHA1 ter fraquezas conhecidas ha quase 20 anos e com
+varios ataques de colisao comprovados [3]. Infelizmente nenhum deles ajuda aqui:
+a seguranca do HMAC depende da funcao de compressao ser uma PRF, nao de
+resistencia a colisoes [1]. O Shambles necessita que voce saiba o prefixo
+que gerou a hash, que seria justamente o segredo do HMAC [2], entao podemos
+descartar colisoes (mas nao usem SHA1 de todo jeito, nao custa nada usar
+SHA256).
+
+Estado atual de colisões SHA1:
+
+Custo aproximado (USD)
+^
+|  ∞   |        █  2005 — Ataque Teórico (primeiras colisões)
+|      |        █  https://link.springer.com/chapter/10.1007/11535218_2
+|      |
+|120k  |                    █  2017 — SHAttered
+|      |                    █  https://eprint.iacr.org/2017/190
+|      |
+| 60k  |
+|      |
+| 20k  |                           █  2020 — SHA-1 is a Shambles  
+|      |                           █  https://eprint.iacr.org/2020/014
+|      |
+|  0k  |
++-------------------------------------------------------------------------> Ano
+                   2005        2017   2020
+
+Ja que precisamos conseguir carregar imagens arbitrarias no servidor, e para
+isso precisamos bypassar a checagem do HMAC vamos procurar por bugs logicos.
+
+```python
+thumbor/thumbor/handlers/imaging.py
+
+
+        url_signature = self.context.request.hash
+        if url_signature:
+            signer = self.context.modules.url_signer(
+                self.context.server.security_key
+            )
+
+            try:
+                quoted_hash = quote(self.context.request.hash)
+            except KeyError:
+                self._error(400, f"Invalid hash: {self.context.request.hash}")
+                return
+
+            url_to_validate = url.replace(
+                f"/{self.context.request.hash}/", ""
+            ).replace(f"/{quoted_hash}/", "") # <-------- REPLACE
+
+            valid = signer.validate(
+                unquote(url_signature).encode(), url_to_validate
+            )
+
+```
+
+Como a hash esta contida na propia URL que ela precisa calcular, o Thumbor faz
+um `.replace()` para remover a hash da URL, assim como a hash com URL-encoding
+(pois o SHA1 resulta em `=` `%3d` no final). O problema eh que o `.replace()`
+remove tudo na URL que corresponder, nao apenas o primeiro que encontrar. Isso
+quer dizer que a gente consegue inserir a hash varias vezes em qualquer lugar
+da URL e o Thumbor vai validar (: Ah mas e dai?
+
+```yaml
+http://localhost:8888/ddoyYVYUbDf6Po_dzOrBhCDrXLc=/300x200/s3.glbimg.com/v1/AUTH_bc8228b6673f488aa253bbcb03c80ec5/audiopub-episodes/bs/2025/j/7/6At7gYSBADbccmAiYtAg/agif25082417424226.jpg
+``` 
+
+
+Aqui temos uma linda imagem com hash `ddoyYVYUbDf6Po_dzOrBhCDrXLc=` e que
+carrega diretamente de `s3.glbimg.com`.
+
+```yaml
+http://localhost:8888/ddoyYVYUbDf6Po_dzOrBhCDrXLc=/300x200/s3.glbimg.co/ddoyYVYUbDf6Po_dzOrBhCDrXLc=/m/v1/AUTH_bc8228b6673f488aa253bbcb03c80ec5/audiopub-episodes/bs/2025/j/7/6At7gYSBADbccmAiYtAg/agif25082417424226.jpg
+```
+
+Agora a imagem carregada vem de `s3.glbimg.co` ! Note que inserimos a hash
+depois do `.co` , resultando em outro dominio.
+Mais bypass? O Thumbor faz o replace duas vezes, permitindo que manipulemos 
+com mais finesse. Se colocarmos um quoted_hash no meio de uma hash normal
+dividida no meio, da pra criar paths sem o = , que facilita a exploracao.
+
+```yaml
+http://localhost:8888/ddoyYVYUbDf6Po_dzOrBhCDrXLc=/300x200/s3.glbimg.com/ddoyYVYUbDf6Po/ddoyYVYUbDf6Po_dzOrBhCDrXLc%3D/ddoyYVYUbDf6Po/v1/AUTH_bc8228b6673f488aa253bbcb03c80ec5/audiopub-episodes/bs/2025/j/7/6At7gYSBADbccmAiYtAg/agif25082417424226.jpg
+```
+
+MAIS BYPASS? 
+O Thumbor usa uma configuracao ALLOWED_SOURCES para garantir que as imagens
+so serao carregadas de um certo dominio, talvez para nao necessitar do HMAC.
+O problema ? Eh uma lista de regex e maioria das documentacoes/exemplos nao
+escapa os pontos, fazendo o `.` funcionar como wildcard :>
+
+```yaml
+# ALLOWED_SOURCES = ["mydomain.com"]     # "." casa com qualquer char
+ALLOWED_SOURCES=['http://s.glbimg.com']  # aceita sXglbimg.com
+```
+
+Permitindo `http://sAglbimg.com`, ou qualquer outro caractere no lugar do ponto.
+
+# 3 - Quase-Vulnerabilidades 
+
+Ja que superamos o problema do HMAC, vamos procurar bugs de pwn de verdade.
+
+No principio, tudo era grep. Sai greppando tudo que é função possivelmente 
+problemática em C. "Clawd please find every unsafe function in this repository".
+Uma metodologia claramente ineficiente. Aqui vai uma lista das vulnerabilidades 
+inúteis, que não da pra alcançar pela API web ou tem alguma pré-condição.
+
+```javascript
++--------------+----------------------+------------------------------+
+| Filtro       | Bug                  | Código                       |
++--------------+----------------------+------------------------------+
+| _alpha.c     | Loop infinito        | mode vem do PIL              |
+|              | se mode vazio        |------------------------------|
+|              |                      | _alpha.c:18                  |
+|              |                      | int num_bytes =              |
+|              |                      |   bytes_per_pixel(...);      |
+|              |                      | _alpha.c:25                  |
+|              |                      | for(; i <= size;             |
+|              |                      |     i += num_bytes) {        |
++--------------+----------------------+------------------------------+
+| _fill.c      | Divisão por zero     | Buffer do HTTP nunca vazio   |
+|              | se buffer vazio      |------------------------------|
+|              |                      | _fill.c:21                   |
+|              |                      | int image_area =             |
+|              |                      |   (size / num_bytes);        |
+|              |                      | _fill.c:31                   |
+|              |                      | r /= image_area;             |
++--------------+----------------------+------------------------------+
+| _convolution | Buffer mismatch OOB  | PIL normaliza as dimensões   |
+| .c           |                      |------------------------------|
+|              |                      | _convolution.c:74            |
+|              |                      | int width_bytes_count =      |
+|              |                      |   width * num_bytes;         |
+|              |                      | _convolution.c:87            |
+|              |                      | int tmp_idx = ...            |
++--------------+----------------------+------------------------------+
+| _bounding_bo | Integer overflow     | Não alcançável via HTTP      |
+| x.c          |                      |------------------------------|
+|              |                      | _bounding_box.c:37           |
+|              |                      | reference_pixel = image +    |
+|              |                      |   (width * stride * ...);    |
++--------------+----------------------+------------------------------+
+| _curve.c     | Truncation uchar     | Heap corruption "cega"       |
+|              |                      |------------------------------|
+|              |                      | _curve.c:9                   |
+|              |                      | items[i*2] =                 |
+|              |                      |   (unsigned char)PyLong...   |
++--------------+----------------------+------------------------------+
+```
+
+# 4 - Meu deus quanto Integer Overflow
+
+Como a gente viu antes, a imagem passa primeiro pelo Pillow, ela é lida, relida
+e parseada pela maior biblioteca de imagem do Python [12], então praticamente todos
+os inputs dos filtros em C vem do PIL, que da pra "confiar". Certo? CEEERTOO??
+Sim, certo, é a porra do PIL isso aqui não é um 0day que afeta toda a internet,
+vai com calma. Então a imagem precisa ser válida, nada de tamanho errado, 
+formato válido, tudo válido.
+
+O problema é que quase todos os filtros usam int32 para lidar com as dimensões
+da imagem [9]. int32, que vai de -2.147.483.648 até 2.147.483.647, 
+altura = -2 bilhões, comprimento = -100 milhões, é a imagem mais estranha do 
+mundo.
+
+Sabe o que acontece se você mandar uma imagem de largura 2.147.483.64OITO ?
+
+```javascript
+int32
+
+ 00000000 00000000 00000000 00000000   = 0
+ ...
+ 01111111 11111111 11111111 11111111   = 2147483647 (MAX)
+                     + 1
+                     │
+                     v
+ 10000000 00000000 00000000 00000000   = -2147483648 (OVERFLOW)
+```
+
+É a maior imagem em linha reta do mundo.
+
+E sabe o que quase todos os filtros em C fazem com width/height da imagem?
+Cálculo de offset de ponteiro, que maravilha. Esse padrão se repete por quase
+todos os filtros, uns mais exploráveis que outros.
+
+```c
+    // thumbor/ext/filters/_composite.c:45
+    int line_offset1 = ((y_pos + y - start_y) * width1 * num_bytes);
+    //                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    //                   int32 * int32 * int32 = OVERFLOW!
+    ...
+    aux1 = ptr1 + line_offset1 + (x_pos * num_bytes);
+    ...
+                r1 = aux1[r_idx];
+```
+
+Se você der um número negativo para um índice, ou subtrair de um ponteiro, dá
+pra escrever antes do buffer da nossa imagem na heap (: Bora calcular:
+
+```javascript
+    width1 = 65500
+    y_pos = 16393
+    num_bytes = 4
+
+    Calculo: 16393 * 65500 * 4 = 4294966000
+
+    Como uint32: 4,294,966,000 (valido)
+    Como int32:  -1296 (OVERFLOW!)
+
+    buffer[-1296] !
+```
+
+## 4.1 - Diagrama de Memória
+
+Ok , a gente consegue escrever antes do nosso buffer, mas o que tem antes do
+buffer? Vamos pensar no layout da heap. Ainda estamos falando de modo geral, 
+tanto o controle do ponteiro, quanto o controle do que vai ser escrito tem suas
+grandes dificuldades, que serão explicadas mais na frente. O buffer da nossa
+imagem é grande devido a necessidade da largura ser grande o suficiente para
+causar o integer overflow, na prática isso quer dizer que o malloc (não o
+pymalloc, que so lida com objetos <= 512 bytes [13]) vai alocar nosso buffer
+via mmap [7] numa página de memória só para ele, ficando longe de qualquer
+outro objeto minimamente útil. Se tentarmos escrever muito longe teremos dois
+problemas, a imagem vai ficar muito grande (>4gb) e o layout vai ser muito
+imprevisível devido ao ASLR. Então efetivamente só conseguimos sobrescrever o
+header do nosso própio buffer (pelo menos eu só consegui isso, aceito ideias).  
+
+Nossa imagem é um PyBytesObject [4], que tem os seguintes elementos na sua struct 
+(struct meramente ilustrativa):
+
+```c
+typedef struct {
+    /* ---- PyObject ---- */
+    Py_ssize_t ob_refcnt;        /* Contador de referencias */
+    struct _typeobject *ob_type; /* &PyBytes_Type */
+
+    /* ---- PyVarObject ---- */
+    Py_ssize_t ob_size;          /* tamanho do objeto */
+
+    /* ---- PyBytesObject ---- */
+    Py_hash_t ob_shash;          /* cached hash (-1 se não computado) */
+
+    /* flexible array member */
+    char ob_sval[1];             /* começo do buffer (+1 NULL) */
+
+} PyBytesObject;
+```
+
+Desses, o mais interessante é o `*ob_type` , ele é um ponteiro para um
+`PyTypeObject` que determina o tipo desse objeto. No nosso caso, o tipo `Bytes`.
+Teoricamente, se construirmos um fake `PyTypeObject` do jeito certo, conseguimos
+apontar o `tp_dealloc` para qualquer função quando ele for dealocado [6], quando 
+`ob_refcnt` chegar a zero, tipo um `system()`. Existe tambem a possibilidade de
+usar o `tp_repr` ou `tp_getattro` com mais consistencia [14] [15].
+
+Layout da nossa imagem `PyBytesObject`: 
+
+```javascript
+                        <-- OVERFLOW WRITE (-1296) do cálculo anterior
+                        |   iria pra algum lugar incerto
+    +-------------------+------------------------------------+
+    |   PyBytesObject   |         Image Buffer               |
+    +-------------------+------------------------------------+
+    | -32: ob_refcnt    |                                    |
+    | -24: ob_type  <---+-- ALVO!                            |
+    | -16: ob_size      |                                    |
+    |  -8: ob_hash      |                                    |
+    |   0: ob_sval -----+--> [os pixels/pixeus/pixeis?]      |
+    +-------------------+------------------------------------+
+
+    Novo cálculo: 
+             offset = -1296 + (x_pos * 4)
+             x=318 -> offset = -24 (ob_type!)
+```
+
+Então, se conseguirmos que o offset seja -24 dá pra sobrescrever o ponteiro
+ob_type e fazer ele apontar para um objeto fake nosso.
+
+Agora, para os (っ◔◡◔)っ ♥ P R O B L E M A S ♥ 
+                                tem muito problema jesus.
+
+**Primeiro:** A gente não tem nenhum infoleak para descobrir os valores dos 
+ponteiros, do ponteiro do system, do ponteiro do nosso PyBytesObject, etc.
+**Segundo:** Vou explicar com mais detalhes, mas não controlamos 100% do que é
+escrito. Efetivamente os valores escritos são pixeis com seus R G B A (4bytes)
+**Terceiro:** Problema menor, mas nossa imagem precisa ter alguns gigas de tamanho.
+SE O SEU SERVER TEM MENOS DE 4gb DE MEMORIA O PROBLEMA EH SEU.
+**Quarto:** sei la porra não roda no mercúrio retrógrado.
+
+
+# 4.2 - 1o Problema: Blend Math
+
+```javascript
+    # Cada pixel do watermark escreve 4 bytes (RGBA)
+    # x_pos controla ONDE escrevemos
+    # pixel values controlam O QUE escrevemos
+
+    watermark_pixel = (R, G, B, A)
+                       |  |  |  |
+                       v  v  v  v
+                     [b0,b1,b2,b3]  # Little-endian
+```
+
+O filtro que resolvi explorar foi o `_composite.c` porque depois de tentar
+varios, ele foi o mais "simples", que permite mais "controle". e bote aspas.
+Mas todos tem vulnerabilidades.
+
+```c
+#define ALPHA_COMPOSITE_COLOR_CHANNEL(color1, alpha1, color2, alpha2) \
+    ( ((1.0 - (alpha1 / MAX_RGB_DOUBLE)) * (double) color1) + \
+      ((1.0 - (alpha2 / MAX_RGB_DOUBLE)) * (double) color2 * (alpha1 / MAX_RGB_DOUBLE)) )
+#define ADJUST_COLOR_DOUBLE(c) ((int)((c > MAX_RGB_DOUBLE) ? MAX_RGB : ((c < 0.0) ? 0 : c)))  
+    
+    // _composite.c
+     int width1, width2,
+        height1, height2,
+        x_pos, y_pos,
+        merge = 1;
+    ...
+        int line_offset1 = ((y_pos + y - start_y) * width1 * num_bytes),
+            line_offset2 = (y * width2 * num_bytes);
+    ...
+    if (merge) {
+                delta = (a2 / MAX_RGB_DOUBLE) * (a1 / MAX_RGB_DOUBLE);
+
+                a = MAX_RGB_DOUBLE * delta;
+
+                delta = 1.0 - delta;
+                delta = (delta <= SMALL_DOUBLE) ? 1.0 : (1.0 / delta);
+
+                r = delta * ALPHA_COMPOSITE_COLOR_CHANNEL(r2, a2, r1, a1);
+                g = delta * ALPHA_COMPOSITE_COLOR_CHANNEL(g2, a2, g1, a1);
+                b = delta * ALPHA_COMPOSITE_COLOR_CHANNEL(b2, a2, b1, a1);
+            }
+    ...
+            r1 = aux1[r_idx];
+            g1 = aux1[g_idx];
+            b1 = aux1[b_idx];
+            a1 = aux1[a_idx];
+
+            r2 = aux2[r_idx];
+            g2 = aux2[g_idx];
+            b2 = aux2[b_idx];
+            a2 = aux2[a_idx];
+
+    ...
+            aux1[r_idx] = ADJUST_COLOR_DOUBLE(r);
+            aux1[g_idx] = ADJUST_COLOR_DOUBLE(g);
+            aux1[b_idx] = ADJUST_COLOR_DOUBLE(b);
+            aux1[a_idx] = ADJUST_COLOR_DOUBLE(a);        
+```
+
+o `aux1` eh onde conseguimos o overflow e apontar para o propio `PyBytesObject`, o
+problema eh o `ALPHA_COMPOSITE_COLOR_CHANNEL` que mistura as cores das duas
+imagens de input (o filtro _composite junta duas imagens), entao so conseguimos
+total controle do que sera escrito se o valor do alpha (a opacidade)  
+for `0xff` ou `0x00`, porque o pixel vai substituir o anterior ou sera ignorado.
+
+Isso tudo pra falar que a gente precisa que o `byte[3]` que queremos escrever
+TEM que ser `0xff` ou `0x00`, senao o valor escrito sera diferente. O problema?
+A gente ta tentando escrever um valor de ponteiro e precisamos que um dos
+valores seja `0xff`, ~0.8% dos layouts funcionam. 
+
+```javascript
+    Restrição do ASLR                
+                                                  
+      PyByteArray_Type = 0x00 00 7f XX ?? ?? ?? ??
+                                    ^                   
+                                    |                   
+       Escrevemos 4 bytes (RGBA) por vez.
+       O byte que cai na posicao do alpha (byte[3] 
+       do grupo de 4) precisa ser 0x00 ou 0xFF
+       para o blend nao corromper o valor.
+                                                  
+    Probabilidade: 2/256 ~ 0.8%                 
+```
+
+Como vamos resolver? Tentando e tentando ate dar certo ( ╥ω╥ ) Umas 300 vezes
+deve dar.
+
+# 5 - Ideias para RCE
+
+```javascript
+    // Include/cpython/bytesobject.h
+    typedef struct {
+        PyObject_VAR_HEAD      // ob_refcnt, ob_type, ob_size
+        Py_hash_t ob_shash;    //  hash
+        char ob_sval[1];       // Buffer 
+    } PyBytesObject;
+
+    Offset  Campo         Tamanho
+    ------  -----         -------
+    +0      ob_refcnt     8 bytes
+    +8      ob_type       8 bytes  <-- ALVO PRINCIPAL
+    +16     ob_size       8 bytes
+    +24     ob_shash      8 bytes
+    +32     ob_sval[0]    ... (buffer de pixels)
+```
+
+Existem algumas maneiras ja documentadas de conseguir RCE nesse contexto de
+sobrescrita de um Python Object [5], aqui nao estamos inventando nada, so tentando
+aplicar a tecnica dado as nossas restricoes. Mas para qualquer tecnica dar 
+certo precisamos primeiro uma leitura "arbitraria" para descobrir os valores dos
+ponteiros. [14] [15]
+
+## 5.1 - Type Confusion: PyBytes -> PyByteArray
+
+```javascript
+    PyBytesObject (antes):          PyByteArrayObject (depois):
+    +--------------------+          +--------------------+
+    | ob_refcnt          |          | ob_refcnt          |
+    | ob_type -----------+--------->| PyByteArray_Type   |
+    | ob_size            |          | ob_size            |
+    | ob_shash <---------+--------->| ob_alloc           |
+    | ob_sval[0...] <----+--------->| ob_bytes (ptr!)    |
+    +--------------------+          +--------------------+
+                                            |
+                                            v
+                                      Arbitrary Read!
+
+    PyByteArrayObject tambem tem ob_exports e ob_start
+    que nao existem em PyBytesObject. Dependendo da versao do
+    CPython o overlap pode nao ser tao limpo assim. Testado
+    no CPython 3.11 que o Thumbor usa.
+```
+
+Uma das ideias eh primeiro apontar o `ob_type` para uma `PyByteArrayObject`
+porque daria para ler os bytes subsequentes, poderiamos fazer o `ob_size` ser
+gigante para tentar ler os ponteiros dos proximos objetos na heap, ou apontar o
+`ob_bytes` para um outro objeto. Infelizmente, depois de horas debuggando, me
+parece que pelo tamanho do nosso buffer (4GB) ele esta sendo alocado pelo malloc
+e nao pelo `pymalloc`, que so eh usado se o objeto for menor que 512 bytes [13].
+Dessa forma o nosso objeto fica numa pagina so pra ele e nao encontrei nenhum
+objeto depois que a gente pudesse ler :`(
+
+# 6 - Tentando Leak: Sharpen e ByteArray
+
+O type confusion funciona, mas sem um infoleak nao sabemos os enderecos que
+precisamos escrever. Tentei procurar nos outros filtros se a gente conseguiria
+pelo menos um infoleak remoto. O wavelet_sharpen pareceu interessante.
+
+## 6.1 - Sharpen Heap Overflow
+
+```c
+    // wavelet_sharpen.c - hat_transform()
+    void hat_transform(FLOAT *temp, FLOAT *base, int st, int size, int sc) {
+        for (i = 0; i < size; i++) {
+            temp[i] = 2*base[st*i] + base[st*(sc-i)] + base[st*(i+sc)];
+            //                       ^^^^^^^^^^^^^^^   ^^^^^^^^^^^^^^^
+            //                       OOB quando sc > size!
+        }
+    }
+```
+
+Com width=3000, height=1:
+
+```javascript
+    Buffer: 3000 floats (12KB)
+    Level 4 (sc=16): acessa base[width*31] = base[93000]
+                     -> 360KB alem do buffer!
+```
+
+Infelizmente os dados que sao lidos sao tratados como pixels e floats [8], fazendo
+a gente perder informacao.
+
+```javascript
+               Float Interpretation Problem                   
+                                                              
+      Heap contem: 0x7f12 3456 789a bcde (libc pointer)       
+                                                              
+      Interpretado como float (IEEE 754):                     
+      bytes [0:4] = 0x789abcde -> float ~ 2.3e+34             
+      bytes [4:8] = 0x7f123456 -> float ~ 1.9e+38             
+                                                              
+      Apos 5 niveis wavelet (x0.25^5):                        
+      -> Valor final ~ 10^30 -> SATURA para pixel 255         
+```
+
+Tive ate uma ideia de tentar usar isso como oraculo de ponteiro e diminuir o
+brute force necessario, mas nao adiantou pra muita coisa.
+
+```javascript
+    Ponteiro na heap produz assinatura caracteristica:
+
+             bytes:  [low] [low] [low] [low] [0x7f] [XX] [00] [00]
+                       |     |     |     |      |     |    |    |
+        float        : +-----+-----+-----+      |     |    |    |
+                       |     +-----+-----+------+     |    |    |
+                       |     |     +-----+------+-----+    |    |
+                       |     |     |     +------+-----+----+    |
+                       |     |     |     |      +-----+----+----+
+                       v     v     v     v      v     v    v    v
+        pixels:       [~0]  [~0]  [~0]  [~0]  [255] [255] [~0] [~0]
+
+        Padrao detectavel: [..., 0, 0, 255, 0, 0, ...]
+```
+
+### 6.2 - qq a gente faz
+
+Outra ideia que tive foi usar o fato que controlamos o tamanho da imagem para
+forcar o alocador a alocar outra imagem no mesmo lugar da primeira, ja que elas
+tem o mesmo tamanho, dai daria para:
+
+1. fazer um type confusion para `ByteArray`
+2. apontar para si mesmo para descobrir o ponteiro do nosso propio buffer
+3. mandar outra imagem com o fake `PyTypeObject` dentro dela e fazer overwrite
+para o `ob_type` apontar para dentro do propio buffer, ja que agora sabemos o 
+endereco reutilizado, daria ate pra fazer heap spray com varios fake obj dentro
+da imagem.
+
+--[ 7 - A teoria do RCE
+
+Isso aqui eh praticamente teorico.
+O que eu tenho eh cada stage individual funcionando no GDB com
+breakpoints, enderecos hardcoded e muita paciencia. Stage 0 precisa de varios
+crashes ate funcionar. E mesmo com acesso local, cada tentativa reinicia o 
+processo inteiro.Nao eh um one-shot, eh mais um
+"se todas as estrelas se alinharem coisas interessantes acontecem com a heap do 
+CPython via HTTP".
+
+```javascript
+    +-------------------------------------------------------------+
+    |                    EXPLOIT CHAIN                            |
+    +-------------------------------------------------------------+
+    |                                                             |
+    |  STAGE 0: Encontrar ASLR Favoravel                          |
+    |  +--------------------------------------------------------+ |
+    |  | Loop:                                                  | |
+    |  |   1. Crashar/reiniciar thumbor                         | |
+    |  |   2. GDB: checar PyByteArray_Type byte[3]              | |
+    |  |   3. Se 0x00 ou 0xFF -> EXPLOITAVEL                    | |
+    |  |   4. Senao -> restart (sim, de novo)                   | |
+    |  |   5. Salvar enderecos: PyByteArray_Type, system()      | |
+    |  | Media: ~128 tentativas (na pratica fiz ~200)           | |
+    |  |                                                        | |
+    |  +--------------------------------------------------------+ |
+    |                           |                                 |
+    |                           v                                 |
+    |  STAGE 1: Type Confusion                                    |
+    |  +--------------------------------------------------------+ |
+    |  | HTTP Request:                                          | |
+    |  | /65500x16394/filters:watermark(wm.png,318,16393,0)/    | |
+    |  |                                                        | |
+    |  | Integer overflow em _composite.c:                      | |
+    |  |   16393 * 65500 * 4 = 4294966000                       | |
+    |  |   (int32) -> -1296                                     | |
+    |  |                                                        | |
+    |  | Watermark pixels sobrescrevem o header:                | |
+    |  |   x=318 -> offset -24 (ob_type)                        | |
+    |  |   Pixel RGBA = bytes low de PyByteArray_Type           | |
+    |  |   byte[3] precisa ser 0x00 ou 0xFF (filtrado no S0)    | |
+    |  |                                                        | |
+    |  | Resultado: ob_type agora aponta para PyByteArray_Type  | |
+    |  | O objeto PyBytes agora eh um PyByteArray               | |
+    |  +--------------------------------------------------------+ |
+    |                           |                                 |
+    |                           v                                 |
+    |  STAGE 2: Self-leak do endereco do buffer                   |
+    |  +--------------------------------------------------------+ |
+    |  | Apos type confusion, o campo ob_sval (offset +32) eh   | |
+    |  | reinterpretado como ob_bytes (ponteiro para dados).    | |
+    |  |                                                        | |
+    |  | Se ob_bytes aponta para o proprio buffer, lendo o      | |
+    |  | "bytearray" de volta via resposta HTTP podemos         | |
+    |  | reconstruir o endereco do nosso buffer na heap.        | |
+    |  |                                                        | |
+    |  | PROBLEMA: na pratica eu nao consegui confirmar que o   | |
+    |  | Thumbor retorna os bytes crus do bytearray "confused"  | |
+    |  | na resposta HTTP. O PIL pode rejeitar/corromper os     | |
+    |  | dados antes.                                           | |
+    |  +--------------------------------------------------------+ |
+    |                           |                                 |
+    |                           v                                 |
+    |  STAGE 3: Fake PyTypeObject                                 |
+    |  +--------------------------------------------------------+ |
+    |  | Nova imagem com MESMO tamanho -> alocador reutiliza    | |
+    |  | o mesmo endereco (agora conhecido do Stage 2).         | |
+    |  |                                                        | |
+    |  | Pixels da imagem contem:                               | |
+    |  |   1. Fake PyTypeObject no offset conhecido:            | |
+    |  |      - tp_dealloc (+48) = endereco de system() [15]    | |
+    |  |      - restante dos slots = NULL                       | |
+    |  |   2. Comando shell nos primeiros bytes do objeto:      | |
+    |  |      ob_refcnt = "touch /t" (8 bytes)(PIL bypass?)     | |
+    |  |      ob_type   = ponteiro para fake type no buffer     | |
+    |  |                                                        | |
+    |  | Alternativas para o slot de execucao:                  | |
+    |  |   tp_dealloc (+48): trigger = refcnt chega a zero      | |
+    |  |     - risco: deallocs de outros objs podem crashar     | |
+    |  |   tp_repr    (+88): trigger = repr(obj) ou print(obj)  | |
+    |  |   tp_getattro(+144): trigger = obj.qualquer_attr [14]  | |
+    |  |     - mais confiavel, nao depende de refcnt            | |
+    |  |     - RDI = obj_ptr, entao obj comeca com "/bin/sh\0"  | |
+    |  +--------------------------------------------------------+ |
+    |                           |                                 |
+    |                           v                                 |
+    |  STAGE 4: Trigger                                           |
+    |  +--------------------------------------------------------+ |
+    |  | O integer overflow novamente sobrescreve ob_type para  | |
+    |  | apontar para o fake PyTypeObject dentro do buffer.     | |
+    |  |                                                        | |
+    |  | Quando o Thumbor termina de processar a imagem:        | |
+    |  |   - tp_dealloc: chamado ao liberar o objeto            | |
+    |  |     system("touch /t...") (comando nos bytes iniciais) | |
+    |  |   - tp_getattro: chamado se qualquer atributo for      | |
+    |  |     acessado antes da liberacao                        | |
+    |  |     system("/bin/sh\0...") (ob_refcnt = comando)       | |
+    |  +--------------------------------------------------------+ |
+    |                           |                                 |
+    |                           v                                 |
+    |                     +---------+                             |
+    |                     |   RCE   |                             |
+    |                     +---------+                             |
+    +-------------------------------------------------------------+
+```
+
+# 8 - Conclusao
+
+Sem PoC funcional pro 0day (nao resolvi o infoleak kkkkk).
+Daria um chall legal de CTF.
+
+# 9 - Referencias
+
+    [1] HMAC - Keyed-Hashing for Message Authentication
+        https://pt.wikipedia.org/wiki/HMAC
+
+    [2] Leurent, G., & Peyrin, T. (2020). SHA-1 is a Shambles.
+        USENIX Security 2020.
+        https://sha-mbles.github.io/
+
+    [3] Stevens, M., et al. (2017). The first collision for full SHA-1.
+        https://shattered.io/
+
+    [4] CPython Source Code - bytesobject.c
+        https://github.com/python/cpython/blob/main/Objects/bytesobject.c
+
+    [5] CPython Internals Book
+        https://realpython.com/cpython-source-code-guide/
+
+    [6] Phrack - "Once upon a free()"
+        http://phrack.org/issues/57/9.html
+
+    [7] glibc malloc internals
+        https://sourceware.org/glibc/wiki/MallocInternals
+
+    [8] IEEE 754 Floating Point
+        https://en.wikipedia.org/wiki/IEEE_754
+
+    [9] CWE-190: Integer Overflow
+        https://cwe.mitre.org/data/definitions/190.html
+
+    [10] Thumbor Documentation
+         https://thumbor.readthedocs.io/
+
+    [11] Thumbor Source Code
+         https://github.com/thumbor/thumbor
+
+    [12] Pillow (Python Imaging Library Fork)
+         https://github.com/python-pillow/Pillow
+
+    [13] The pymalloc allocator - CPython docs
+         https://docs.python.org/3/c-api/memory.html#the-pymalloc-allocator
+
+    [14] kn32 - Exploiting a Use-After-Free for code execution in
+         every version of Python 3
+         https://pwn.win/2022/05/11/python-buffered-reader.html
+
+    [15] bebop404 - CPython UAF: Exploit Chain Dev from UAF Trigger to RCE
+         https://www.bebop404.com/blog/cpython-uaf-exploit-chain     
+
+
+
+|=[ EOF ]=---------------------------------------------------------------=|

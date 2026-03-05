@@ -1,0 +1,272 @@
+body {
+	color:#fefefe;
+	background-color: black;
+	display: flex;
+	justify-content: center; /* Center horizontally */
+	align-items: flex-start; /* Align to top on mobile to prevent zoom issues */
+	min-height: 100vh; /* Full viewport height */
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+   }
+   
+   @font-face {
+	font-family: ibm;
+	src: url("../Web437_IBM_VGA_8x14.woff") format("woff");
+   }
+   
+   @font-face {
+	font-family: hp100;
+	src: url("../WebPlus_HP_100LX_6x8.woff") format("woff");
+   }
+   
+   @font-face {
+	font-family: ibmcga;
+	-webkit-font-smoothing: none;
+	-moz-osx-font-smoothing: unset;
+	font-smooth: never;
+	src: url("../WebPlus_ToshibaSat_8x14.woff") format("woff");
+   }
+
+   @font-face{
+   	font-family: ibmvga;
+   	-webkit-font-smoothing: none;
+		-moz-osx-font-smoothing: unset;
+		font-smooth: never;
+   	src: url("../Web437_IBM_VGA_9x8.woff") format("woff");
+   	
+   }
+
+   @font-face {
+    font-family: "IBM VGA 8x16";
+    src: url( "../font/WebPlus_IBM_VGA_8x16.woff" ) format( "woff" );
+	}
+   
+   img {
+	width: 30%;
+	height: 30%;
+	display: block;
+   }
+
+   span {
+  display: inline-block;
+  vertical-align: top; /* kills baseline alignment gaps */
+}
+
+pre, .ansi {
+  font-size: 14px;
+  line-height: 14px;
+  transform: translateZ(0); /* forces GPU layer, often snaps to whole pixels */
+  will-change: transform;
+}
+
+   pre {
+	font-family: ibmcga;
+	font-size: 14px; 
+	line-height: 14px;
+	white-space: pre; /* Ensure whitespace is preserved */
+	/* letter-spacing: -0.3px;  */
+	text-rendering: geometricPrecision;
+	image-rendering: pixelated
+	font-kerning: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: auto; /* Allow height to be flexible */
+    overflow-x: auto; /* Allow horizontal scroll if needed */
+   }
+   
+   .txtdiv {
+	display: block;
+	text-align: left;
+	color: white;
+	padding: 10px;
+	box-sizing: border-box;
+	position: relative; /* Important for overlay positioning */
+	}
+   
+   g1{
+	color: #c0c0c0;
+   }
+   
+   g2{
+	color: #808080;
+   }
+   
+   ww{
+	color: white;
+   }
+
+   r1{
+	color: red;
+   }
+
+   g1{
+	color: green;
+   }
+
+   y1{
+	color: yellow;
+   }
+
+   b1{
+	color: blue;
+   }
+
+   m1{
+	color: magenta;
+   }
+
+   c1{
+	color: cyan;
+   }
+
+   w1{
+	color: white;
+   }
+   
+   .background {
+	   position: fixed;
+	   top: 0;
+	   left: 0;
+	   width: 100%;
+	   height: 100%;
+	   z-index: -1;
+	   font-family: ibm;
+	   color: #3a3a3a;
+	   /* overflow: hidden; */
+	   pointer-events: none;
+   }
+   
+   a {
+	 color: white;
+	 text-decoration: none;
+	 text-align: left;
+   }
+   
+   a:visited {
+	color: darkcyan;
+	text-decoration: none;
+	}
+
+	/* === FIRE HOVER EFFECT — revert by replacing this block with:
+	   a:hover { background-color: cyan; color: black; } === */
+	@keyframes fire-flicker {
+		0%   { color: #ffee33; text-shadow:
+			0 -2px 0 #ffcc00,
+			0 -4px 0 #ff8800,
+			0 -6px 0 #ff4400,
+			0 -8px 0 #cc1100,
+			0 -10px 0 #880000,
+			0 -12px 0 #440000,
+			0 -14px 0 #220000; }
+		16%  { color: #ffdd00; text-shadow:
+			1px -2px 0 #ffaa00,
+			1px -4px 0 #ff6600,
+			0 -6px 0 #ee3300,
+			0 -8px 0 #bb0000,
+			-1px -10px 0 #660000,
+			-1px -12px 0 #330000; }
+		33%  { color: #ffffff; text-shadow:
+			0 -2px 0 #ffee00,
+			-1px -4px 0 #ffbb00,
+			-1px -6px 0 #ff7700,
+			0 -8px 0 #ff3300,
+			1px -10px 0 #cc0000,
+			1px -12px 0 #880000,
+			0 -14px 0 #440000,
+			0 -16px 0 #220000; }
+		50%  { color: #ffcc00; text-shadow:
+			-1px -2px 0 #ff9900,
+			0 -4px 0 #ff5500,
+			1px -6px 0 #dd1100,
+			1px -8px 0 #990000,
+			0 -10px 0 #550000; }
+		66%  { color: #ffee33; text-shadow:
+			0 -2px 0 #ffdd00,
+			1px -4px 0 #ffaa00,
+			1px -6px 0 #ff6600,
+			0 -8px 0 #ff2200,
+			-1px -10px 0 #bb0000,
+			-1px -12px 0 #770000,
+			0 -14px 0 #330000; }
+		83%  { color: #ffdd00; text-shadow:
+			-1px -2px 0 #ffcc00,
+			-1px -4px 0 #ff8800,
+			0 -6px 0 #ee4400,
+			1px -8px 0 #cc1100,
+			1px -10px 0 #880000,
+			0 -12px 0 #440000,
+			0 -14px 0 #220000,
+			0 -16px 0 #110000; }
+		100% { color: #ffee33; text-shadow:
+			0 -2px 0 #ffcc00,
+			0 -4px 0 #ff8800,
+			0 -6px 0 #ff4400,
+			0 -8px 0 #cc1100,
+			0 -10px 0 #880000,
+			0 -12px 0 #440000,
+			0 -14px 0 #220000; }
+	}
+	a:hover {
+		background-color: transparent;
+		animation: fire-flicker 0.9s steps(6) infinite;
+	}
+	/* torch characters — always on fire */
+	@keyframes torch-color {
+		0%   { color: #ffdd00; }
+		8%   { color: #cc0000; }
+		16%  { color: #ffffff; }
+		24%  { color: #ff8800; }
+		32%  { color: #ffdd00; }
+		40%  { color: #111111; }
+		48%  { color: #ff8800; }
+		56%  { color: #ffffff; }
+		64%  { color: #cc0000; }
+		72%  { color: #ffdd00; }
+		80%  { color: #ff8800; }
+		88%  { color: #cc0000; }
+		100% { color: #ffdd00; }
+	}
+	.torch {
+		animation: torch-color 3.9s steps(13) infinite;
+	}
+	/* === END FIRE HOVER EFFECT === */
+   
+   /* Mobile and tablet responsive styles */
+@media only screen and (max-width: 1050px) {
+body {
+ padding: 0;
+ align-items: flex-start; /* Start from top on mobile */
+}
+pre {
+ font-size: clamp(6px, 1.5vw, 11px); /* Slightly larger for better readability */
+ line-height: clamp(6px, 1.5vw, 11px); /* Keep line-height matching font-size */
+}
+.txtdiv {
+ padding: 5px;
+ width: 100vw;
+ overflow-x: auto;
+}
+img {
+ padding: 0;
+ width: 40%;
+ height: auto;
+}
+}
+   
+   /* Extra small screens (phones in portrait) */
+@media only screen and (max-width: 480px) {
+body {
+ padding: 0;
+}
+pre {
+ font-size: clamp(5px, 2vw, 9px);
+ line-height: clamp(5px, 2vw, 9px);
+}
+.txtdiv {
+ padding: 3px;
+ font-size: 1em;
+}
+}
+

@@ -1,0 +1,51 @@
+#1n7r0duc40
+
+Não morremos na primeira edição! Estamos felizes com a continuidade, com os
+colaboradores e com vocês, leitores. Temos artigos de todos os credos do hacking
+, de web a web3, de programação a pwning. Temos 0day e temos arte,
+porque hacking sem arte é apenas cibersegurança.
+
+Nessa segunda edição, contamos com a presença do L.Ayres, uma lenda viva da
+cena ANSI mundial. Com quase 30 anos de história e inspiração para todos nós,
+nos presenteou com essa arte magnífica. Fica nosso comprometimento de reacender
+a chama da arte em texto.
+Agradecemos também ao N4s e à p0cl4bs por todos esses anos na ativa, vocês não
+sabem o quanto aprendemos com vocês.
+
+Uma coisa que ouvimos bastante desde a primeira edição: "não tenho nada no nível
+da TRAMOIA" ou "ainda não manjo o suficiente para escrever artigo". Discordamos.
+Artigo bom não é artigo com exploit funcional, é artigo onde alguém tentou algo
+difícil e documentou o caminho — os erros, os becos sem saída, o que funcionou e
+o que não funcionou. Se você aprendeu algo e consegue explicar, já tem artigo.
+
+Foi pensando nisso que lançamos nessa edição a tramoinha, uma seção destinada a
+textos menores: pequenos hacks, truques, descobertas, mini artiguinhos que não
+precisam ser uma pesquisa completa. Esperamos que ela cresça no futuro!
+
+Sobre o atraso: a TRAMOIA 0x2 deveria ter saído meses atrás. Entre revisões que
+se estenderam, artigos que precisaram de mais pesquisa e a vida real de todo
+mundo que colabora no tempo livre, o cronograma escapou. Preferimos atrasar do
+que entregar algo pela metade.
+
+Dito isso, A CHAMADA DE ARTIGOS PARA A TRAMOIA 0x3 JÁ ESTÁ ABERTA 
+(trm@tramoia.sh). Com um mínimo de 10 artigos, esperamos lançá-la em dezembro de
+2026 e voltarmos à programação normal. Para isso, precisamos de colaboradores!
+Editores, artistas, revisores, autores, divulgadores. Tem QUALQUER ideia para
+ajudar? Quer passar horas corrigindo uma ASCII arte ou o layout do site? Quer
+reclamar que o autor não sabe nada e essa geração nova não leu os fundamentos?
+Entre em contato pelo discord/twitter/instagram.
+
+BOA LEITURA SEUS RAQUI.
+trm@tramoia.sh
+                                                                     - gld
+
+
+Equipe TRM
+
+gld             - Editor / Diagramador
+wh0isdxk        - Editora / Redes sociais  
+R3tr074         - Revisor
+chinchila       - Revisor
+hackaponey      - Revisor
+Roz.ts          - Revisor
+rapt00r         - Revisor

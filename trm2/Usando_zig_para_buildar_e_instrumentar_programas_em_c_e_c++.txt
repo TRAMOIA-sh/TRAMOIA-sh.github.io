@@ -1,0 +1,771 @@
+#usando zig para buildar e instrumentar programas em c e c++
+gbrls
+
+#import "base.typ": base
+
+#show: base
+
+Zig é uma liguagem de programação e toolchain publicada inicialmente em 2016 por Andrew Kelly.
+
+A linguagem em si parece mais com C e Go do que C++ e Rust, principalmente por
+causa do seu minimalismo.
+
+A Zig Software Fundation (ZSF) foi criada para manter o Zig, ela segue uma
+estrutura de uma empresa sem fins lucrativos, da mesma forma que a wikipedia
+por exemplo.
+
+Na homepage do projeto Zig, um dos primeiros pontos é:
+
+> "Melhore incrementalmente sua codebase em C/C++/Zig"
+
+Esse foi um ponto que me deixou surpreso e ate agora tem trazido muitas ideias
+de como usar Zig como mais uma ferramenta para diversao e lucro!
+
+Um aviso importante é que Zig ainda não foi estabilizada, ou seja, cada release
+pode ter grandes mudancas na linguagem, no sistema de build, na lib std, etc.
+
+---
+
+Vamos ver esse programa simples  em C que tem um bug de _Use After Free_ (UAF).
+
+```c
+// main.c
+#include <stdio.h>
+#include <inttypes.h>
+#include <stdlib.h>
+
+void print(uint8_t* ptr) {
+    for(int i = 0; i < 8; i++)
+        printf("%x ", ptr[i]);
+
+    putchar('\n');
+}
+
+int main(void) {
+    uint8_t* p = malloc(100);
+    free(p);
+    print(p);
+
+    return 0;
+}
+```
+
+Existem diversas formas que poderiamos instrumentar ele para detectar este bug
+durante a execução do programa. Aqui vou presentar mais uma forma.
+
+O script `build.zig` vai configurar o processo de build desse programa (o
+compilador de zig compila C e C++ com clang):
+
+Obs: Para entender melhor como funciona o build, você pode em uma pasta vazia
+rodar `zig init`, um build.zig vai ser gerado com comentarios uteis, e depois
+disso o melhor material é o proprio codigo fonte do std.Build.
+
+Com o arquivo abaixo o que efetivamente estamos fazendo é usando o build.zig
+como um sistema de build para um programa todo em C:
+
+```
+┌─────────┐ zig cc  ┌──────┐
+│build.zig --------> main.c│
+└─────────┘         └──────┘
+```
+
+```zig
+// build.zig
+const std = @import("std");
+
+pub fn build(b: *std.Build) void {
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
+
+    const exe = b.addExecutable(.{
+        .name = "main",
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+
+    exe.addCSourceFile(.{
+        .file = b.path("main.c"),
+        .flags = &.{},
+    });
+
+    exe.linkLibC();
+
+    b.installArtifact(exe);
+    const run_exe = b.addRunArtifact(exe);
+    const run_step = b.step("run", "run the main.c");
+
+    run_step.dependOn(&run_exe.step);
+}
+```
+
+Podemos rodar esse programa com `zig build run`.
+Agora, vamos adicionar a instrumencação, criando um arquivo `hooks.zig` e
+editando o `build.zig`.
+
+```zig
+// build.zig
+const lib = b.addLibrary(.{
+    .linkage = .static,
+    .name = "ziglib",
+    .root_module = b.createModule(.{
+        .root_source_file = b.path("hooks.zig"),
+        .target = target,
+        .optimize = optimize,
+    }),
+});
+lib.linkLibC();
+
+// ...
+
+exe.addCSourceFile(.{
+    .file = b.path("main.c"),
+    .flags = &.{},
+});
+
+exe.linkLibrary(lib); // é importante que a lib em zig seja linkada antes da libc
+exe.linkLibC();
+```
+
+E o arquivo com a instrumentação:
+```zig
+// hooks.zig
+
+const std = @import("std");
+const dlsym = std.c.dlsym;
+
+fn getFn(name: [*:0]const u8, T: type) T {
+    const ptr = dlsym(@ptrFromInt(std.math.maxInt(usize)), name);
+    const fnp: T = @ptrCast(ptr);
+    return fnp;
+}
+
+export fn malloc(in: usize) callconv(.c) ?*anyopaque {
+    const fnp = getFn("malloc", *const fn (usize) callconv(.c) ?*anyopaque);
+    const memPtr = fnp(in);
+    if (memPtr != zero) {
+        std.debug.print("(~) [trace] malloc(bytes: 0x{x}) -> 0x{x}\n", .{ in, @intFromPtr(memPtr) }); };
+    } else {
+        std.debug.print("malloc returned null\n", .{});
+    }
+}
+```
+
+Agora rodando normalmente com `zig build run` a nossa função de malloc no
+`hooks.zig` vai ser utilizada ao inves do `malloc` da libc, mas por causa do
+`dlsym` [1] podemos chamar o `malloc` original. Esse tipo de instrumentação
+funciona porque estamos usando dynamic linking, por isso podemos ter o mesmo
+simbolo definido em secoes diferentes.
+
+Outra alternativa seria exportar a partir dos hooks a função com outro nome como
+`zmalloc` e no build adicionar uma macro para renomear o `malloc`. A ideia disso veio daqui [2].
+
+```zig
+// build.zig
+const mod = b.createModule(.{
+    .target = target,
+    .optimize = optimize,
+});
+mod.addCMacro("malloc", "zmalloc");
+const exe = b.addExecutable(.{
+    .name = "main",
+    .root_module = mod,
+    .linkage = .static, // dessa forma o programa final pode ser estaticamente linkado
+});
+```
+
+Mas quando linkar estaticamente, vamos perder o malloc original que antes podia
+ser acessado com dlsym. Apesar disso, essa forma permite que o binario final seja
+totalmente estaticamente linkado, o que desbloqueia algumas aplicacoes interessantes.
+
+```zig
+// hooks.zig
+export fn zmalloc(sz: usize) ?*anyopaque {
+    std.debug.print("malloc called! {x}\n", .{sz});
+    return null;
+}
+```
+
+Podemos tambem adicionar hooks que vao rodar no inicio e no final da execução do
+programa. Note que esses hooks do `.init_array` e `.fini_array` (na versao atual
+do zig, 0.15.2) somente sao incluidos se tiver alguma função do `hooks.zig` que
+vai ser utilizada pelo programa C, com o `malloc` hookado. Valeu R3tr074 por
+ter apresentado essa tecnica no feedback da primeira versao do artigo.
+
+```zig
+// hooks.zig
+export const init_array linksection(".init_array") = [_]*const fn () callconv(.c) void{&zig_init};
+export const fini_array linksection(".fini_array") = [_]*const fn () callconv(.c) void{&zig_fini};
+
+fn zig_init() callconv(.c) void {
+    // ...
+}
+
+fn zig_fini() callconv(.c) void {
+    // ...
+}
+```
+
+Voltando ao problema inicial de instrumentar o alocador, podemos usar eles para
+substituir o alocador da libc por qualquer outro, nesse caso vou mostrar usando
+um alocador builtin do zig que tem funcionalidades para detectar leaks e limpa a
+memoria alocada para 0xaaaaaaaa... em todo free.
+
+Tambem vamos adicionar um hashmap para acompanhar as alocacoes
+
+```zig
+// hooks.zig
+// ...
+var gpa = std.heap.DebugAllocator(.{}){};
+const alloc = gpa.allocator();
+
+const AllocationMap = std.AutoHashMap(usize, usize);
+var allocations: AllocationMap = undefined;
+var allocations_mutex: std.Thread.Mutex = .{};
+
+fn zig_init() callconv(.c) void {
+    allocations = AllocationMap.init(gpa);
+}
+
+// ...
+export fn malloc(in: usize) callconv(.c) ?*anyopaque {
+// ...
+    const slice = alloc.alloc(u8, in) catch {
+        @panic("Failed to allocate");
+    };
+    // ...
+
+    allocations_mutex.lock();
+    defer allocations_mutex.unlock();
+
+    allocations.put(@intFromPtr(slice.ptr), size) catch {
+        gpa.free(slice);
+        return null;
+    };
+    return @ptrCast(slice.ptr);
+}
+
+export fn free(ptr: ?*anyopaque) callconv(.c) void {
+    // ...
+    allocations_mutex.lock();
+    defer allocations_mutex.unlock();
+
+    const ptrVal: usize = @intFromPtr(ptr);
+
+    if (allocations.get(ptrVal)) |size| {
+        const slice: []u8 = @as([*]u8, @ptrCast(ptr))[0..size]; // esse cast é necessario porque esse alocador retornou um slice, ao inves de um ponteiro cru.
+        alloc.free(slice);
+        _ = allocations.remove(ptrVal);
+    }
+}
+
+// ...
+
+fn zig_fini() callconv(.c) void {
+    std.debug.print("\n===== [fini hook]\n", .{});
+
+    // ...
+    allocations.deinit(); // Se não liberar aqui, essa memoria vai contar como vazada pelo alocador.
+    std.debug.print("leaks: {any}\n", .{gpa.detectLeaks()});
+}
+```
+
+Agora alterando o `main.c` para não dar free
+
+
+```c
+int main(void) {
+    uint8_t* p = malloc(100);
+    // free(p);
+
+    return 0;
+}
+```
+
+Quando rodar o programa vamos ter:
+
+```javascript
+[init hook]
+(~) [trace] malloc(bytes: 0x64) -> 7fb8701e0000
+
+===== [fini hook]
+error(gpa): memory address 0x7fb8701e0000 leaked:
+.../hooks.zig:49:38: 0x1130425 in malloc (hooks.zig)
+            const slice = alloc.alloc(u8, in) catch {
+                                     ^
+.../main.c:13:18: 0x1025cc8 in main (.../main.c)
+    uint8_t* p = malloc(100);
+                 ^
+???:?:?: 0x7fb87020d5b4 in ??? (libc.so.6)
+???:?:?: 0x7fb87020d667 in ??? (libc.so.6)
+???:?:?: 0x1025b94 in ??? (???)
+
+leaks: true
+```
+
+O alocador mostra onde foi alocada a memoria que vazou e ate o stack trace
+mostrando o source de Zig e C! Para entender como essas funcionalidades foram
+implementadas o source é bem organizado e legivel [3], mesmo que você não tenha
+familiaridade com Zig [4][5][6].
+
+Aqui no final, é o codigo inteiro do hook.zig para o programa C dinamicamente
+linkado com algumas funcionalidades extras, como mostrando o stacktrace em toda
+call de free e malloc.
+
+```zig
+const std = @impor et("std");
+const dlsym = st alocada para 0xaaaaaaaa...d.c.dlsym;
+
+var gpa = std.heap.DebugAllocator(.{}){};
+const alloc = gpa.allocator();
+
+const use_libc_alloc = false;
+const verbose = false;
+
+const AllocationMap = std.AutoHashMap(usize, usize);
+var allocations: AllocationMap = undefined;
+var allocations_mutex: std.Thread.Mutex = .{};
+
+export const init_array linksection(".init_array") = [_]*const fn () callconv(.c) void{&zig_init};
+export const fini_array linksection(".fini_array") = [_]*const fn () callconv(.c) void{&zig_fini};
+
+fn zig_init() callconv(.c) void {
+    std.debug.print("[init hook]\n", .{});
+    allocations = AllocationMap.init(alloc);
+}
+
+fn zig_fini() callconv(.c) void {
+    std.debug.print("\n===== [fini hook]\n", .{});
+
+    if (!use_libc_alloc) {
+        allocations.deinit();
+        std.debug.print("leaks: {any}\n", .{gpa.detectLeaks()});
+    } else {
+        defer allocations.deinit();
+        var it = allocations.iterator();
+        const leaks = it.next() != null;
+        std.debug.print("leaks: {any}\n", .{leaks});
+        if (leaks) print_alloc_state();
+    }
+}
+
+fn getFn(name: [*:0]const u8, T: type) T {
+    const ptr = dlsym(@ptrFromInt(std.math.maxInt(usize)), name);
+    const fnp: T = @ptrCast(ptr);
+    return fnp;
+}
+
+export fn malloc(in: usize) callconv(.c) ?*anyopaque {
+    const fnp = getFn("malloc", *const fn (usize) callconv(.c) ?*anyopaque);
+    const memPtr: ?*anyopaque = blk: {
+        if (use_libc_alloc) {
+            break :blk fnp(in);
+        } else {
+            const slice = alloc.alloc(u8, in) catch {
+                @panic("Failed to allocate");
+            };
+            break :blk @ptrCast(slice.ptr);
+        }
+    };
+
+    const zero: ?*anyopaque = @ptrFromInt(0);
+
+    if (memPtr != zero) {
+        std.debug.print("(~) [trace] malloc(bytes: 0x{x}) -> {x}\n", .{ in, @intFromPtr(memPtr) });
+        allocations_mutex.lock();
+        defer allocations_mutex.unlock();
+        allocations.put(@intFromPtr(memPtr), in) catch {
+            @panic("Failed to update allocations map");
+        };
+    } else {
+        std.debug.print("malloc returned null\n", .{});
+    }
+    if (verbose) {
+        print_alloc_state();
+        print_stacktrace();
+    }
+
+    return memPtr;
+}
+export fn free(ptr: ?*anyopaque) callconv(.c) void {
+    const fnp = getFn("free", *const fn (?*anyopaque) callconv(.c) void);
+    std.debug.print("(~) [trace] free(ptr: {x})\n", .{@intFromPtr(ptr)});
+
+    if (verbose) {
+        print_alloc_state();
+        print_stacktrace();
+    }
+
+    if (use_libc_alloc) {
+        fnp(ptr);
+    } else {
+        const ptrVal: usize = @intFromPtr(ptr);
+        allocations_mutex.lock();
+        defer allocations_mutex.unlock();
+        if (allocations.get(ptrVal)) |size| {
+            const slice: []u8 = @as([*]u8, @ptrCast(ptr))[0..size];
+            alloc.free(slice);
+            _ = allocations.remove(ptrVal);
+        }
+    }
+}
+
+fn print_alloc_state() void {
+    std.debug.print("\n=== allocator state: \n", .{});
+
+    var it = allocations.iterator();
+    while (it.next()) |entry| {
+        std.debug.print("key = {x}, value = {any}\n", .{ entry.key_ptr.*, entry.value_ptr.* });
+    }
+}
+
+inline fn print_stacktrace() void {
+    std.debug.print("[stacktrace begin] =====\n", .{});
+    const stderr = std.debug.lockStderrWriter(&.{});
+    defer std.debug.unlockStderrWriter();
+
+    std.debug.dumpCurrentStackTraceToWriter(@returnAddress(), stderr) catch {};
+    std.debug.print("[stacktrace end] =====\n\n", .{});
+}
+```
+
+Nesses exemplos anteriores, Zig é usado como um uma "peca extra" que é
+encaixada ao programa principal que é escrito em C. Tambem podemos fazer o
+contrario, usar Zig como o programa principal e incluir funcionalidades de um
+programa C.
+
+O build.zig na pasta do quickjs serve para compilar o quickjs e podermos incluir
+ele do harness como um modulo. Fazer desse jeito não é necessario, poderiamos
+ter somente um build.zig, mas eu achei que fica mais organizado dessa forma.
+
+Os arquivos estao organizados assim:
+
+```
+./quickjs/
+./quickjs/qjs.c
+./quickjs/quickjs.h
+./quickjs/build.zig
+...etc
+./
+./build.zig
+./build.zon
+./harness.zig
+```
+
+Esse arquivo abaixo é o build.zig para buildar a engine quickjs. é um pouco de
+uma gambiarra porque eu ignorei os arquivos que produzem os entrypoints do
+programa, dessa forma podemos usar como uma biblioteca dinamica.
+
+
+Note tambem o `addTranslateC` que vai traduzir um arquivo C para Zig (funciona
+bem na maioria dos casos), isso nos vai permitir incluir funcoes o quickjs com
+os tipos corretamente traduzidos, como se fosse nativa do Zig.
+
+```zig
+// ./quickjs/build.zig
+pub fn build(b: *std.Build) void {
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
+
+    const header = b.addTranslateC(.{ // aqui
+        .root_source_file = b.path("qjs.c"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const mod = b.addModule("qjs", .{
+        .target = target,
+        .optimize = optimize,
+        .root_source_file = header.getOutput(),
+    });
+
+    mod.addCSourceFiles(.{
+        .files = &.{
+            // "qjs.c",
+            // "qjsc.c",
+            "quickjs-libc.c",
+            "quickjs.c",
+            "cutils.c",
+            "dtoa.c",
+            "libunicode.c",
+            "libregexp.c",
+        },
+        .flags = &.{
+            // "-fsanitize=address",
+            "-Wall",
+            "-Wextra",
+            "-D_GNU_SOURCE",
+            "-DCONFIG_VERSION=\"2021-03-27\"",
+            // "-DDUMP_BYTECODE",
+            // "-DDUMP_FREE",
+            // "-DDUMP_SHAPES",
+            // "-DDUMP_MEM",
+            // "-DDUMP_OBJECTS",
+            // "-DDUMP_GC",
+        },
+    });
+
+    const obj = b.addLibrary(.{
+        .root_module = mod,
+        .name = "quickjslib_ziggy",
+        .linkage = .dynamic,
+    });
+    // obj.linkLibC();
+    obj.linkSystemLibrary("m");
+    obj.linkSystemLibrary("dl");
+    obj.linkSystemLibrary("pthread");
+
+    b.installArtifact(obj);
+
+    //
+    // exe.linkSystemLibrary("asan");
+}
+// ...
+```
+
+E no ./build.zon adicionamos esse quickjs como uma dependencia local
+
+
+```zig
+.{
+    // ...
+    .dependencies = .{
+        .qjs = .{
+            .path = "./quickjs",
+        },
+    },
+    // ...
+}
+```
+
+E no ./build.zig centralizamos a build, o qjs e o harness
+
+```zig
+pub fn build(b: *std.Build) void {
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
+
+    const qjs = b.dependency("qjs", .{ .target = target, .optimize = optimize });
+    const harness_mod =
+        b.createModule(.{
+            .root_source_file = b.path("harness.zig"),
+            .target = target,
+            .optimize = optimize,
+        });
+
+    harness_mod.addImport("qjs", qjs.module("qjs"));
+    const harness_exe = b.addExecutable(.{ .name = "harness", .root_module = harness_mod });
+    harness_exe.linkSystemLibrary("m");
+    harness_exe.linkSystemLibrary("dl");
+    harness_exe.linkSystemLibrary("pthread");
+
+    b.installArtifact(harness_exe);
+    const run_exe = b.addRunArtifact(harness_exe);
+    const run_step = b.step("run", "Run the app");
+    run_step.dependOn(&run_exe.step);
+
+    run_step.dependOn(b.getInstallStep());
+}
+```
+
+Com isso configurado, podemos usar as funcoes do quickjs como se estivessemos escrevendo em C
+
+
+```zig
+
+const qjs = @import("qjs");
+//  ...
+
+// vai guardar e serializar o resultao do testes
+const EvalRecord = struct {
+    input: [:0]u8,
+    output: []u32,
+};
+
+// ...
+
+fn eval_string(data: [:0]u8) ?EvalRecord {
+    var tmp: u64 = undefined;
+    const vtable: qjs.JSMallocFunctions = .{ .js_malloc = js_malloc_hook, .js_free = js_free_hook, .js_realloc = js_realloc_hook };
+
+    const rt = qjs.JS_NewRuntime2(&vtable, @ptrCast(&tmp));
+    const ctx = qjs.JS_NewContext(rt);
+    const value = qjs.JS_Eval(ctx, data, data.len, "<none>", qjs.JS_EVAL_TYPE_GLOBAL);
+    const nbytes = 0x100;
+
+    switch (value.tag) {
+        qjs.JS_TAG_INT => std.debug.print("obj is int: {}\n", .{value.u.int32}),
+        qjs.JS_TAG_EXCEPTION => std.debug.print("obj is exception: {any}\n", .{value.u.ptr}),
+        qjs.JS_TAG_OBJECT, qjs.JS_TAG_STRING => {
+            std.debug.print("obj is obj/string: {any}\n", .{value.u.ptr});
+            litdbg.mem(u64, value.u.ptr, nbytes) catch {};
+
+            const objptr: usize = @intFromPtr(value.u.ptr);
+            const memptr: [*]u32 = @ptrCast(@alignCast(value.u.ptr));
+            const teleptr: [*]usize = @ptrCast(@alignCast(value.u.ptr));
+
+            const shape = teleptr[1];
+            const prop = teleptr[2];
+
+            @breakpoint();
+            std.debug.print("shape: {x}, prop: {x}\n", .{ shape, prop });
+            debug_print_mem(@ptrFromInt(objptr), 0x10);
+
+            return .{ .input = data, .output = memptr[0..0x18] };
+        },
+        qjs.JS_TAG_UNDEFINED => std.debug.print("obj is undefined\n", .{}),
+        else => std.debug.print("obj is unknown tag: {}\n", .{value.tag}),
+    }
+
+    return null;
+}
+
+// ...
+
+fn logTest(comptime name: []const u8, comptime input: []const u8) !void {
+    const res = eval_string(@ptrCast(@constCast(input)));
+
+    const f = try std.fs.cwd().createFile(name, .{});
+
+    var json_writer = std.Io.Writer.Allocating.init(std.heap.page_allocator);
+    defer json_writer.deinit();
+    try std.json.Stringify.value(res, .{}, &json_writer.writer);
+    const arr = try json_writer.toOwnedSliceSentinel(0);
+
+    const written = try f.write(arr);
+
+    std.debug.print("written {} bytes: {s}\n", .{ written, arr });
+}
+
+// ...
+
+pub fn main() !void {
+    try logTest("basic_string.json", "let str = \"gwimbly\"; str");
+    try logTest("basic_obj.json", "let obj = {a: 42, b: 1337}; obj");
+    try logTest("basic_arrbuf.json", "let arrbuf = new ArrayBuffer(0xcafe); arrbuf");
+}
+
+```
+
+
+Dessa forma temos um harness para criar o runtime do quickjs, enviar inputs e
+observar os resultados. Uma grande facilidade é que o Zig tem serialização JSON
+builtin, que usei na intrumentação para salvar no disco os testes. Outra
+funcionalidade interessante é que podemos rodar com a flag --watch, assim:
+- zig build run --watch
+Isso vai recompilar e rodar o programa toda vez que tiver uma modificação no
+codigo, isso é muito util para criar um loop de feedback quase instantaneo do
+resultado dos testes. Essa ideia eu exploro mais no apendice desse artigo.
+
+
+
+No final o que montamos foi uma instrumentação em userspace que é adicionada
+diretamente no executavel e que é completamente customizavel. E alem disso,
+o processo de build, linking (e ate mais coisas que não form abordadas aqui)
+foi organizado por um so arquivo build.zig, tem um bonus tambem que essa
+toolchain permite cross compilation entre arquiteturas e sistemas operacionais.
+
+
+Alem do que foi apresentado aqui, o Zig ainda tem algumas coisas que acho bem
+promissoras, mas que não tive contato o suficiente para apresentar aqui, como um
+novo fuzzer implementado do zero integrado na toolchain do Zig [7].
+
+
+[1] - https://linux.die.net/man/3/dlsym
+[2] - https://ziggit.dev/t/zalloc-replace-malloc-and-friends-with-a-zig-allocator-in-your-c-code/11073
+[3] - https://codeberg.org/ziglang/zig/src/branch/master/lib/std/heap/debug_allocator.zig
+[4] - https://ziglang.org/learn/
+[5] - https://ziglang.org/documentation/master/std/
+[6] - https://ziglang.org/documentation/master/
+[7] - https://github.com/ziglang/zig/issues/20702
+[8] - https://typst.app/
+---
+
+[apendice]
+
+Depois do fim tem nada, mas o nada se contrai, cria um frasco vazio, que entao
+é preenchido. Aqui é esse lugar.
+
+A parte do artigo que fala sobre rodar a instrumentaco com zig build run
+--watch faz parte de uma ideia maior, que é "Literate Debugging".
+
+Essa ideia foi fortemente baseada no conceito de "Literate Programming"
+introduzido pelo Donald Knuth.
+
+A ideia de "Literate Debugging" é que geralmente quando estamos debugando
+algo estamos escrevendo programas, em gdbscript, python ou alguma outra coisa
+o objetivo final deles é mostrar a execução do programa para uma pessoa
+(geralmente nos mesmos). A ideia de puxar o literario aqui, é que foco é
+movido para a pessoa que esta lendo o resultado.
+
+Eu fui atraido por essa ideia por causa de situacoes como escrever um blog ou
+uns slides com diagramas mostrando como a a pilha de um programa se comportava
+ao longo de uns pontos especificos da sua execução. Um jeito poderia ser printar
+o gdb e colar as imagens, mas eu não queria imagens pixeladas, outro jeito
+melhor poderia ser logar a saida do GDB para um arquivo com `set logging enabled
+on`, mas ainda podemos fazer melhor.
+
+O harness para o quickjs que mostrei na seção principal do artigo, gera um
+arquivo json para cada teste, a cada modificação do arquivo por causa do --watch.
+Para montar uma visualização disso para  uns slides ou um blog, eu
+posso gerar um pdf, svg, html, etc dinamicamente baseado nesse json.
+
+Uma ferramenta que tenho gostado bastante para isso tem sido o typst [8] (com
+ele podemos escrever um codigo que parece com markdown e latex que gera
+documentos estaticos).
+
+Isso aqui é como ficou o codigo em typst para ler o json e mostrar em uma tabela
+```typst
+#let showLog(src) = {
+  let basic_str = json(src)
+  let hex_32 = (
+    basic_str
+      .output
+      .chunks(2)
+      .enumerate()
+      .map(((i, n)) => {
+        if (calc.rem((i + 1), 2) == 0) {
+          set text(fill: luma(100%))
+          raw(to_hex(i * 8, width: 2) + " " + to_hex_list(n))
+        } else {
+          set text(fill: luma(70%))
+          raw(to_hex(i * 8, width: 2) + " " + to_hex_list(n))
+        }
+      })
+  )
+
+  (
+    code: raw(block: true, lang: "js", basic_str.input),
+    hex: grid(
+      inset: 2pt,
+      fill: code_bg,
+      ..hex_32
+    ),
+  )
+}
+
+#let logs = (
+  showLog("basic_arrbuf.json"),
+  showLog("basic_string.json"),
+  showLog("basic_obj.json"),
+)
+
+#block(fill: code_bg)[
+  #grid(
+    columns: 3,
+    gutter: 8pt,
+    ..logs.map(log => log.code),
+    ..logs.map(log => log.hex)
+  )
+]
+```
+
+Uma coisa que funcionou muito bem com essa configuração é que eu posso rodar
+`zig build run --watch` e `typst watch qjs_debug.typ` entao toda vez que eu
+criar um teste ou modificar alguma coisa no `harness.zig`, o pdf vai ser
+atualizao instantaneamente com os novos resultados.
+
+Acredito que essa ideia tem muito potencial, ainda podemos fazer muito com
+ela, como: desenvolver novas ferramentas, criar material didatico, ou ate mesmo
+so a filosofia de que o que fazemos no final é transmitir ideias para pessoas.

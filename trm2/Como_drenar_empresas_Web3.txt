@@ -1,0 +1,520 @@
+# Como drenar empresas Web3
+# Caue
+
+Já se perguntou o porque dos bug bounties de Web3/blockchain serem tão altos?
+Bom, isso é porque, diferente de uma empresa do mercado tradicional, toda a sua
+segurança está baseada em recursos tecnológicos e não há bloqueios centralizados
+que bloqueiem hacks.
+
+Por exemplo, se uma conta de banco de uma empresa for invadida, é claro que o
+hacker conseguiria fazer um bom estrago, mas por questões de segurança do banco,
+ele não conseguiria roubar todo o dinheiro do caixa da empresa. No caso da
+blockchain, se o hacker consegue acesso à private key de uma conta é game over,
+todo o esforço que a empresa colocou para crescer vai pro /dev/null. Além disso,
+sabemos que a bolha Web3 movimenta muito dinheiro e é atrativa para hackers por
+conta do certo nível de anonimidade que é possível de obter.
+
+Mas como que é possível acessar os fundos de uma empresa se hoje em dia existe
+tecnologia o suficiente para proteger chaves privadas de forma praticamente
+inviolável (Exemplo: Trezor, Ledger, …)? É tudo phishing?
+
+Negativo, falhas de lógica no código da operação da empresa são a principal
+forma que os protocolos/dApps são hackeados. Apesar de existirem wallets para
+armazenar chaves privadas de forma segura, esses produtos tiram uma das
+vantagens da blockchain, que é a transferência de dinheiro de forma programática
+sem intermediação. Isso implica que, para que a operação de algumas empresas
+funcione corretamente, eles precisam armazenar essas chaves em um local
+acessível pelo código da aplicação web para que seja possível interagir com a
+blockchain. Outra opção é não utilizar aplicações web e colocar toda a lógica do
+produto em um smart contract, que é o que a maioria faz.
+
+Portanto, existem 2 formas que conseguimos interagir (de forma indireta) com os
+fundos da empresa na blockchain:
+
+1. **Aplicações Web e Chaves de Custódia:** Aplicações que realizam operações em
+nome do usuário ou da própria empresa (necessitando acesso programático a uma
+*private key* custodiada).
+2. **Smart Contracts:** Colocando toda a lógica do produto diretamente na
+blockchain, permitindo transferências de valor e interações programáticas sem
+intermediários.
+
+Como a maioria dos dApps (Descentralized Apps) e protocolos usam smart contracts
+como sua lógica e custódia de tokens principal, é lá onde se deve encontrar uma
+falha de lógica para ser possível drenar os fundos da conta. Porém, normalmente,
+os smart contracts são auditados várias vezes e por várias empresas diferentes,
+portanto é bem difícil encontrar bugs críticos lá. Entretanto, existem outros
+ataques que podem ser feitos em aplicações web específicas que também podem
+levar à LoF (Loss of Funds). Nesse artigo vou dar alguns exemplos de falhas de
+lógica que já encontrei em aplicações reais de blockchain que poderiam levar à
+drains.
+
+## Situação 1 - Off-chain transaction sponsorship
+
+Para entender essa vulnerabilidade, primeiro é preciso entender o básico de como
+uma transação (tx) na blockchain funciona. Embora cada chain tenha suas
+especificidades, a maioria delas possui uma taxa de transação chamada de “gas
+fee”, que normalmente deve ser paga com a moeda nativa da blockchain (ex: na
+rede Solana, se deve pagar o gas fee com SOL). Algumas blockchains também
+possuem uma feature de “sponsorship”, que permite que uma “sponsor account”
+pague o gas fee por uma transação que não foi iniciada por ele. Para que isso
+aconteça, o sponsor deve ser especificado na transação e também deve ser um
+signer dessa transação (assinar a tx com a sua chave privada).
+
+Em solana, o sponsor é sempre o primeiro signer da transação (`signatures[0] ==
+sponsor`) [1]:
+
+```jsx
+pub struct Transaction {
+ #[wasm_bindgen(skip)]
+ #[serde(with = "short_vec")]
+ pub signatures: Vec<Signature>,
+ #[wasm_bindgen(skip)]
+ pub message: Message,
+}
+```
+
+Não é tão incomum que algumas aplicações utilizem da feature de sponsorship para
+diminuir a barreira de entrada e captar mais usuários (por exemplo: a transação
+para criação de novas contas é sponsored pela aplicação - custo 0 para o
+usuário). Normalmente essa feature está disponível por uma API HTTP, onde o
+usuário envia uma transação, a API valida se é uma transação válida e segura e,
+caso seja, a transação é assinada pela chave privada da sponsor account e é
+devolvida ao usuário.
+
+```jsx
+// isso é um pseudocódigo
+app.post('/sponsor', (req, res) => {
+        isValid = await validateTransaction(req.tx);
+
+        if (isValid){
+                signedTx = keypair.signTransaction(req.tx)
+                res.json(signedTx) // a transação é serializada com todas as informações (incluindo as assinaturas)
+        }
+        else {
+                res.status(400).end()
+        }
+});
+```
+
+Sabendo como funciona, já é possível pensar nos ataques possíveis.
+
+### **Ataque A - Gastando todos os tokens da sponsor account - DoS**
+
+Apesar dos gas fees geralmente serem valores baixos (depende da blockchain, mas
+na maioria é questão de centavos), caso a API não coloque um rate limit
+plausível, é possível que usuários maliciosos consigam efetuar várias transações
+gastando os tokens da sponsor account para pagar o gas fee, o que pode levar à
+falência da sponsor account e, causar um DoS na aplicação já que ela depende dos
+tokens da sponsor account para operações básicas.
+
+Normalmente, esse ataque não é considerado tão crítico porque o atacante não
+consegue roubar o dinheiro para ele, portanto não existe tanta motivação para
+efetuar esse ataque.
+
+### **Ataque B - Bypassando a validação da transação**
+
+A vulnerabilidade mais crítica que pode ocorrer nessa feature é quando a
+transação não é validada corretamente. Vou explicar 2 casos que já encontrei em
+real life, uma em ambiente Solana e outro no Stellar.
+
+*Caso 1 - Solana sponsorship hack*
+
+O caso do ambiente solana é um pouco mais complicado de explicar sem dar muito
+detalhes sobre a aplicação. Basicamente, ela utilizava de smart contracts para
+criar sessões (logins) de usuários dentro da blockchain, onde se você fizesse
+login com sua conta principal em um domínio, esse domínio só teria acesso à sua
+sessão, que era mais limitado do que a conta principal (restrição de token
+allowance).
+
+
+
+```javascript
+        2. Inicia sessão para dApp1  +------------------------+
+      +------------------------------+                        |
+      |                              | Smart Contract da      |
+      |  +---------------------------> Sessão                 |
+      |  |                           +------------------------+
+      |  |
+      |  |
+      |  |                           +------------------------+
++-----v--+----+  1.Obter sponsorship |                        |
+|             <----------------------+                        |
+|   Usuário   +----------------------> dApp 1 sponsorship API |
+|             |                      |                        |
++--------+----+                      |                        |
+         |                           +------------------------+
+         |
+         |
+         |
+         |
+         |                             +-------------------+
+         | 3. Manda a sessão para o app|                   |
+         +-----------------------------> dApp 1 (dapp1.com)|
+                                       |                   |
+                                       +-------------------+
+```
+
+A vuln encontrada aqui foi na validação da instrução, que permitia que a sponsor
+account do dApp1 pagasse pelos gas fees de uma início de sessão para o dApp2.
+Apesar de não ser uma vulnerabilidade tão crítica, ainda sim é possível utilizar
+os fundos de outro projeto para financiar o seu malware ou site de phishing.
+
+```javascript
+        2. Inicia sessão para dApp2  +------------------------+
+      +------------------------------+                        |
+      |                              | Smart Contract da      |
+      |  +---------------------------> Sessão                 |
+      |  |                           +------------------------+
+      |  |
+      |  |
+      |  |                           +------------------------+
++-----v--+----+  1.Obter sponsorship |                        |
+|             <----------------------+                        |
+|   Usuário   +----------------------> dApp 1 sponsorship API |
+|             |                      |                        |
++--------+----+                      |                        |
+         |                           +------------------------+
+         |
+         |
+         |
+         |
+         |                             +-------------------+
+         | 3. Manda a sessão para o app|                   |
+         +-----------------------------> dApp 2 (dapp2.com)|
+                                       |                   |
+                                       +-------------------+
+```
+
+Isso era possível porque a validação da transação não validava se a sessão sendo
+iniciada era para o mesmo dApp da sponsor account.
+
+*Caso 2 - Stellar sponsorship hack*
+
+O caso que eu encontrei em uma wallet da Stellar foi mais preocupante. A vuln
+permitia drenar todos os fundos presentes na sponsor account da wallet, que era
+em torno de $150,000 na época do beta test. No caso da chain Stellar, as
+transações e instruções funcionam de forma um pouco diferente. Cada transação
+tem um array de “operations”, que funcionam como instruções, por exemplo:
+
+**Transaction**
+
+Operation 1 - CreateAccount
+
+| **Campo** | **Tipo** | **Descrição** |
+| --- | --- | --- |
+| **Destination** | `AccountID` | O ID da nova conta a ser criada. |
+| **Starting Balance** | `Int64` | A quantidade inicial de XLM (Lumens) para
+financiar a nova conta. Deve ser suficiente para atender ao requisito de reserva
+mínima. |
+
+Operation 2 - Payment
+
+| **Campo** | **Tipo** | **Descrição** |
+| --- | --- | --- |
+| **Destination** | `AccountID` | Conta que receberá o pagamento. |
+| **Asset** | `Asset` | O ativo a ser enviado. Pode ser XLM (nativo) ou um token
+(emitido). |
+| **Amount** | `Int64` | A quantidade do ativo a ser enviada. |
+
+Essa transação poderia ser usada para enviar criar uma nova conta primeiro e
+depois enviar token para ela (ou outra conta, dependendo do *Destination*).
+
+Para transações com sponsorship na blockchain Stellar, existem 2 operações que
+devem ser usadas [2]:
+
+- BeginSponsoringFutureReserves
+    - Parâmetro `SourceAccount` —> define o sponsor account, que deve ser um
+signer da transação
+    - Parâmetro `SponsoredID` —> define a conta que será patrocinada pelo
+sponsor (a conta que não vai precisar pagar os gas fees ou outros custos)
+- EndSponsoringFutureReserves
+    - Parâmetro `SourceAccount`
+
+Elas definem quais operações devem ser sponsored e quais não a partir do que
+está no meio das duas operações. Por exemplo, se quisermos fazer o sponsor
+apenas da criação da conta, mas não do pagamento (levando como base o exemplo
+passado), devemos ter uma transação com as seguintes operações (com os devidos
+parâmetros setados corretamente):
+
+1. BeginSponsoringFutureReserves
+2. CreateAccount
+3. EndSponsoringFutureReserves
+4. Payment
+
+Levando em conta que a sponsor account também deve assinar a transação para que
+ela seja validada e incluída na blockchain, uma API HTTP também é necessária
+para a validação e assinatura da transação. Agora que você já sabe como funciona
+o básico das transações e operações da Stellar, vamos ver como foi possível
+drenar a sponsor account da wallet.
+
+O principal erro cometido foi a falta de validação dos parâmetros globais
+opcionais. Se você olhar na documentação da Stellar para uma operação, você vai
+ver só os parâmetros específicos daquela operação (ex: Payment):
+
+# Payment
+
+Sends an amount in a specific asset to a destination account.
+
+**SDKs:** [JavaScript](#) | [Java](#) | [Go](#)  
+**Threshold:** Medium  
+**Result:** `PaymentResult`
+
+## Parameters
+
+| Parameter   | Type       | Description                                      |
+|-------------|------------|--------------------------------------------------|
+| Destination | account ID | Account address that receives the payment.       |
+| Asset       | asset      | Asset to send to the destination account.        |
+| Amount      | integer    | Amount of the aforementioned asset to send.      |
+
+Porém, toda operação também possui o parâmetro opcional `SourceAccount` , que
+dita qual conta que é responsável por realizar aquela operação (no caso do
+Payment, qual conta que vai fazer o pagamento). Caso o parâmetro não seja
+setado, o usuário que iniciou a transação que irá ser o `SourceAccount` padrão [6].
+
+No caso da wallet, eles não validavam isso em uma operação `Payment` e permitiam
+eu enviar uma transação com o `SourceAccount = sponsorAccount`. Isso passava
+pela validação da transação e a assinatura da sponsor account era incluida. Uma
+vez que o sponsor account “aceitou a transação” (por conta da assinatura estar
+incluída), o pagamento era feito a partir da conta do sponsor account para o
+destino escolhido. Dessa forma, era possível drenar todos os fundos que a
+sponsor account tinha ($150,000 no momento).
+
+## Situação 2 - Depósitos em Exchanges
+
+Outra situação que envolve blockchain que é possível de ser exploitada é quando
+os depósitos em exchanges são validados de forma incorreta. Isso geralmente
+ocorre pela complexidade de lidar com várias blockchains diferentes, que possuem
+detalhes técnicos diferentes. Vou explicar alguns casos que já encontrei em uma
+das minhas auditorias.
+
+**Caso 1: XRP deposit (deprecated)**
+
+O cliente havia implementado o depósito de crypto em XRP, que possui uma
+blockchain própria (XRPL). O problema nesse caso foi que a forma que a transação
+de depósito era validada não estava correta pela existência de uma feature da
+chain XRP. Apesar de ser uma vulnerabilidade conhecida e bem documentada [3], quem
+está implementando o depósito não espera que exista essa peculiaridade e acaba
+achando que é só mais uma blockchain inserida na lista de criptomoedas aceitas
+como depósito.
+
+Primeiro, para entender o exploit, precisamos ver como funciona uma transação de
+pagamento no XRPL:
+
+```json
+{
+  "TransactionType": "Payment",
+  "Account": "rSenderAccountID....................",
+  "Destination": "rRecipientAccountID.................",
+  "Amount": "100000000",
+  "Fee": "12",
+  "Sequence": 123456,
+  "Flags": 0,
+  "SigningPubKey":
+"ED................................................................",
+  "TxnSignature":
+"......................................................"
+}
+```
+
+Vemos que o o pagamento será feito em XRP (já que nenhum outro token foi
+especificado) com o `Amount` sendo `100000000` drops (10^-6 XRP) ou 1 XRP.
+Entretanto, existe uma feature no XRP que são os “Partial Payments”, que permite
+que uma transação seja bem sucedida mesmo pagando um valor menor que o
+especificado no campo `Amount` , que tem alguns use cases quando você não quer
+que a transação reverta totalmente quando não há liquidez de um token.
+
+Portanto, imagine que uma exchange verifique o valor do depósito a partir do
+campo `Amount` :
+
+```jsx
+// pseudocodigo
+function validateDeposit(tx){
+        deposited_value = tx.Amount
+
+        if (tx.status == "tesSUCCESS"){
+                return deposited_value
+        }
+}
+```
+
+Em uma situação como essa, é possível exploitar a exchange:
+
+1. Um atacante envia uma transação com o *flag* **`tfPartialPayment`** ativado e
+com o campo `Amount` definido para um valor **muito alto** (ex: 1.000.000 USD).
+2. A transação é executada e, devido a limitações (falta de liquidez), entrega
+apenas um **valor muito pequeno** (ex: 1 USD). O resultado da transação é
+`tesSUCCESS`.
+3. Se a *exchange* ou o *gateway* vulnerável verificar apenas o campo `Amount`
+(o valor *máximo* que o atacante disse que queria enviar) e não o valor real
+entregue (que é armazenado no campo **`DeliveredAmount`** da transação), a
+*exchange* credita os 1.000.000 USD ao atacante, em vez do 1 USD real.
+
+É importante ressaltar que o campo `Amount` foi renomeado para `DeliverMax`
+alguns meses atrás, portanto acredito estar mais difícil dos desenvolvedores se
+confundirem e deixarem as exchanges vulneráveis.
+
+**Caso 2: Invalid success check**
+
+Outro caso de exchanges sendo vulneráveis na feature de depósito aconteceu com a
+Kraken e foi reportado em seu bug bounty (de forma meio controversa). O hacker
+descobriu que a Kraken não validava corretamente se o depósito foi bem sucedido
+em blockchains que usam EVM (Ethereum Virtual Machine) [4].
+
+Para entender os detalhes, é preciso saber que redes Ethereum-like possuem
+internal transactions para uma transação. Quando uma função de um smart contract
+chama outra função, isso gera uma internalTx, porém, é importante ressaltar que
+elas podem ser chamadas de 2 formas:
+
+1. Forma convencional
+
+```jsx
+contract ContratoA {
+    // Endereço do ContratoB para a chamada
+    ContratoB public B;
+
+    // Construtor: Vincula ContratoA ao endereço do ContratoB
+    teste(address _enderecoContratoB) public {
+        // Cria uma instância do ContratoB na memória, apontando para o endereço
+real
+        B = ContratoB(_enderecoContratoB);
+        B.teste(); // chama contratoB.teste() ---> Internal Tx
+    }
+```
+
+Nesse caso, se a chamada para `B.teste()` falhar/reverter, toda a transação é
+revertida, lembrando que a transação principal é a chamada para
+`ContratoA.teste()`.
+
+1. Forma Crua (Raw) [5]
+
+```jsx
+contract ContratoA {
+    // Endereço do ContratoB para a chamada
+    ContratoB public B;
+
+    // Construtor: Vincula ContratoA ao endereço do ContratoB
+    teste(address _enderecoContratoB) public {
+        // Cria uma instância do ContratoB na memória, apontando para o endereço
+real
+        B = ContratoB(_enderecoContratoB);
+
+              bytes memory data = abi.encodeWithSelector(
+            bytes4(keccak256("teste()")),
+        ); // discriminator
+
+        (bool sucesso, bytes memory returndata) = B.call(data); // chama
+contratoB.teste() ---> Internal Tx
+    }
+
+```
+
+Nesse caso, se a internal transaction reverter, a transação principal não
+reverte automaticamente. Ao invés disso, o sucesso ou não da internal
+transaction é retornado e deve ser checado de forma manual.
+
+Agora, que você sabe como as internal transactions funciona, vamos ver como
+funcionava o exploit:
+
+# Fluxo do Ataque (Fluxograma)
+
+```javascript
+                         ┌───────────────────────────┐
+                         │  Attack.controlAttack()   │
+                         └───────────────┬───────────┘
+                                         │
+                                         │ Chamada externa para si mesmo
+                                         │ Permite que o nível superior
+                                         │ ignore o revert que ocorre abaixo
+                                         │
+                       (! NÃO reverte neste nível!)
+                                         │
+                                         ▼
+                         ┌───────────────────────────┐
+                         │    Attack.doDeposit()     │
+                         └───────────────┬───────────┘
+                                         │
+                                         │ doDeposit() é basicamente:
+                                         │   transfer()
+                                         │   revert()
+                                         │
+                               (! ISTO REVERTE !)
+                                         │
+                                         ▼
+                         ┌──────────────────────────────┐
+                         │  Depósito Matic para Kraken  │
+                         └──────────────────────────────┘
+```
+
+# Trecho de Código Relevante (O que acontece internamente)
+
+```solidity
+function 0xb6852ff9(address varg0, uint256 varg1) public nonPayable {
+    require(4 + (msg.data.length - 4) - 4 >= 64);
+
+    v0 = v1 = msg.sender == _sender;
+    if (msg.sender != _sender) {
+        v0 = msg.sender == address(this);
+    }
+
+    require(v0, Error("Only owner."));
+    v2 = varg0.call().value(varg1).gas(!varg1 * 2300);
+
+    require(bool(v2), 0, RETURNDATASIZE());
+    require(varg1 < 1, Error("revert"));
+}
+```
+
+Como é possível ver, o código do exploit era mais ou menos assim:
+
+```jsx
+contract Attack {
+        controlAttack() public {
+                bytes memory data = abi.encodeWithSelector(
+        bytes4(keccak256("doDeposit()")),
+    ); // discriminator
+
+    address(this).call(data);
+        }
+
+        doDeposit() public {
+                address("KrakenDepositAddress").transfer(100000000000000); //
+envia 100000 wei (0.0001 ETH) para o endereço de deposito da kraken
+                revert();
+        }
+
+```
+
+Aqui, o atacante consegue enviar 0.00001 ETH para o endereço e depois reverter a
+transação interna (a que chama doDeposit()), mas não reverter a transação
+inteira. Provavelmente, o validador de depósito da kraken só validava se a
+transação “pai” foi bem sucedida e não validava a internalTx que fez o depósito,
+fazendo com que os 0.00001 ETH fossem depositados na exchange, mas não fossem
+enviados para o endereço da blockchain.
+
+No caso desses 2 ataques contra exchanges, se o exploit for bem sucedido você
+teria depositado tokens na exchange e, para drenar as reservas da plataforma só
+seria necessário realizar o saque (withdraw) dos tokens que foram depositados de
+forma maliciosa.
+
+## Conclusão
+
+Com a natureza irreversível da blockchain e que não oferece a segurança
+operacional dos sistemas financeiros tradicionais, a segurança se resume à
+**perfeição do código**. Os exemplos analisados — desde a exploração de
+patrocínio de transações (*sponsorship*) no Solana e Stellar até as falhas de
+validação de depósitos em *exchanges* como a Kraken e o caso do XRP — demonstram
+que a principal vulnerabilidade reside em **erros de lógica** na interface entre
+as regras de negócio e os detalhes técnicos de cada *chain*. Espero que, caso o
+seu interesse seja procurar falhas em sistemas Web3, esse artigo tenha deixado
+mais claro o tipo e classe de vulnerabilidades que são encontradas e que são
+consideradas críticas nesse ecossistema.
+
+## Referências
+
+[1] https://solana.com/docs/core/transactions#signatures
+[2] https://developers.stellar.org/docs/build/guides/transactions/sponsored-reserves
+[3] https://xrpl.org/docs/concepts/payment-types/partial-payments
+[4] https://x.com/danielvf/status/1803780167027871878
+[5] https://docs.soliditylang.org/en/latest/types.html#members-of-addresses
+[6] https://developers.stellar.org/docs/learn/fundamentals/transactions/list-of-operations

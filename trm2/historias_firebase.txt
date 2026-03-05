@@ -1,0 +1,320 @@
+--------------------------------------------------------------------------------
+         .:.:.: Elytron Cibersecurity orgulhosamente apresenta :.:.:.
+
+                        ::::: fepame e vrechson em :::::
+
+       :.:.:. Histórias que seu avô nunca lhe contou sobre firebase .:.:.:
+
+                  ~~~~~  e outros contos de arrepiar  ~~~~~
+
+```
+                  ___
+               ___)__|_
+          .-*'          '*-,
+         /      /|   |\     \
+        ;      /_|   |_\     ;
+        ;   |\           /|  ;
+        ;   | ''--...--'' |  ;
+         \  ''---.....--''  /
+          ''*-.,_______,.-*' 
+```
+
+#0x00 Introdução
+
+Mais uma noite de Halloween e o nosso grupo se encontra reunido nesta casa abandonada para uma bateria de histórias horripilantes. Hoje, nosso encontro será temático, iremos contar histórias assustadoras sobre o Firebase, a plataforma do Google amado pelos devs, e ainda mais pelos hackers. Para os não familiarizados, essa plataforma oferece diversas ferramentas e serviços que auxiliam o desenvolvimento e gerenciamento de aplicações, incluindo os aplicativos de celular. Entre as principais funcionalidades oferecidas estão o armazenamento de dados, autenticação e hospedagem das aplicações. Neste momento talvez você esteja se perguntando: O que tem de tão assustador nisso tudo? Apaguem as luzes e acendam as velas, que vamos compartilhar 3 histórias assustadoras que seus avós nunca devem ter te contado sobre o Firebase:
+
+0x01 Identity Toolkit
+0x02 Firebase security rules
+0x03 Realtime Database
+
+```
+        _   ,_,   _
+       / `'=) (='` \
+      /.-.-.\ /.-.-.\ 
+      `      "      `                _   ,_,   _
+                                    / `'=) (='` \
+                                   /.-.-.\ /.-.-.\ 
+                                   `      "      `
+```                                   
+#0x01 Autenticação em Firebase
+
+Era um 22 de Outubro chuvoso, eu estava testando um ambiente com diversas aplicações, todas elas se tratavam de páginas de login, e portanto eu acreditava que não teria nenhum resultado interessante nesse teste. Esse era o meu estado quando fiz a primeira varredura e, utilizando a ferramenta httpx para identificar a tecnologia utilizada, ficou claro que todos os domínios utilizavam a mesma tecnologia: Firebase.
+
+Eu, que não tive muita experiência com esse serviço, fiz o que qualquer um faria, e perguntei aos meus amigos se eles conheciam alguma falha comum nessa tecnologia. Foi neste momento que o fepame me encontrou, e me estendeu a mão. Após 30 minutos, já haviamos obtido acesso a todas as aplicações. Mas, para entender todos os detalhes dessa história, precisamos saber como a autenticação funciona no Firebase.
+
+O Identity Toolkit do Firebase fornece uma API que permite a aplicação o utilizar como autenticação no ambiente, disponível através do endereço https://identitytoolkit.googleapis.com/. Além disso, uma documentação mais completa pode ser obtida em https://docs.cloud.google.com/identity-platform/docs/reference/rest. Ao se ler a documentação, é possível perceber algumas coisas interessantes, como por exemplo a menção de usuários anônimos e endpoints de registro.
+
+Mas para poder começar a interagir com essas APIs, um detalhe ainda se faz necessário: como o Firebase sabe com qual aplicação estamos trabalhando? A identificação é feita por um token do Firebase, que frequentemente será encontrado em algum arquivo JavaScript carregado na página, o trecho abaixo mostra um formato comum no qual o apiKey pode ser encontrado:
+
+```javascript
+        const e = {
+            apiKey: "AIza[...]",
+            authDomain: "appcliente-c2e0.firebaseapp.com",
+            databaseURL: "https://appcliente-c2e0.firebaseio.com",
+            projectId: "appcliente-c2e0",
+            storageBucket: "appcliente-c2e0.appspot.com",
+            messagingSenderId: "392960120414",
+            appId: "1:392960120414:web:d3456256189ef18fab81241",
+            measurementId: "G-M1S5B121L"
+        }
+```
+
+Repare que os tokens do Firebase sempre iniciam com o mesmo padrão `AIza[...]` (e cuidado para não confundir com outros tokens do Google, que também iniciam com esse padrão, tipo o token do Google maps). No Apêndice A, foi disponibilizado um bcheck para a identificação passiva desse token, auxiliando na descoberta de ambientes utilizando essa tecnologia.
+
+Uma vez com o token é possível começar com as maldades. A implementação do Firebase não é capaz de impedir que um usuário se registre no ambiente, a não ser que todo o processo de autenticação seja desativado. Portanto, o primeiro teste que pode ser realizado é a tentativa de se obter um token utilizando um usuário anônimo! Isso pode ser feito através do comando a seguir:
+
+```javascript
+$ TOKEN=AIza[...] curl -s "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$TOKEN" -H 'Content-Type: application/json' --data-binary '{"returnSecureToken":true}'
+```
+
+Tudo bem também se não for possível obter esse token através desse método, a opção é criar o nosso próprio usuário. Essa ação pode ser feita com a requisição a seguir:
+
+```javascript
+$ TOKEN=AIza[...] curl -s "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$TOKEN" -H 'Content-Type: application/json' --data-binary '{"email":"user@mail.com","password":"OTelesNaoLavaOPe","returnSecureToken":true}'
+```
+
+Caso o ambiente esteja vulnerável, o usuário será criado e um token de sessão poderá ser obtido. A autenticação poderá ser feita com essas credenciais ou utilizando esse token de sessão obtido com elas. No caso em análise, esse token se quer foi necessário após o login, visto que foi descoberto que as requisições para a API não eram autenticadas.
+
+```
+        _   ,_,   _
+       / `'=) (='` \
+      /.-.-.\ /.-.-.\ 
+      `      "      `                _   ,_,   _
+                                    / `'=) (='` \
+                                   /.-.-.\ /.-.-.\ 
+                                   `      "      `
+```
+
+#0x02 Firebase security rules                                   
+
+Era fim de tarde. A luz do sol desaparecia lentamente atrás dos prédios, derramando sombras longas e silenciosas pelas ruas — como se algo antigo e inquieto estivesse despertando. Eu revisava meus alerts de rotina, confiante de que tudo estava sob controle… até meu celular vibrar.
+
+**Bsysop.**  
+O monstro do submundo digital. A criatura que habita redes esquecidas, servidores abandonados.
+
+A mensagem apareceu na tela como um sussurro vindo de uma cripta:
+_"Consegui acessar várias bases de dados do Firebase."_
+
+Senti um arrepio percorrrer minha espinha.  
+Isso não fazia sentido.  
+Nós tínhamos bloqueado o acesso.
+
+Até que encontrei.  
+A verdade.  
+O horror!!!
+
+**Firebase Security Rules.**
+
+Silenciosas. Esquecidas. Letais.
+
+Imagino que todos conhecem a famosa vulnerabilidade https://appcliente-c2e0.firebaseio.com/.json, não? Mas, por que essa vulnerabilidade ocorre? Como podemos nos proteger e abusar dessa funcionalidade?
+
+Firebase Security Rules são o mecanismo de controle de acesso do Firebase. Elas definem **quem pode ler e escrever** em seus produtos e **sob quais condições**. Diferente de um backend tradicional, onde você constrói toda a camada de autorização, o Firebase confia nessas regras para proteger os dados.
+
+E aqui está o ponto crítico:  
+Se a gente não definir as regras corretamente, o Firebase assume um comportamento extremamente permissivo — e isso significa que **qualquer pessoa com o link pode acessar os dados**.
+
+Por que a vulnerabilidade ocorre?
+
+Existem três cenários:
+- **Regras negligenciadas ou deixadas no modo de desenvolvimento:**
+```json
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+```
+Permitindo que qualquer pessoa com as configurações do firebase possa acessar, por exemplo a base de dados com o famoso `/.json`
+
+- **Regras que apenas validam se o usuário está autenticado**
+```json
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null"
+  }
+}
+```
+
+Aqui o Firebase exige que o usuário esteja logado.  
+O problema? Autenticação ≠ Autorização.
+
+> Qualquer usuário autenticado pode acessar **qualquer dado**, mesmo que não seja dele.
+
+E é ai que muita gente, ao acessar apenas o `/.json` e receber um Permission Denied encerra os testes. Mas nós, piratas digitais, sabemos que isso nem sempre é o fim da história: explorando o token do **Identity Toolkit** é possível satisfazer a condição da regra `auth != null` e, assim, abusar de regras mal configuradas para acessar dados que não nos pertencem.
+
+E então, o último cenário, considero o pior para nós, hackers:
+
+**Regras que validam se o usuário está autenticado E AUTORIZADO**
+
+Este é o nível correto.
+
+Aqui, as regras validam **quem** é o usuário e **o que ele pode acessar**.
+
+```json
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}
+```
+
+Esse modelo garante que:
+
+> O usuário só pode acessar os dados dele — e nada mais.
+
+```                                   
+        _   ,_,   _
+       / `'=) (='` \
+      /.-.-.\ /.-.-.\ 
+      `      "      `                _   ,_,   _
+                                    / `'=) (='` \
+                                   /.-.-.\ /.-.-.\ 
+                                   `      "      `
+```
+
+#0x03 Realtime Database
+
+Era um dia comum. Tão comum que eu até achei que nada ia acontecer, até começar a analisar um site de livestreams... Por um segundo pensei: “por que não virar streamer e largar essa vida de segurança?” E foi isso que eu fiz, fui atrás do meu sonho.
+
+Criei uma conta, realizei o login e comecei a analisar como poderia ser o melhor streamer da plataforma... Aquele com os melhores números.
+
+Foi quando anlisando o código JavaScript da aplicação, a configuração do Firebase estava lá.
+
+Tentei o básico de exploração do Realtime Database, o famigerado `/.json`, porém, sem sucesso.
+
+Tentei gerar um token de maneira anônima... Nada, tentei criar uma conta... Nada!
+
+Porém, firebase tem uma coisa engraçada, nós não temos apenas 1 maneira de gerar um token, muitas vezes, as aplicações desabilitam o self signup e geram um CustomToken (https://firebase.google.com/docs/auth/admin/create-custom-tokens?hl=pt-br).
+
+Analisando as chamadas que a aplicação realizava, encontrei, a chamada responsável por gerar um Id Token através de um Custom Token:
+
+```javascript
+POST /v1/accounts:signInWithCustomToken?key=AIza... HTTP/2
+Host: identitytoolkit.googleapis.com
+```
+
+Perfeito, já temos o token, é só acessar com `/.json?auth=eyJh...` que vai funcionar, certo? 
+Errado.
+
+`Permission Denied`
+
+Bom, sabendo como funcionam as security rules, nós poderiamos ter uma estrutura assim:
+```json
+{
+  "users": {
+    "123": {
+      "name": "Don't hack me plx",
+      "livestreams":{
+        "123": {
+          "viewers": 0
+        }
+      }
+    }
+  },
+  
+}
+```
+
+E uma regra similar a:
+
+```json
+{
+  "rules": {
+    ".read": false, // Impossibilitando o acesso ao  "root" do documento /.json
+    ".write": false,
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid", // Permitindo a leitura de users[].uid
+        ".write": "auth != null && auth.uid === $uid" // Permitindo escrita de users[].uid.*
+      }
+    }
+  }
+}
+```
+
+Ou seja, não possuimos a capacidade de LER todos os dados, PORÉM, temos a capacidade de escrever dados.
+
+Mas nesse momento, eu não tinha ideia da estrutura, nem quais regras de segurança teriam, então... Fuzzing em `./FUZZ.json` até acertar `/users/uid.json`?
+
+Bom, em casos onde não tenham regras tão complexas, pode funcionar, `.json` é bloqueado, mas `pedidos.json` não.
+
+As abordagens que utilizo são:
+- Vou utilizando a aplicação até ver alguma chamada para a API do fireabase;
+- Analiso o código javascript em busca dessas informações.
+
+A segunda abordagem é a que mais utilizo.
+
+Lendo a documentação (https://firebase.google.com/docs/database/web/read-and-write?hl=pt-br) do realtime database, vejo que a utilização através do sdk utiliza alguns métodos para definir em qual lugar deve buscar o dado.
+
+Um exemplo de código que busca os dados da referência `/posts/123/starCount`
+```javascript
+var starCountRef = firebase.database().ref('posts/' + postId + '/starCount');
+```
+
+Claro que as várias aplicações vão implementar isso de maneiras diferentes, as vezes sem `firebase.` ou abstraídas em outras classes, mas, ainda podemos buscar por `.ref(` ou `ref(` para identificar.
+
+E foi isso o que eu fiz, encontrei a seguinte estrutura:
+```yaml
+livestream/
+    :livestreamid/
+        online_count
+```
+
+Tendo o token e a estrutura, realizei uma chamada GET para: `live-cad8c.firebaseio.com/livestram/020297a6-e1b4-45d0-a4ed-61bcb4a97b13/online_count.json` e tinha acesso, sabendo que essa base era utilizada para contabilizar o total de pessoas assistindo a live, bastou realizar uma requisição PUT para a mesma url, com o valor 100000000000000000 no body.
+
+E foi assim que eu virei o streamer com mais visualizações na plataforma e pude realizar meu sonho de ser um streamer famoso.
+
+```                                 
+                                   
+        _   ,_,   _
+       / `'=) (='` \
+      /.-.-.\ /.-.-.\ 
+      `      "      `                _   ,_,   _
+                                    / `'=) (='` \
+                                   /.-.-.\ /.-.-.\ 
+                                   `      "      `
+```
+
+Gostou do nosso trabalho? Achou que a pwnage foi interessante demais? Quer contratar um trabalho nosso? Acesse https://elytronsecurity.com/ e conte que veio por meio deste artigo :) 
+
+Mua ha ha ha ha ha
+
+```
+           /=;\      
+        ,/'    ;     
+       //',''.,|     
+     /''      ||     
+   /'|  *   * / `.   
+  ||  '-/\,..'   )   
+   \   \--,<     )   
+    `\._\p/    /'    
+        `---/''      
+```
+
+Apêndice A
+```yaml
+metadata:
+    language: v2-beta
+    name: "Firebase api key detected"
+    description: "Scans responses to detect leaked Google API keys starting with 'AIzaSy' and 35 to 40 characters."
+    tags: "passive"
+    author: "@vrechson"
+
+given response then
+    if {latest.response} matches "[\"'`]?AIzaSy[0-9A-Za-z_-]{29,34}" then
+        report issue:
+            severity: high
+            confidence: firm
+            detail: "Leaked Google API Key detected."
+            remediation: "Remove or secure the API key. Avoid embedding keys in client-side code."
+    end if
+
+```

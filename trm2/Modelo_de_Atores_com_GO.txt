@@ -1,0 +1,557 @@
+#B0F
+```
+    H3y dud3, 
+    1 g0t y0u l33t m5g v14 #PID1337    
+                /
+               /                     H4ndl3 th3s3 b0x35 w1th c4r3 br0! :)
+              /                               /
+                  .----.                   .----. 
+      .---------. | == |       .---------. | == |
+      |.-"""""-.| |----|       |.-"""""-.| |----|
+      ||  BR   || | == | <-->  ||  FR   || | == |
+      ||       || |----|   .   ||       || |----|
+      |'-.....-'| |::::|     . |'-.....-'| |::::|
+      `"")---(""` |___.|   .   `"")---(""` |___.|
+     /:::::::::::\" _  "  .   /:::::::::::\" _  "
+    /:::=======:::\`\`\      /:::=======:::\`\`\
+   `"""""""""""""""` '-`    `"""""""""""""""` '-`
+```        
+
+-= Modelo de Atores com GO: Orquestra, Caos e Outras Ferramentas de Guerra =-
+by: Rodrigo Nas. trm0x2
+
+--[ Agenda                                                             
+                                                                       
+- 0 -> Reflexão e propósito                                 
+- 1 -> Modelo de atores
+- 2 -> Onde da pra chegar???                                                                                        
+- 3 -> Coda rapaa, bota pra rodar
+- 4 -> Mensagem aos joviais
+- 5 -> Agradecimentos
+
+### 0 - Reflexão e propósito 
+
+Tempo atrás quando submeti aqui um paper, falei da ideia de utilizarmos
+uma linguagem de programação madura que apimentasse algumas estratégias
+utilizadas em aplicações modernas (ou nem tanto). Citamos elixir / erlang
+e como o ecosistema da vm beam contribui para coisas incríveis.
+
+Lá deu pra ter uma ideia de como o modelo de atores funciona e porque
+os sistemas com milhões de dados transitando, brocando sem parar
+em tempo real funcionam, de uma forma fluída e orquestrada.
+
+Ainda falando de código, decidi trazer agora uma figura que está mais que 
+enraizada no mundo sec nos últimos anos: GOLANG.
+Tem sido uma experiência primorosa codar utilizando essa linguagem, que
+nasce discreta e domina o mundo das computarias em pouco tempo.
+
+Não tem como negar que a qualidade das ferramentas trazidas pela comunidade
+e empresas é de se admirar... da pra citar coisas como k8s, docker
+e especificamente no mundo de segurança ferramentas excelentes como nuclei,
+bettercap e tantas outras que agora fazem parte do dia a dia de muitos.
+
+Para contribuir e dar uma pitada de pwnagem a ideia aqui é apresentar uma
+abordagem diferente quando vamos construir uma aplicação...
+
+A combinação é perfeita: GOLANG e modelo de atores :beer:
+
+### 1 - Modelo de atores  
+
+Explicação antes de tomar 4 canecas de cerveja:
+---
+Nos confins da década de 1970, enquanto a computação ainda "engatinhava" em
+sua jornada, um conceito emergiu das sombras acadêmicas — o Modelo de Atores. 
+Proposto por Carl Hewitt em 1973, esse modelo não era apenas uma abstração 
+matemática; era uma resposta direta aos desafios da computação 
+concorrente e distribuída. 
+
+Em um mundo onde os sistemas precisavam se adaptar e evoluir, 
+o Modelo de Atores ofereceu uma nova perspectiva: 
+unidades independentes, chamadas "atores", que interagem entre si por meio de 
+mensagens assíncronas, sem compartilhar estado.
+---
+
+### 2 - Onde da pra chegar???
+
+Quando se trata de arruaça os nobres amigos se ajudam. Vo deixar aqui um
+exemplo do que pode ser feito. A ideia é montar uma fábrica onde aplicações
+se conectam de uma ou mais máquinas. Dentro dessa fábrica, que vamos chamar
+de cerebro, temos vários atores, cada um com sua função.
+
+Um desenho malucão pelo bem da ciência:
+
+```javascript
++--------------------------------------------------------+
+|                      CEREBRO                           |      
+|                                                        |     
+|  +-----------+                                         | 
+|  |  CONTROL  | ------------                            | 
+|  +-----------+            |                            | 
+|        |                  |                            | 
+|        |                  |                            | 
+|  +------------+          +---+         +--------+      |      
+|  |  Registry  | <------  | C | ----->  | GHOST1 |      |   
+|  +------------+          | O | <-----  | NMAPIT |      |      
+|        |                 | M.|         +--------+      |
+|  +----------------+      |   |         +----------+    |
+|  | ResultsWatcher | <--- | P | ----->  | GHOST2   |    |           
+|  +----------------+      | I | <-----  | HUNTER   |    |        
+|        |                 | P |         +----------+    |       
+|  +----------+            | E | ----->  +-----------+   |         
+|  | Notifier |            +---+ <-----  | GHOST3    |   |
+|  +----------+________                  | EXPLOITER |   |          
+|        |        |       \              +-----------+   |
+|    +-----+  +--------+  +---------+                    |
+|    |email|  |telegram|  |baremetal|                    |
+|    +-----+  +--------+  +---------+                    |
++--------------------------------------------------------+
+```
+
+Dando nome aos bois:
+
+- Control:
+  - O entrypoint do cerebro pode mandar mensagem para um ou mais atores
+- Registry: 
+  - Responsável por manter o registro de todos os atores conectados
+- ResultsWatcher: 
+  - Tarefas finalizadas (vc sabe...) são emitidas pra ca
+- Notifier:
+  - Aviso via telegram ou máquina da rússia que a tarefa foi concluída
+- "GHOSTS"
+  - Basicamente atores especializados. Um app rodando nmap, outro explorando
+    uma infraestrutura inteira ou quem sabe o velho e bom bruteforce
+- COM. PIPE (communication pipe)
+  - Aqui nossa conexão pode ser feita via rede através também de um módulo
+    especializado que sabe lidar com os tipos/categorias e mandar para o lugar
+    adequado :)
+
+### 3 - Coda rapaa, bota pra rodar
+
+Esse sistema com mais algumas cervejas daria pra brincar legal mas vamos nos
+concentrar no conceito e ver as coisas funcionando minimamente (repo no final).
+
+Materializando as ideias, para implementar o modelo de atores vamos
+nos deleitar com o excelente Ergo (https://docs.ergo.services/). Que
+basicamente nos da atalhos para trabalhar com modelo de atores.
+
+O manual ta embaixo do braço com ergo:
+
+-> Criação de apps independentes
+-> Supervisores inteligentes que vão restaurar a aplicação em caso de
+   emergencia (ao invés de chamadas telefonicas a gente pwna :D)
+-> Passagem de mensagens através de nomes e pids
+-> Criação de worker pools e atores para cada tarefa
+-> Criação de servidores tcp/apis para comunicação entre servidores
+
+#### Setup cerebro
+```
+$ ergo -init Cerebro \
+  -with-app App \
+  -with-sup App:Sup \
+  -with-tcp Sup:TcpReceiver \
+  -with-actor Sup:ResultsWatcher
+  -with-web Sup:Api \
+```
+
+- App
+  - Aplicação com as definições principais de resiliência e comportamento
+- App:Sup
+  - Árvore de supervisão dentro da aplicação que irá cuidar de outros apps
+    e workers
+- Sup:TcpReceiver
+  - Servidor tcp pra receber dados exfiltrados, digo, notícias de culinária
+- Sup:ResultsWatcher
+  - Um ator / processo para receber tbm informações
+- Sup:Api
+  - Mundo moderno, quem quiser construir dash que consuma a api :p
+
+Mostrando magia na primeira cena do filme, esse é um trecho do nosso
+supervisor:
+
+`cerebro/apps/app/sup.go`:
+
+```go
+func (sup *Sup) Init(args ...any) (act.SupervisorSpec, error) {
+	var spec act.SupervisorSpec
+
+	// set supervisor type
+	spec.Type = act.SupervisorTypeOneForOne
+
+	// add children
+	spec.Children = []act.SupervisorChildSpec{
+		{
+			Name:    "tcpreceiver",
+			Factory: factory_TcpReceiver,
+		},
+		{
+			Name:    "api",
+			Factory: factory_Api,
+		},
+		{
+			Name:    "resultswatcher",
+			Factory: factory_ResultsWatcher,
+		},
+	}
+
+	// set strategy
+	spec.Restart.Strategy = act.SupervisorStrategyTransient
+	spec.Restart.Intensity = 2 // How big bursts of restarts you want to tolerate
+	spec.Restart.Period = 5    // In seconds.
+
+	return spec, nil
+}
+```
+
+Aqui com a lista `[]act.SupervisorChildSpec` nós temos childs supervisionadas,
+que de acordo com a nossa estratégia: `act.SupervisorStrategyTransient` indica
+um restart em crashes... se a aplicação quebrar, ela se recupera
+automaticamente (alôo papai do k8s). Também configuramos a quantidade de 
+restarts e a janela de tempo, ponto.
+
+Antes de qualquer coisa, já vale olhar o output da ferramenta:
+
+```javascript
+$ go run cmd/*.go
+
+[info] 17E5009F: application 'system_app' (permanent) started
+[info] <17E5009F.0.1005>: started TCP server on localhost:7654 
+(meta-process: Alias#<17E5009F.106848.25022.0>)
+[info] <17E5009F.0.1005>: you may check it with command below:
+[info] <17E5009F.0.1005>:    $ nc localhost 7654
+[info] <17E5009F.0.1006>: started WebHandler to serve '/' 
+(meta-process: Alias#<17E5009F.106849.25022.0>)
+[info] <17E5009F.0.1006>: started Web server Alias
+#<17E5009F.106850.25022.0>: use http://localhost:9090/
+[info] <17E5009F.0.1006>: you may check it with command below:
+[info] <17E5009F.0.1006>:    $ curl -k http://localhost:9090
+[info] <17E5009F.0.1007>: started web worker process with args []
+[info] <17E5009F.0.1008>: started web worker process with args []
+[info] <17E5009F.0.1009>: started web worker process with args []
+[info] <17E5009F.0.1010>: started process with name 'resultswatcher' and args []
+[info] 17E5009F: application 'app' (transient) started
+[info] 17E5009F: node 'cerebro@localhost' 
+built with "Ergo Framework:3.1.0" successfully started
+[info] 17E5009F: Cerebro token: cerebro-secret-cookie
+```
+
+1 aplicação, múltiplos atores:
+- tcp server iniciou na porta 7654
+- web server iniciou na porta 9090 com (3 workers por request)
+- processo resultswatcher (a gente vai chegar nele via msg)
+
+Um ponto interessante a se notar é um output que deixei sobre o "token" desse nó:
+
+`Cerebro token: cerebro-secret-cookie`
+
+Como é de costume em muitas aplicações distribuidas, aqui também usamos um cookie
+para que uma máquina ingresse no cluster. A config é simples:
+
+```go
+// cerebro/cmd/main.go
+
+// set network cookie
+nodeOptions.Network.Cookie = "cerebro-secret-cookie"
+
+apps := []gen.ApplicationBehavior{
+  app.CreateApp(),
+}
+nodeOptions.Applications = apps
+
+// starting cerebro
+node, err := ergo.StartNode("cerebro@localhost", nodeOptions)
+if err != nil {
+  panic(err)
+}
+```
+
+Então a partir de agora, todas as aplicações que irão ingressar nesse cluster
+precisam utilizar o mesmo cookie.
+
+#### Setup de um ghost / app arruaceiro
+
+```
+$ ergo -init Nmapit \
+  -with-app App \
+  -with-sup App:Sup \
+  -with-pool Sup:Pool
+```
+
+A diferença desse app é que agora temos uma `Pool` para executar workers
+para tarefas específicas. Vamos simular um scanning nmap no nmapit
+e chama-lo através do cerebro (que pode ser outra máquina, em qualquer canto
+do mundo):
+
+```go
+// nmapit/apps/app/pool_worker.go
+
+func (w *PoolWorker) HandleMessage(from gen.PID, message any) error {
+	w.Log().Info("nmap worker")
+	w.Log().Info("worker received message from %s, working...", from)
+	time.Sleep(time.Duration(rand.Intn(5)) * time.Second)
+	return nil
+}
+```
+
+Antes de chamar essa função de outra máquina, vamos ver como isso pode
+ser feito localmente, de dentro a própria aplicação e não de outro nó:
+
+```go
+// nmapit/cmd/main.go
+...
+
+// starting nmapit
+node, err := ergo.StartNode(gen.Atom(OptionNodeName), nodeOptions)
+if err != nil {
+  panic(err)
+}
+
+node.Send(gen.Atom("pool"), "foo")
+...
+```
+
+No momento que `node.Send` é executado, temos o seguinte output:
+
+terminal nmapit
+```javascript
+...
+[info] 87352B81: application 'system_app' (permanent) started
+[info] <87352B81.0.1005>: started process pool with 3 workers
+[info] <87352B81.0.1006>: started worker process in pool: <87352B81.0.1005>
+[info] <87352B81.0.1007>: started worker process in pool: <87352B81.0.1005>
+[info] <87352B81.0.1008>: started worker process in pool: <87352B81.0.1005>
+[info] 87352B81: application 'app' (transient) started
+[info] 87352B81: node 'nmapit@localhost' 
+built with "Ergo Framework:3.1.0" successfully started
+[info] <87352B81.0.1006>: nmap worker
+[info] ...: worker received message from <87352B81.0.1>, working...
+```
+
+O output final indica que recebemos uma mensagem
+que vai ser trabalhada de forma assícrona... bonito certo? :)
+
+Vamos então agora chamar remotamente esse mesmo processo na nossa pool.
+
+Lembra do nosso com. pipe? Que faz a ligação entre as coisas? Ele nasce agora:
+
+```go
+// cerebro/apps/app/pipe.go
+package app
+
+import (
+	"time"
+
+	"ergo.services/ergo/act"
+	"ergo.services/ergo/gen"
+)
+
+type Pipe struct {
+	act.Actor
+}
+
+func Factory_Pipe() gen.ProcessBehavior {
+	return &Pipe{}
+}
+
+func (p *Pipe) Init(args ...any) error {
+	p.Log().Info("pipe process started")
+	p.SendAfter(p.PID(), "call_nmapit", 1*time.Second)
+	return nil
+}
+
+func (p *Pipe) HandleMessage(from gen.PID, message any) error {
+	p.Log().Info("pipe got message from %s: %v", from, message)
+	nmapIt := gen.ProcessID{Name: "pool", Node: "nmapit@localhost"}
+	p.Log().Info("sending message to nmapit process %s", nmapIt)
+
+	for i := 0; i < 10; i++ {
+		if err := p.Send(nmapIt, "foo"); err != nil {
+			p.Log().Error("error sending message to nmapit: %v", err)
+			return nil
+		}
+	}
+
+	return nil
+}
+```
+
+O simples fato de implementarmos `act.Actor` nos da a capacidade de um ator,
+isso inclui: recebimento de mensagens sync/async. Deteção de init e
+fim do processo e muito mais. Lembre-se que aqui, quando chamamos esse worker
+nós temos um processo. Ele é um só que foi invocado pela pool mas poderia ser
+milhares ou milhões do mesmo, rodando localmente ou globalmente, essa é a
+graça do modelo de atores :beer:
+
+Vamos agora no nosso entrypoint (control) chamar o nosso pipe, que vai trigar
+o nmapit em outro nó. Essa chamada poderia ser feita através de uma api http
+ou quem sabe de um comando tcp vindo de um raspberry na argentina :)
+
+```go
+// cerebro/cmd/main.go
+node.SpawnRegister(gen.Atom("pipe"), app.Factory_Pipe, gen.ProcessOptions{})
+```
+
+Vale lembrar agora do método `func (p *Pipe) Init(args ...any) error {` que
+declramos no `pipe.go`, ele é chamado automaticamente quando inicializamos
+o ator.
+
+No init vamos utlizar a chamada 
+`p.SendAfter(p.PID(), "call_nmapit", 1*time.Second)`
+que basicamente se auto chama enviando uma mensagem com a string "call_nmapit".
+Essa mensagem poderia ser qualquer coisa e geralmente é utilizada justamente
+para reagir de formas diferentes para cada tipo de mensagem.
+
+Feito o send, iremos receber a mensagem no método `HandleMessage`:
+
+```go
+func (p *Pipe) HandleMessage(from gen.PID, message any) error {
+	p.Log().Info("pipe got message from %s: %v", from, message)
+	nmapIt := gen.ProcessID{Name: "pool", Node: "nmapit@localhost"}
+	p.Log().Info("sending message to nmapit process %s", nmapIt)
+
+	for i := 0; i < 10; i++ {
+		if err := p.Send(nmapIt, "foo"); err != nil {
+			p.Log().Error("error sending message to nmapit: %v", err)
+			return nil
+		}
+	}
+
+	return nil
+}
+```
+
+Vamos ao que faz a mágica acontecer:
+
+1.
+`nmapIt := gen.ProcessID{Name: "pool", Node: "nmapit@localhost"}`
+
+Aqui estamos falando que queremos interagrir com o processo chamado "pool" 
+(lembra no cerebro? Spawnamos lá o register que identifica o processo).
+E esse processo está localizado no nó "nmapit@localhost".
+
+2.
+```go
+for i := 0; i < 10; i++ {
+		if err := p.Send(nmapIt, "foo"); err != nil { <-- aqui
+			p.Log().Error("error sending message to nmapit: %v", err) 
+			return nil
+		}
+	}
+```
+
+Agora com o Send que pertence a struct *Pipe mandamos uma mensagem 
+para o processo no outro nó. Aqui nós só conseguimos mandar a msg
+pq nossa struct herda as funções de processo / ator.
+
+poc:
+
+terminal cerebro:
+```javascript
+...
+[info] 17E5009F: application 'app' (transient) started
+[info] 17E5009F: node 'cerebro@localhost'
+built with "Ergo Framework:3.1.0" successfully started
+[info] 17E5009F: Cerebro token: cerebro-secret-cookie
+[info] <17E5009F.0.1011>: pipe process started
+[info] <17E5009F.0.1011>: pipe got message from <17E5009F.0.1011>: call_nmapit
+[info] <17E5009F.0.1011>: sending message to nmapit process <87352B81.'pool'>
+[info] 17E5009F: new connection with 'nmapit@localhost' (87352B81)
+```
+
+A mágica está acontecendo:
+
+[info] <17E5009F.0.1011>: pipe got message from <17E5009F.0.1011>: call_nmapit
+  -> Nosso pipe sendo solicitado
+[info] <17E5009F.0.1011>: sending message to nmapit process <87352B81.'pool'>
+  -> Mandamos a mensagem para o outro nó, procurando pelo processo pool
+[info] 17E5009F: new connection with 'nmapit@localhost' (87352B81)
+  -> O ergo mostra que a conexão foi estabelecida
+
+Enquanto isso no lustre do castelo, lá no nmap it:
+
+terminal nmapit:
+```javascript
+[info] 87352B81: application 'app' (transient) started
+[info] 87352B81: node 'nmapit@localhost' 
+built with "Ergo Framework:3.1.0" successfully started
+[info] 87352B81: new connection with 'cerebro@localhost' (17E5009F)
+[info] <87352B81.0.1008>: nmap worker
+[info] <87352B81.0.1008>: worker received message from <17E5009F.0.1011> 
+working...
+[info] <87352B81.0.1006>: nmap worker
+[info] <87352B81.0.1006>: worker received message from <17E5009F.0.1011>,
+ working...
+[info] <87352B81.0.1007>: nmap worker
+[info] <87352B81.0.1007>: worker received message from <17E5009F.0.1011>,
+ working...
+[info] <87352B81.0.1007>: nmap worker
+[info] <87352B81.0.1008>: nmap worker
+[info] <87352B81.0.1008>: worker received message from <17E5009F.0.1011>,
+ working...
+[info] <87352B81.0.1007>: worker received message from <17E5009F.0.1011>,
+ working...
+```
+
+[info] 87352B81: new connection with 'cerebro@localhost' (17E5009F)
+  -> conexão estabelecida
+
+e em seguida os workers trabalhando...
+
+Em um cenário onde temos o cerebro rodando em uma máquina ou replicado
+em um cluster k8s com 50 pods poderíamos chamar do nmap por exemplo
+o armazenamento desse resultado dentro do worker:
+
+```go
+func (w *PoolWorker) HandleMessage(from gen.PID, message any) error {
+... working in something funny
+
+resultMachine := gen.ProcessID{
+  Name: "resultsWatcher", 
+  Node: "nmapit@someip"
+}
+
+w.Send(resultMachine, myPreciousPayload)
+```
+
+O resto fica a critério da sua criatividade... :)
+
+---
+
+### 4 - Mensagem aos joviais
+Como diria strauss nos seus artigos ácidos e atemporais: Para ser bom
+programador você precisa entender o que uma função faz. Vc precisa
+saber o porque aquilo ali está ali...
+
+Nós não podemos nos afastar da base das coisas. O pensamento crítico,
+a cultura hacker nos provoca e nos coloca nesse caminho.
+
+Combata os bullshiteiros, exploda os ditadores e mostre do que um
+cluster unido é capaz!
+
+phrack#72
+```
+en: The hacker ethos remains the same - be curious about your world, make do 
+with what you have, and show how things can be better.
+
+pt-br: O ethos hacker permanece o mesmo – seja curioso sobre o seu mundo, faça
+o melhor com o que você tem e mostre como as coisas podem ser melhores.
+```
+
+Keep hacking :)!!!
+
+### 5 - Agradecimentos
+Um brinde a zine tr4m014 por incentivar e continuar a movimentar a cena hacker.
+Abraço aos bsdgurus que não podem ter suas identidades reveladas.
+Cumprimentos à p0cl4bs> rootkits (fins estudantis), network programming e
+tudo que é malucão e diferente!
+
+repo ref: https://github.com/girorme/cerebro-ergo-example
+
+       meow
+ /\_/\  /
+( o.o ) 
+ > ^ <
+
+ By Rodrigo N4s
+ []'s
+
+ #E0F
